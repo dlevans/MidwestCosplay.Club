@@ -5,6 +5,14 @@ import { QRCodeSVG } from "qrcode.react";
 import Footer from "../Footer";
 import EnchantedBackground from "./Enchantedbackground";
 
+const getUserId = (token) => {
+  try {
+    return token ? JSON.parse(atob(token.split(".")[1])).id : null;
+  } catch (e) {
+    return null;
+  }
+};
+
 const SOCIAL_LINKS = [
   { key: "twitter",   label: "Twitter",   icon: "ti-brand-twitter",  url: (v) => `https://twitter.com/${v}` },
   { key: "bluesky",   label: "Bluesky",   icon: "ti-brand-bluesky",  url: (v) => `https://bsky.app/profile/${v}` },
@@ -193,6 +201,46 @@ const s = {
   },
   qrModal:  { background: "white", padding: 24, borderRadius: 12, textAlign: "center" },
   qrClose:  { marginTop: 12, padding: "6px 20px", cursor: "pointer" },
+
+  guestbookEntry: {
+    display: "flex", gap: 10, alignItems: "flex-start",
+    padding: "10px 0",
+    borderBottom: "0.5px solid var(--border-subtle)",
+  },
+  guestbookEntryLast: {
+    display: "flex", gap: 10, alignItems: "flex-start",
+    padding: "10px 0",
+  },
+  guestbookAvatar: {
+    width: 36, height: 36, borderRadius: "50%", objectFit: "cover",
+    flexShrink: 0, border: "1px solid var(--border)",
+  },
+  guestbookAvatarPlaceholder: {
+    width: 36, height: 36, borderRadius: "50%",
+    background: "var(--bg-elevated)", flexShrink: 0,
+  },
+  guestbookBody: { flex: 1, minWidth: 0 },
+  guestbookMeta: { display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" },
+  guestbookAuthor: { fontSize: 13, fontWeight: 600, color: "var(--text-primary)", textDecoration: "none" },
+  guestbookDate: { fontSize: 11, color: "var(--text-muted)" },
+  guestbookMessage: { fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.5, margin: "2px 0 0" },
+  guestbookDeleteBtn: {
+    marginLeft: "auto", background: "none", border: "none",
+    color: "var(--text-muted)", cursor: "pointer", fontSize: 12,
+    flexShrink: 0, textDecoration: "underline", padding: 0,
+  },
+  guestbookEmpty: { fontSize: 13, color: "var(--text-muted)", fontStyle: "italic", padding: "6px 0" },
+  guestbookForm: { marginTop: 14, display: "flex", flexDirection: "column", gap: 8 },
+  guestbookTextarea: {
+    width: "100%", minHeight: 70, resize: "vertical",
+    background: "var(--bg-elevated)", border: "1px solid var(--border)",
+    borderRadius: "var(--radius-sm)", color: "var(--text-primary)",
+    fontFamily: "var(--font-body)", fontSize: 13, padding: "8px 10px",
+  },
+  guestbookSubmitRow: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 },
+  guestbookCount: { fontSize: 11, color: "var(--text-muted)" },
+  guestbookError: { fontSize: 12, color: "#e8a0a0" },
+  guestbookLoginPrompt: { fontSize: 13, color: "var(--text-muted)", marginTop: 12 },
 };
 
 const Public = () => {
@@ -203,12 +251,21 @@ const Public = () => {
   const [error, setError] = useState(false);
   const apiUrl = process.env.REACT_APP_API_URL;
 
+  const token = localStorage.getItem("token");
+  const loggedInUserId = getUserId(token);
+
+  const [guestbook, setGuestbook] = useState([]);
+  const [guestbookText, setGuestbookText] = useState("");
+  const [guestbookError, setGuestbookError] = useState(null);
+  const [guestbookSubmitting, setGuestbookSubmitting] = useState(false);
+
   useEffect(() => {
     const fetchUser = async () => {
       if (!username) return;
       try {
         const response = await axios.get(`${apiUrl}/public/${username}`);
         setUser(response.data || null);
+        setGuestbook(response.data?.guestbook || []);
       } catch (err) {
         console.error("Error fetching user data: ", err);
         setError(true);
@@ -240,6 +297,45 @@ const Public = () => {
           );
         })
       : null;
+
+  const formatGuestbookDate = (value) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  };
+
+  const handlePostGuestbookEntry = async () => {
+    const message = guestbookText.trim();
+    if (!message) return;
+    setGuestbookSubmitting(true);
+    setGuestbookError(null);
+    try {
+      const response = await axios.post(
+        `${apiUrl}/guestbook/${username}`,
+        { message },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setGuestbook((prev) => [response.data, ...prev]);
+      setGuestbookText("");
+    } catch (err) {
+      console.error("Error posting guestbook entry: ", err);
+      setGuestbookError("Couldn't post your message. Please try again.");
+    } finally {
+      setGuestbookSubmitting(false);
+    }
+  };
+
+  const handleDeleteGuestbookEntry = async (entryId) => {
+    if (!window.confirm("Remove this guestbook message?")) return;
+    try {
+      await axios.delete(`${apiUrl}/guestbook/${entryId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setGuestbook((prev) => prev.filter((entry) => entry.id !== entryId));
+    } catch (err) {
+      console.error("Error deleting guestbook entry: ", err);
+    }
+  };
 
   const activeSocials = SOCIAL_LINKS.filter(({ key }) => user[key]);
   const activeSupport = SUPPORT_LINKS.filter(({ key }) => user[key]);
@@ -446,6 +542,76 @@ const Public = () => {
               </div>
             </>
           )}
+
+          {/* ── Guestbook ── */}
+          <div style={s.divider} />
+          <div style={s.section}>
+            <p style={s.sectionLabel}>Guestbook</p>
+            <div style={s.card}>
+              {guestbook.length > 0 ? (
+                guestbook.map((entry, i) => {
+                  const isLast = i === guestbook.length - 1;
+                  const canRemove = loggedInUserId && (loggedInUserId === entry.authorid || loggedInUserId === user.id);
+                  return (
+                    <div key={entry.id} style={isLast ? s.guestbookEntryLast : s.guestbookEntry}>
+                      {entry.authorimage ? (
+                        <img src={entry.authorimage} alt={`${entry.authorusername}'s avatar`} style={s.guestbookAvatar} />
+                      ) : (
+                        <div style={s.guestbookAvatarPlaceholder} />
+                      )}
+                      <div style={s.guestbookBody}>
+                        <div style={s.guestbookMeta}>
+                          <Link to={`/public/${entry.authorusername}`} style={s.guestbookAuthor}>
+                            {entry.authorusername}
+                          </Link>
+                          <span style={s.guestbookDate}>{formatGuestbookDate(entry.createdat)}</span>
+                        </div>
+                        <p style={s.guestbookMessage}>{entry.message}</p>
+                      </div>
+                      {canRemove && (
+                        <button style={s.guestbookDeleteBtn} onClick={() => handleDeleteGuestbookEntry(entry.id)}>
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <p style={s.guestbookEmpty}>No messages yet — be the first to sign the guestbook!</p>
+              )}
+
+              {loggedInUserId ? (
+                <div style={s.guestbookForm}>
+                  <textarea
+                    style={s.guestbookTextarea}
+                    placeholder={`Leave a message for ${user.username}...`}
+                    value={guestbookText}
+                    maxLength={500}
+                    onChange={(e) => setGuestbookText(e.target.value)}
+                  />
+                  <div style={s.guestbookSubmitRow}>
+                    {guestbookError ? (
+                      <span style={s.guestbookError}>{guestbookError}</span>
+                    ) : (
+                      <span style={s.guestbookCount}>{guestbookText.length}/500</span>
+                    )}
+                    <button
+                      className="button"
+                      type="button"
+                      disabled={guestbookSubmitting || !guestbookText.trim()}
+                      onClick={handlePostGuestbookEntry}
+                    >
+                      {guestbookSubmitting ? "Posting..." : "Sign Guestbook"}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p style={s.guestbookLoginPrompt}>
+                  <Link to="/login" style={{ color: "var(--accent)" }}>Log in</Link> to leave a message.
+                </p>
+              )}
+            </div>
+          </div>
 
         </div>
 
