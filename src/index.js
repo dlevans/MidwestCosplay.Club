@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client"; // Updated import for ReactDOM
 import App from "./App";
 import ReactGA from 'react-ga4';
+import { HelmetProvider } from 'react-helmet-async';
 import './index.css';
 
 // Using BrowserRouter since it provides clean URLs (no hashes in URLs)
@@ -17,7 +18,9 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <ErrorBoundary>
     <Router>
-      <App />
+      <HelmetProvider>
+        <App />
+      </HelmetProvider>      
     </Router>
   </ErrorBoundary>
 );
