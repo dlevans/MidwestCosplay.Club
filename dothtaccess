@@ -1,0 +1,12 @@
+RewriteEngine On
+RewriteBase /
+
+# Allow direct access to existing files (JS, CSS, images, fonts, etc.)
+RewriteCond %{REQUEST_URI} ^/static/ [OR]
+RewriteCond %{REQUEST_URI} \.(js|css|png|jpg|jpeg|gif|ico|svg|ttf|woff|woff2|eot|otf|mp4|webm|ogg|mp3|wav|json|txt|xml|webp|avif|map)$ [NC]
+RewriteRule ^ - [L]
+
+# Redirect everything else to index.html (React app entry point)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]

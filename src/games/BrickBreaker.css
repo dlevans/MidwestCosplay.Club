@@ -1,0 +1,39 @@
+.game-container {
+  position: relative;
+  width: 600px;
+  margin: 0 auto;
+}
+
+.game-canvas {
+  border: 2px solid #333;
+  background-color: #1a1a1a;
+}
+
+.game-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  font-size: 1.2em;
+  color: white;
+  background-color: #333;
+}
+
+.game-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.game-overlay h2 {
+  margin: 0 0 10px 0;
+}
+
+.game-overlay p {
+  margin: 5px 0;
+}
