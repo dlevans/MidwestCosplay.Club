@@ -345,7 +345,7 @@ const Public = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">${user.username}'s public profile.</title>
+        <title data-rh="true">{`${user.username}'s public profile`}</title>
         <meta name="description" content="Publicly keep all social media links in one place." />
       </Helmet>
       <EnchantedBackground />
