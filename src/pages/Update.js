@@ -353,9 +353,6 @@ const Update = () => {
 
         <canvas ref={canvasRef} style={{ display: "none" }} />
 
-        <label htmlFor="other">Anything else you want to share?:</label>
-        <input type="text" placeholder="Other" name="other" value={user.other || ""} onChange={handleChange} />
-
         <label htmlFor="twitter">Twitter username:</label>
         <input type="text" placeholder="Twitter" name="twitter" value={user.twitter || ""} onChange={handleChange} />
 
