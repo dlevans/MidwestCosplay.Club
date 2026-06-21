@@ -306,9 +306,6 @@ const Update = () => {
         <label htmlFor="inprogress">What cosplays are you working on (comma-separated please)?:</label>
         <input type="text" placeholder="In progress Cosplays" name="inprogress" value={user.inprogress || ""} onChange={handleChange} />
 
-        <label htmlFor="cosplaygroup">What cosplay group(s) are you affiliated with (comma-separated please)?:</label>
-        <input type="text" placeholder="Cosplay groups" name="cosplaygroup" value={user.cosplaygroup || ""} onChange={handleChange} /> 
-
         <label htmlFor="image">Profile Photo:</label>
         <input type="file" name="image" onChange={handleImageChange} />
 
