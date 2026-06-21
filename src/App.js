@@ -26,6 +26,7 @@ import MeasurementsIndex from "./pages/MeasurementsIndex";
 import BodyMeasurements from "./pages/BodyMeasurements";
 import ShapeMeasurements from "./pages/ShapeMeasurements";
 import ElectricalMeasurements from "./pages/ElectricalMeasurements";
+import AnalyticsTracker from './components/AnalyticsTracker';
 
 
 function App() {
@@ -34,6 +35,8 @@ function App() {
     <div className="main">
       <Nav />
       <ErrorBoundary>
+        {/* The tracker must live inside the BrowserRouter context */}
+      <AnalyticsTracker />
         <Routes>          
           <Route path="/createuser" element={<CreateUser />} />
           <Route path="/login" element={<Login />} />
