@@ -6,14 +6,20 @@ const AnalyticsTracker = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // This sends the updated URL path to Google Analytics whenever the user navigates
+    const currentPath = location.pathname + location.search;
+    
+    // 1. Debugging line: Open your browser console (F12) to make sure this fires on every click!
+    console.log("GA4 Tracking Route Change to:", currentPath);
+
+    // 2. Explicitly send both the path and the full location to GA4
     ReactGA.send({ 
       hitType: 'pageview', 
-      page: location.pathname + location.search 
+      page_path: currentPath,
+      page_location: window.location.href
     });
   }, [location]);
 
-  return null; // This is a helper component, it doesn't render any UI
+  return null;
 };
 
 export default AnalyticsTracker;
