@@ -193,6 +193,7 @@ const s = {
     fontSize: 14,
     fontWeight: 600,
     textShadow: "0 1px 3px rgba(0,0,0,0.7)",
+    WebkitTextStroke: "0.6px rgba(0,0,0,0.9)",
   },
   qrOverlay: {
     position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
