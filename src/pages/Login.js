@@ -14,8 +14,9 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const trimmedUsername = username.trim();
     try {
-      const response = await axios.post(apiUrl + "/login", { username, password });
+      const response = await axios.post(apiUrl + "/login", { username: trimmedUsername, password });
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("username", response.data.username);
       navigate("/motd");
@@ -49,9 +50,12 @@ const Login = () => {
               type="text"
               className="login-input"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
               required
               autoComplete="username"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck="false"
             />
           </div>
 
