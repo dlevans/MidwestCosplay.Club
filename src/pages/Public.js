@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
+import { Helmet } from 'react-helmet-async';
 import Footer from "../Footer";
 import EnchantedBackground from "./Enchantedbackground";
 
@@ -343,6 +344,10 @@ const Public = () => {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title>${user.username}'s public profile.</title>
+        <meta name="description" content="Publicly keep all social media links in one place." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">
