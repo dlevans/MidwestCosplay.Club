@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 const getUserId = (token) => {
@@ -77,6 +78,10 @@ const Groups = () => {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">MidwestCosplay Club Groups</title>
+        <meta name="description" content="Group landing page for MidwestCosplay Club members." />
+      </Helmet>      
       <EnchantedBackground />
 
       <div className="home-content">

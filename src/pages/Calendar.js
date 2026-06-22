@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 const Calendar = () => {
@@ -18,6 +19,10 @@ const Calendar = () => {
   
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">Midwest Cosplay Public Calendar</title>
+        <meta name="description" content="Event calendar for Midwest Cosplay Club" />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

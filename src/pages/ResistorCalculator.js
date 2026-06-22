@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBolt } from "@fortawesome/free-solid-svg-icons";
+import { Helmet } from 'react-helmet-async';
 
 // Color data structure mapping colors to values, multipliers, and tolerances
 const COLOR_CODES = {
@@ -79,6 +80,10 @@ export default function ResistorCalculator() {
 
   return (
     <div className="theme-card calculator-card">
+      <Helmet>
+        <title data-rh="true">Resistor Calculator</title>
+        <meta name="description" content="Electronic measuring page for calculating resistor values by color." />
+      </Helmet>
       <h2>
               <FontAwesomeIcon icon={faBolt} className="header-icon-margin" />
               Resistor Color Code Calculator

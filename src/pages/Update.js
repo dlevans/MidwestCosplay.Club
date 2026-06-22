@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 const Update = () => {
@@ -257,6 +258,10 @@ const Update = () => {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">Update user</title>
+        <meta name="description" content="Update and add user details." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

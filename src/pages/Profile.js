@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 const SOCIAL_FIELDS = [
@@ -70,6 +71,10 @@ const Profile = () => {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">MidwestCosplay Club Profile</title>
+        <meta name="description" content="View profile page for members." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

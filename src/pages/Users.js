@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 const Users = () => {
@@ -54,6 +55,10 @@ const Users = () => {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">Users Page</title>
+        <meta name="description" content="List users page for MidwestCosplay Club." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

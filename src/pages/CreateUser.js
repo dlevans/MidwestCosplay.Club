@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 const CreateUser = () => {
@@ -221,6 +222,10 @@ const CreateUser = () => {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">Create new</title>
+        <meta name="description" content="Page to create new MidwestCosplay Club members." />
+      </Helmet>      
       <EnchantedBackground />
 
       <div className="home-content">

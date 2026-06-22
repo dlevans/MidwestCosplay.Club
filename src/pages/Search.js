@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link, useLocation } from "react-router-dom";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground.js";
 
 function Search() {
@@ -75,6 +76,10 @@ function Search() {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">Search page</title>
+        <meta name="description" content="Public search page for looking up members and finding people." />
+      </Helmet>      
       <EnchantedBackground />
 
       <div className="home-content">

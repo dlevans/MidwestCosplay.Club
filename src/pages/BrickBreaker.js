@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import BrickBreakerGame from "../games/BrickBreakerGame";
 import EnchantedBackground from "./Enchantedbackground";
 
@@ -22,6 +23,10 @@ useEffect(() => {
 
   return (
   <div className="page-home">
+    <Helmet>
+      <title data-rh="true">Brick Breaker Game</title>
+      <meta name="description" content="Brick Breaker game" />
+    </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 const s = {
@@ -136,6 +137,10 @@ const PublicGroup = () => {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">Public Groups</title>
+        <meta name="description" content="Public group listing page." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

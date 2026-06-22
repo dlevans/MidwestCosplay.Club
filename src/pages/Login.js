@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 const Login = () => {
@@ -32,6 +33,10 @@ const Login = () => {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">MidwestCosplay Club Login</title>
+        <meta name="description" content="Login page for MidwestCosplay Club members." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

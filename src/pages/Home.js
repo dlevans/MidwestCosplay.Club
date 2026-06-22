@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import styles from "../styles";
 
 /* ── Emblem SVG ── */
@@ -305,6 +306,10 @@ const Home = () => {
   /* ── Render ── */
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">MidwestCosplay Club Home</title>
+        <meta name="description" content="Home page for MidwestCosplay Club members." />
+      </Helmet>
       <div className="home-bg-gradient" />
       <Starfield />
       <Sparkles />

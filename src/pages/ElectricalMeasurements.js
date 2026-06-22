@@ -2,11 +2,16 @@ import React from "react";
 import ResistanceCalculator from "./ResistanceCalculator";
 import ResistorCalculator from "./ResistorCalculator";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 function ElectricalMeasurements() {
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">Electrical Measurements</title>
+        <meta name="description" content="Electrical measuring tool." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

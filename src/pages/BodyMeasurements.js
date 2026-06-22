@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCalculator, faDownload } from "@fortawesome/free-solid-svg-icons";
 import brandStyles from "../styles";
+import { Helmet } from 'react-helmet-async';
 import Footer from "../Footer";
 import EnchantedBackground from "./Enchantedbackground";
 
@@ -95,6 +96,10 @@ function BodyMeasurements() {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">Body Measurements</title>
+        <meta name="description" content="Cosplay Sizing & Body Measurement Tool" />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

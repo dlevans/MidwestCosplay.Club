@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 const MOTD = () => {
@@ -17,6 +18,10 @@ const MOTD = () => {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">Message Of The Day</title>
+        <meta name="description" content="Message of the day." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

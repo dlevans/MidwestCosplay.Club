@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 const US_STATES = [
@@ -361,6 +362,10 @@ const ManageGroup = () => {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">MidwestCosplay Club Manage Groups</title>
+        <meta name="description" content="Group management page for MidwestCosplay Club members." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBolt, faCalculator } from "@fortawesome/free-solid-svg-icons";
+import { Helmet } from 'react-helmet-async';
 
 function ResistanceCalculator() {
   const [values, setValues] = useState({
@@ -61,6 +62,10 @@ function ResistanceCalculator() {
 
   return (
     <div className="theme-card calculator-card">
+      <Helmet>
+        <title data-rh="true">Resistance Calculator</title>
+        <meta name="description" content="Electronic measuring page for calculating resistance." />
+      </Helmet>
       <h2>
         <FontAwesomeIcon icon={faBolt} className="header-icon-margin" />
         Ohm's Law Solver

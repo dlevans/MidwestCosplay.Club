@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 
@@ -21,6 +22,10 @@ const Games = () => {
 
   return (
      <div className="page-home">
+      <Helmet>
+        <title data-rh="true">MidwestCosplay Club Games</title>
+        <meta name="description" content="Game landing page for MidwestCosplay Club members." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">

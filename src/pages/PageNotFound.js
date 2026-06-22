@@ -1,10 +1,15 @@
 import React from "react";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import * as errorImage from "../images/badlink.jpg"
 
 const PageNotFound = () => {
   return (
   <div className="page">
+      <Helmet>
+        <title data-rh="true">PageNotFound</title>
+        <meta name="description" content="404 Error page." />
+      </Helmet>
     <br />
     <br />
     <br />

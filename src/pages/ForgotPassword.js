@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 
 const ForgotPassword = () => {
   console.log("ForgotPassword.js");
@@ -35,6 +36,10 @@ const ForgotPassword = () => {
 
   return (
     <div className="page">
+      <Helmet>
+        <title data-rh="true">Forgot password</title>
+        <meta name="description" content="Reset password for MidwestCosplay Members." />
+      </Helmet>
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="username">Username:</label>
