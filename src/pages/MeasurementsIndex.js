@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTape, faDraftingCompass, faLightbulb } from "@fortawesome/free-solid-svg-icons";
 import Footer from "../Footer";
+import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
 function MeasurementsIndex() {
@@ -32,6 +33,10 @@ function MeasurementsIndex() {
 
   return (
     <div className="page-home">
+      <Helmet>
+        <title data-rh="true">Measurments</title>
+        <meta name="description" content="Measurements landing page for Midwest Cosplay Club members." />
+      </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">
