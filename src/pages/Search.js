@@ -321,7 +321,7 @@ function Search() {
                       <span className="tutorial-card-tag">{hl(tutorial.tutorialcategory, query)}</span>
                     )}
                     <a href={tutorial.tutorialurl} target="_blank" rel="noopener noreferrer">
-                      <button className="button">Watch on {platform.label}</button>
+                      <button className="button">Watch Tutorial</button>
                     </a>
                   </div>
                 );
@@ -368,7 +368,7 @@ function Search() {
                       <span className="tutorial-card-tag">{hl(template.templatecategory, query)}</span>
                     )}
                     <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
-                      <button className="button">View on {platform.label}</button>
+                      <button className="button">View Template</button>
                     </a>
                   </div>
                 );
