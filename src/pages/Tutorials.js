@@ -165,7 +165,7 @@ const Tutorials = () => {
       <Helmet>
         <title data-rh="true">MidwestCosplay Club Tutorials</title>
         <meta
-          name="description"
+          name="MidwestCosplay Tutorials"
           content="Tutorial links shared by MidwestCosplay Club members."
         />
       </Helmet>
@@ -235,7 +235,7 @@ const Tutorials = () => {
                 {tutorial.username && (
                   <p className="tutorial-card-submitter">
                     Shared by{" "}
-                    <Link to={`/public/user/${tutorial.userslug || tutorial.userid}`}>
+                    <Link to={`/public/${tutorial.userslug || tutorial.userid}`}>
                       {tutorial.username}
                     </Link>
                   </p>
