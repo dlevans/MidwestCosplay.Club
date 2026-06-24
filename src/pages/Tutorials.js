@@ -190,18 +190,20 @@ const Tutorials = () => {
 
             return (
               <div className="group-card tutorial-card" key={tutorial.tutorialid}>
-                {/* Submitter avatar as main card image */}
-                {tutorial.useravatar ? (
+                {/* Main image: custom thumbnail > submitter avatar > nothing */}
+                {tutorial.tutorialimage ? (
+                  <img
+                    src={tutorial.tutorialimage}
+                    alt={tutorial.tutorialtitle || "Tutorial thumbnail"}
+                    className="tutorial-card-thumbnail"
+                  />
+                ) : tutorial.useravatar ? (
                   <img
                     src={tutorial.useravatar}
                     alt={`${tutorial.username || "User"}'s avatar`}
                     className="tutorial-card-avatar"
                   />
-                ) : (
-                  <div className="tutorial-card-avatar tutorial-card-avatar--placeholder">
-                    {(tutorial.username || "?")[0].toUpperCase()}
-                  </div>
-                )}
+                ) : null}
 
                 {/* Platform badge */}
                 <div

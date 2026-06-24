@@ -428,6 +428,15 @@ select:focus { border-color: var(--accent); }
 /* ============================================================
    TUTORIAL CARDS & ADD-TUTORIAL FORM
    ============================================================ */
+/* Custom thumbnail — shown when user uploaded one */
+.tutorial-card-thumbnail {
+  width: 100%; aspect-ratio: 1 / 1;
+  object-fit: cover; border-radius: var(--radius-sm);
+  margin: 0 0 0.75rem; display: block;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Submitter avatar fallback — shown when no custom thumbnail */
 .tutorial-card-avatar {
   width: 80px; height: 80px; border-radius: 50%;
   object-fit: cover; margin: 0 auto 0.75rem;

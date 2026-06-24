@@ -133,18 +133,20 @@ const Templates = () => {
             return (
               <div className="group-card tutorial-card" key={template.templateid}>
 
-                {/* Submitter avatar */}
-                {template.useravatar ? (
+                {/* Main image: custom thumbnail > submitter avatar > nothing */}
+                {template.templateimage ? (
+                  <img
+                    src={template.templateimage}
+                    alt={template.templatetitle || "Template thumbnail"}
+                    className="tutorial-card-thumbnail"
+                  />
+                ) : template.useravatar ? (
                   <img
                     src={template.useravatar}
                     alt={`${template.username || "User"}'s avatar`}
                     className="tutorial-card-avatar"
                   />
-                ) : (
-                  <div className="tutorial-card-avatar tutorial-card-avatar--placeholder">
-                    {(template.username || "?")[0].toUpperCase()}
-                  </div>
-                )}
+                ) : null}
 
                 {/* Platform badge */}
                 <div className="tutorial-platform-badge" style={{ borderColor: platform.color }}>
