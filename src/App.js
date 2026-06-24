@@ -27,7 +27,7 @@ import BodyMeasurements from "./pages/BodyMeasurements";
 import ShapeMeasurements from "./pages/ShapeMeasurements";
 import ElectricalMeasurements from "./pages/ElectricalMeasurements";
 import AnalyticsTracker from './components/AnalyticsTracker';
-
+import AddTutorial from "./pages/Addtutorial";
 
 function App() {
 
@@ -61,6 +61,9 @@ function App() {
           <Route path="/bodymeasurements" element={<BodyMeasurements />} />
           <Route path="/shapemeasurements" element={<ShapeMeasurements />} />
           <Route path="/electricalmeasurements" element={<ElectricalMeasurements />} />
+          <Route path="/tutorials" element={<Tutorials />} />
+          <Route path="/addtutorial" element={<AddTutorial />} />
+          <Route path="/addtutorial/:tutorialid" element={<AddTutorial />} />
           <Route path="/" element={<Home />} />
           <Route path="/*" element={<PageNotFound />} />
         </Routes>
