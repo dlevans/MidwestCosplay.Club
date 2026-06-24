@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faTimes, faGamepad, faSearch, faUsers, faPeopleGroup, faUserPlus, faPersonCircleCheck, faPersonDotsFromLine, faPersonChalkboard, faRightFromBracket, faRuler } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faTimes, faGamepad, faSearch, faUsers, faPeopleGroup, faUserPlus, faPersonCircleCheck, faPersonDotsFromLine, faPersonChalkboard, faRightFromBracket, faRuler, faScroll } from "@fortawesome/free-solid-svg-icons";
 import { faReddit, faDiscord, faFortAwesomeAlt } from "@fortawesome/free-brands-svg-icons";
 
 function Nav() {
@@ -169,6 +169,13 @@ function Nav() {
           <NavLink className="nav-link" to="/tutorials">
             <FontAwesomeIcon icon={faPersonDotsFromLine} />
             <span className="link-text">Tutorials</span>
+          </NavLink>
+        </li>
+
+        <li className="nav-item">
+          <NavLink className="nav-link" to="/templates">
+            <FontAwesomeIcon icon={faScroll} />
+            <span className="link-text">Templates</span>
           </NavLink>
         </li>
 
