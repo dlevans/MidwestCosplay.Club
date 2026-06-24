@@ -77,8 +77,8 @@ const Users = () => {
             {user.username && <h3>{user.username}</h3>}
             {user.about && (
               <h4>
-                {user.about.length > 300
-                  ? <>{user.about.slice(0, 300)}… <Link to={`/public/${user.username}`} className="read-more-link">view profile to read more</Link></>
+                {user.about.length > 250
+                  ? <>{user.about.slice(0, 250)}… <Link to={`/public/${user.username}`} className="read-more-link"> read more</Link></>
                   : user.about
                 }
               </h4>
