@@ -60,24 +60,6 @@ const FilterToggle = ({ label, active, onClick }) => (
   </button>
 );
 
-// ─── Shared platform badge ────────────────────────────────────────────────────
-const PlatformBadge = ({ url, type }) => {
-  const platform = getPlatformInfo(url, type);
-  return (
-    <div className="tutorial-platform-badge" style={{ borderColor: platform.color }}>
-      {platform.icon && (
-        <img
-          src={platform.icon}
-          alt={platform.label}
-          className="tutorial-platform-icon"
-          onError={(e) => { e.target.style.display = "none"; }}
-        />
-      )}
-      <span style={{ color: platform.color }}>{platform.label}</span>
-    </div>
-  );
-};
-
 // ─── Main component ───────────────────────────────────────────────────────────
 function Search() {
   const location  = useLocation();
@@ -312,36 +294,38 @@ function Search() {
           <div className="search-section">
             <h2 className="search-section-heading">Tutorials</h2>
             <div className="group-container">
-              {visible.tutorials.map((tutorial) => (
-                <div className="group-card tutorial-card" key={tutorial.tutorialid}>
-                  {/* User avatar — always shown */}
-                  <Avatar src={tutorial.useravatar} username={tutorial.username} />
-                  {/* Custom thumbnail — shown below avatar if uploaded */}
-                  {tutorial.tutorialimage && (
-                    <img
-                      src={tutorial.tutorialimage}
-                      alt={tutorial.tutorialtitle || "Tutorial thumbnail"}
-                      className="tutorial-card-thumbnail"
-                    />
-                  )}
-                  <PlatformBadge url={tutorial.tutorialurl} type="tutorial" />
-                  {tutorial.tutorialtitle && <h3>{hl(tutorial.tutorialtitle, query)}</h3>}
-                  {tutorial.tutorialdescription && (
-                    <p className="tutorial-card-description">{hl(tutorial.tutorialdescription, query)}</p>
-                  )}
-                  {tutorial.username && (
-                    <p className="tutorial-card-submitter">
-                      Shared by <Link to={`/public/${tutorial.username}`}>{tutorial.username}</Link>
-                    </p>
-                  )}
-                  {tutorial.tutorialcategory && (
-                    <span className="tutorial-card-tag">{hl(tutorial.tutorialcategory, query)}</span>
-                  )}
-                  <a href={tutorial.tutorialurl} target="_blank" rel="noopener noreferrer">
-                    <button className="button">Watch / View</button>
-                  </a>
-                </div>
-              ))}
+              {visible.tutorials.map((tutorial) => {
+                const platform = getPlatformInfo(tutorial.tutorialurl, "tutorial");
+                return (
+                  <div className="group-card tutorial-card" key={tutorial.tutorialid}>
+                    {/* User avatar — always shown */}
+                    <Avatar src={tutorial.useravatar} username={tutorial.username} />
+                    {/* Custom thumbnail — shown below avatar if uploaded */}
+                    {tutorial.tutorialimage && (
+                      <img
+                        src={tutorial.tutorialimage}
+                        alt={tutorial.tutorialtitle || "Tutorial thumbnail"}
+                        className="tutorial-card-thumbnail"
+                      />
+                    )}
+                    {tutorial.tutorialtitle && <h3>{hl(tutorial.tutorialtitle, query)}</h3>}
+                    {tutorial.tutorialdescription && (
+                      <p className="tutorial-card-description">{hl(tutorial.tutorialdescription, query)}</p>
+                    )}
+                    {tutorial.username && (
+                      <p className="tutorial-card-submitter">
+                        Shared by <Link to={`/public/${tutorial.username}`}>{tutorial.username}</Link>
+                      </p>
+                    )}
+                    {tutorial.tutorialcategory && (
+                      <span className="tutorial-card-tag">{hl(tutorial.tutorialcategory, query)}</span>
+                    )}
+                    <a href={tutorial.tutorialurl} target="_blank" rel="noopener noreferrer">
+                      <button className="button">Watch on {platform.label}</button>
+                    </a>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -351,41 +335,43 @@ function Search() {
           <div className="search-section">
             <h2 className="search-section-heading">Templates</h2>
             <div className="group-container">
-              {visible.templates.map((template) => (
-                <div className="group-card tutorial-card" key={template.templateid}>
-                  {/* User avatar — always shown */}
-                  <Avatar src={template.useravatar} username={template.username} />
-                  {/* Custom thumbnail — shown below avatar if uploaded */}
-                  {template.templateimage && (
-                    <img
-                      src={template.templateimage}
-                      alt={template.templatetitle || "Template thumbnail"}
-                      className="tutorial-card-thumbnail"
-                    />
-                  )}
-                  <PlatformBadge url={template.templateurl} type="template" />
-                  {template.templatetitle && <h3>{hl(template.templatetitle, query)}</h3>}
-                  {template.templatedescription && (
-                    <p className="tutorial-card-description">{hl(template.templatedescription, query)}</p>
-                  )}
-                  {template.templateisfree != null && (
-                    <span className={`template-price-badge ${template.templateisfree ? "template-price-badge--free" : "template-price-badge--paid"}`}>
-                      {template.templateisfree ? "Free" : "Paid"}
-                    </span>
-                  )}
-                  {template.username && (
-                    <p className="tutorial-card-submitter">
-                      Shared by <Link to={`/public/${template.username}`}>{template.username}</Link>
-                    </p>
-                  )}
-                  {template.templatecategory && (
-                    <span className="tutorial-card-tag">{hl(template.templatecategory, query)}</span>
-                  )}
-                  <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
-                    <button className="button">View Template</button>
-                  </a>
-                </div>
-              ))}
+              {visible.templates.map((template) => {
+                const platform = getPlatformInfo(template.templateurl, "template");
+                return (
+                  <div className="group-card tutorial-card" key={template.templateid}>
+                    {/* User avatar — always shown */}
+                    <Avatar src={template.useravatar} username={template.username} />
+                    {/* Custom thumbnail — shown below avatar if uploaded */}
+                    {template.templateimage && (
+                      <img
+                        src={template.templateimage}
+                        alt={template.templatetitle || "Template thumbnail"}
+                        className="tutorial-card-thumbnail"
+                      />
+                    )}
+                    {template.templatetitle && <h3>{hl(template.templatetitle, query)}</h3>}
+                    {template.templatedescription && (
+                      <p className="tutorial-card-description">{hl(template.templatedescription, query)}</p>
+                    )}
+                    {template.templateisfree != null && (
+                      <span className={`template-price-badge ${template.templateisfree ? "template-price-badge--free" : "template-price-badge--paid"}`}>
+                        {template.templateisfree ? "Free" : "Paid"}
+                      </span>
+                    )}
+                    {template.username && (
+                      <p className="tutorial-card-submitter">
+                        Shared by <Link to={`/public/${template.username}`}>{template.username}</Link>
+                      </p>
+                    )}
+                    {template.templatecategory && (
+                      <span className="tutorial-card-tag">{hl(template.templatecategory, query)}</span>
+                    )}
+                    <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
+                      <button className="button">View on {platform.label}</button>
+                    </a>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
