@@ -75,7 +75,14 @@ const Users = () => {
               <img src={user.image} alt={`${user.username}'s avatar`} />
             )}
             {user.username && <h3>{user.username}</h3>}
-            {user.about && <h4>{user.about}</h4>}
+            {user.about && (
+              <h4>
+                {user.about.length > 300
+                  ? <>{user.about.slice(0, 300)}… <Link to={`/public/${user.username}`} className="read-more-link">view profile to read more</Link></>
+                  : user.about
+                }
+              </h4>
+            )}
             <Link to={`/public/${user.username}`}>
               <button className="button">View profile</button>
             </Link>
