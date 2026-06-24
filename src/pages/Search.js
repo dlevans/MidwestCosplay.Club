@@ -308,14 +308,6 @@ function Search() {
                         className="tutorial-card-thumbnail"
                       />
                     )}
-                    {/* Custom thumbnail — shown below avatar if uploaded */}
-                    {tutorial.tutorialimage && (
-                      <img
-                        src={tutorial.tutorialimage}
-                        alt={tutorial.tutorialtitle || "Tutorial thumbnail"}
-                        className="tutorial-card-thumbnail"
-                      />
-                    )}
                     {tutorial.tutorialtitle && <h3>{hl(tutorial.tutorialtitle, query)}</h3>}
                     {tutorial.tutorialdescription && (
                       <p className="tutorial-card-description">{hl(tutorial.tutorialdescription, query)}</p>
@@ -358,15 +350,6 @@ function Search() {
                       />
                     )}
 
-                    {/* Custom thumbnail — replaces the broken platform favicon as preview */}
-                    {template.templateimage && (
-                      <img
-                        src={template.templateimage}
-                        alt={template.templatetitle || "Template thumbnail"}
-                        className="tutorial-card-thumbnail"
-                      />
-                    )}
-
                     {template.templatetitle && <h3>{hl(template.templatetitle, query)}</h3>}
                     {template.templatedescription && (
                       <p className="tutorial-card-description">{hl(template.templatedescription, query)}</p>
@@ -385,7 +368,7 @@ function Search() {
                       <span className="tutorial-card-tag">{hl(template.templatecategory, query)}</span>
                     )}
                     <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
-                      <button className="button">View Template</button>
+                      <button className="button">View on {platform.label}</button>
                     </a>
                   </div>
                 );
