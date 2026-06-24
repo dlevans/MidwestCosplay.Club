@@ -34,7 +34,7 @@ const getPlatformInfo = (url) => {
     };
     return platforms[host] || {
       label: host,
-      icon: `https://www.google.com/s2/favicons?domain=${host}&sz=32`,
+      icon: null,  // unknown domain — skip favicon, just show text label
       color: "#888",
     };
   } catch {
@@ -133,20 +133,27 @@ const Templates = () => {
             return (
               <div className="group-card tutorial-card" key={template.templateid}>
 
-                {/* Main image: custom thumbnail > submitter avatar > nothing */}
-                {template.templateimage ? (
-                  <img
-                    src={template.templateimage}
-                    alt={template.templatetitle || "Template thumbnail"}
-                    className="tutorial-card-thumbnail"
-                  />
-                ) : template.useravatar ? (
+                {/* User avatar — always shown if available */}
+                {template.useravatar ? (
                   <img
                     src={template.useravatar}
                     alt={`${template.username || "User"}'s avatar`}
                     className="tutorial-card-avatar"
                   />
-                ) : null}
+                ) : (
+                  <div className="tutorial-card-avatar tutorial-card-avatar--placeholder">
+                    {(template.username || "?")[0].toUpperCase()}
+                  </div>
+                )}
+
+                {/* Custom thumbnail — replaces the broken platform favicon as preview */}
+                {template.templateimage && (
+                  <img
+                    src={template.templateimage}
+                    alt={template.templatetitle || "Template thumbnail"}
+                    className="tutorial-card-thumbnail"
+                  />
+                )}
 
                 {/* Platform badge */}
                 <div className="tutorial-platform-badge" style={{ borderColor: platform.color }}>

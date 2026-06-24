@@ -70,10 +70,10 @@ const getPlatformInfo = (url) => {
 
     if (platforms[host]) return platforms[host];
 
-    // Fallback: use Google's favicon service for any other domain
+    // Fallback: unknown domain — skip favicon to avoid broken images
     return {
       label: host,
-      icon: `https://www.google.com/s2/favicons?domain=${host}&sz=32`,
+      icon: null,
       color: "#888",
     };
   } catch {
@@ -190,20 +190,27 @@ const Tutorials = () => {
 
             return (
               <div className="group-card tutorial-card" key={tutorial.tutorialid}>
-                {/* Main image: custom thumbnail > submitter avatar > nothing */}
-                {tutorial.tutorialimage ? (
-                  <img
-                    src={tutorial.tutorialimage}
-                    alt={tutorial.tutorialtitle || "Tutorial thumbnail"}
-                    className="tutorial-card-thumbnail"
-                  />
-                ) : tutorial.useravatar ? (
+                {/* User avatar — always shown if available */}
+                {tutorial.useravatar ? (
                   <img
                     src={tutorial.useravatar}
                     alt={`${tutorial.username || "User"}'s avatar`}
                     className="tutorial-card-avatar"
                   />
-                ) : null}
+                ) : (
+                  <div className="tutorial-card-avatar tutorial-card-avatar--placeholder">
+                    {(tutorial.username || "?")[0].toUpperCase()}
+                  </div>
+                )}
+
+                {/* Custom thumbnail — shown below avatar if uploaded */}
+                {tutorial.tutorialimage && (
+                  <img
+                    src={tutorial.tutorialimage}
+                    alt={tutorial.tutorialtitle || "Tutorial thumbnail"}
+                    className="tutorial-card-thumbnail"
+                  />
+                )}
 
                 {/* Platform badge */}
                 <div
