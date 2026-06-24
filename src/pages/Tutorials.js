@@ -212,22 +212,6 @@ const Tutorials = () => {
                   />
                 )}
 
-                {/* Platform badge */}
-                <div
-                  className="tutorial-platform-badge"
-                  style={{ borderColor: platform.color }}
-                >
-                  {platform.icon && (
-                    <img
-                      src={platform.icon}
-                      alt={platform.label}
-                      className="tutorial-platform-icon"
-                      onError={(e) => { e.target.style.display = "none"; }}
-                    />
-                  )}
-                  <span style={{ color: platform.color }}>{platform.label}</span>
-                </div>
-
                 {/* Tutorial title */}
                 {tutorial.tutorialtitle && (
                   <h3>{tutorial.tutorialtitle}</h3>
@@ -260,7 +244,7 @@ const Tutorials = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <button className="button">Watch / View</button>
+                  <button className="button">Watch on {platform.label}</button>
                 </a>
 
                 {/* Owner controls */}

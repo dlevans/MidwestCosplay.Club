@@ -155,19 +155,6 @@ const Templates = () => {
                   />
                 )}
 
-                {/* Platform badge */}
-                <div className="tutorial-platform-badge" style={{ borderColor: platform.color }}>
-                  {platform.icon && (
-                    <img
-                      src={platform.icon}
-                      alt={platform.label}
-                      className="tutorial-platform-icon"
-                      onError={(e) => { e.target.style.display = "none"; }}
-                    />
-                  )}
-                  <span style={{ color: platform.color }}>{platform.label}</span>
-                </div>
-
                 {template.templatetitle && <h3>{template.templatetitle}</h3>}
 
                 {template.templatedescription && (
@@ -193,7 +180,7 @@ const Templates = () => {
                 )}
 
                 <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
-                  <button className="button">View Template</button>
+                  <button className="button">View on {platform.label}</button>
                 </a>
 
                 {/* Owner controls */}

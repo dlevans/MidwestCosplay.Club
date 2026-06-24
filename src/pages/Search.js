@@ -41,7 +41,7 @@ const getPlatformInfo = (url, type = "tutorial") => {
     const map = type === "template" ? templatePlatforms : tutorialPlatforms;
     return map[host] || {
       label: host,
-      icon: `https://www.google.com/s2/favicons?domain=${host}&sz=32`,
+      icon: null,  // unknown domain — skip favicon, just show text label
       color: "#888",
     };
   } catch {
@@ -314,7 +314,16 @@ function Search() {
             <div className="group-container">
               {visible.tutorials.map((tutorial) => (
                 <div className="group-card tutorial-card" key={tutorial.tutorialid}>
+                  {/* User avatar — always shown */}
                   <Avatar src={tutorial.useravatar} username={tutorial.username} />
+                  {/* Custom thumbnail — shown below avatar if uploaded */}
+                  {tutorial.tutorialimage && (
+                    <img
+                      src={tutorial.tutorialimage}
+                      alt={tutorial.tutorialtitle || "Tutorial thumbnail"}
+                      className="tutorial-card-thumbnail"
+                    />
+                  )}
                   <PlatformBadge url={tutorial.tutorialurl} type="tutorial" />
                   {tutorial.tutorialtitle && <h3>{hl(tutorial.tutorialtitle, query)}</h3>}
                   {tutorial.tutorialdescription && (
@@ -344,7 +353,16 @@ function Search() {
             <div className="group-container">
               {visible.templates.map((template) => (
                 <div className="group-card tutorial-card" key={template.templateid}>
+                  {/* User avatar — always shown */}
                   <Avatar src={template.useravatar} username={template.username} />
+                  {/* Custom thumbnail — shown below avatar if uploaded */}
+                  {template.templateimage && (
+                    <img
+                      src={template.templateimage}
+                      alt={template.templatetitle || "Template thumbnail"}
+                      className="tutorial-card-thumbnail"
+                    />
+                  )}
                   <PlatformBadge url={template.templateurl} type="template" />
                   {template.templatetitle && <h3>{hl(template.templatetitle, query)}</h3>}
                   {template.templatedescription && (
