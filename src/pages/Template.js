@@ -180,7 +180,7 @@ const Templates = () => {
                 )}
 
                 <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
-                  <button className="button">View on {platform.label}</button>
+                  <button className="button">View Template</button>
                 </a>
 
                 {/* Owner controls */}

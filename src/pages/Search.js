@@ -367,7 +367,7 @@ function Search() {
                       <span className="tutorial-card-tag">{hl(template.templatecategory, query)}</span>
                     )}
                     <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
-                      <button className="button">View on {platform.label}</button>
+                      <button className="button">View Template</button>
                     </a>
                   </div>
                 );
