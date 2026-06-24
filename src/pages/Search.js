@@ -5,24 +5,41 @@ import Footer from "../Footer";
 import { Helmet } from "react-helmet-async";
 import EnchantedBackground from "./Enchantedbackground.js";
 
-// ─── Platform icon helper (mirrors Tutorials.js) ────────────────────────────
-const getPlatformInfo = (url) => {
+// ─── Shared platform helper ───────────────────────────────────────────────────
+const getPlatformInfo = (url, type = "tutorial") => {
   if (!url) return { label: "Link", icon: null, color: "#888" };
   try {
     const { hostname } = new URL(url);
     const host = hostname.replace("www.", "");
-    const platforms = {
-      "youtube.com":      { label: "YouTube",      icon: "https://www.youtube.com/favicon.ico",      color: "#FF0000" },
-      "youtu.be":         { label: "YouTube",      icon: "https://www.youtube.com/favicon.ico",      color: "#FF0000" },
-      "vimeo.com":        { label: "Vimeo",        icon: "https://vimeo.com/favicon.ico",            color: "#1AB7EA" },
-      "instructables.com":{ label: "Instructables",icon: "https://www.instructables.com/favicon.ico",color: "#F4A227" },
-      "tiktok.com":       { label: "TikTok",       icon: "https://www.tiktok.com/favicon.ico",       color: "#010101" },
-      "twitch.tv":        { label: "Twitch",       icon: "https://www.twitch.tv/favicon.ico",        color: "#9146FF" },
-      "patreon.com":      { label: "Patreon",      icon: "https://www.patreon.com/favicon.ico",      color: "#FF424D" },
-      "skillshare.com":   { label: "Skillshare",   icon: "https://www.skillshare.com/favicon.ico",   color: "#002333" },
-      "udemy.com":        { label: "Udemy",        icon: "https://www.udemy.com/favicon.ico",        color: "#A435F0" },
+
+    const tutorialPlatforms = {
+      "youtube.com":       { label: "YouTube",       icon: "https://www.youtube.com/favicon.ico",       color: "#FF0000" },
+      "youtu.be":          { label: "YouTube",       icon: "https://www.youtube.com/favicon.ico",       color: "#FF0000" },
+      "vimeo.com":         { label: "Vimeo",         icon: "https://vimeo.com/favicon.ico",             color: "#1AB7EA" },
+      "instructables.com": { label: "Instructables", icon: "https://www.instructables.com/favicon.ico", color: "#F4A227" },
+      "tiktok.com":        { label: "TikTok",        icon: "https://www.tiktok.com/favicon.ico",        color: "#010101" },
+      "twitch.tv":         { label: "Twitch",        icon: "https://www.twitch.tv/favicon.ico",         color: "#9146FF" },
+      "patreon.com":       { label: "Patreon",       icon: "https://www.patreon.com/favicon.ico",       color: "#FF424D" },
+      "skillshare.com":    { label: "Skillshare",    icon: "https://www.skillshare.com/favicon.ico",    color: "#002333" },
+      "udemy.com":         { label: "Udemy",         icon: "https://www.udemy.com/favicon.ico",         color: "#A435F0" },
     };
-    return platforms[host] || {
+
+    const templatePlatforms = {
+      "etsy.com":          { label: "Etsy",          icon: "https://www.etsy.com/favicon.ico",          color: "#F56400" },
+      "patreon.com":       { label: "Patreon",       icon: "https://www.patreon.com/favicon.ico",       color: "#FF424D" },
+      "gumroad.com":       { label: "Gumroad",       icon: "https://gumroad.com/favicon.ico",           color: "#FF90E8" },
+      "ko-fi.com":         { label: "Ko-fi",         icon: "https://ko-fi.com/favicon.ico",             color: "#29ABE0" },
+      "sellfy.com":        { label: "Sellfy",        icon: "https://sellfy.com/favicon.ico",            color: "#21C45D" },
+      "redbubble.com":     { label: "Redbubble",     icon: "https://www.redbubble.com/favicon.ico",     color: "#E41321" },
+      "instructables.com": { label: "Instructables", icon: "https://www.instructables.com/favicon.ico", color: "#F4A227" },
+      "deviantart.com":    { label: "DeviantArt",    icon: "https://www.deviantart.com/favicon.ico",    color: "#05CC47" },
+      "pinterest.com":     { label: "Pinterest",     icon: "https://www.pinterest.com/favicon.ico",     color: "#E60023" },
+      "drive.google.com":  { label: "Google Drive",  icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png", color: "#4285F4" },
+      "dropbox.com":       { label: "Dropbox",       icon: "https://www.dropbox.com/favicon.ico",       color: "#0061FF" },
+    };
+
+    const map = type === "template" ? templatePlatforms : tutorialPlatforms;
+    return map[host] || {
       label: host,
       icon: `https://www.google.com/s2/favicons?domain=${host}&sz=32`,
       color: "#888",
@@ -32,7 +49,7 @@ const getPlatformInfo = (url) => {
   }
 };
 
-// ─── Filter toggle button ────────────────────────────────────────────────────
+// ─── Filter toggle pill ───────────────────────────────────────────────────────
 const FilterToggle = ({ label, active, onClick }) => (
   <button
     type="button"
@@ -43,38 +60,57 @@ const FilterToggle = ({ label, active, onClick }) => (
   </button>
 );
 
-// ─── Main component ──────────────────────────────────────────────────────────
+// ─── Shared platform badge ────────────────────────────────────────────────────
+const PlatformBadge = ({ url, type }) => {
+  const platform = getPlatformInfo(url, type);
+  return (
+    <div className="tutorial-platform-badge" style={{ borderColor: platform.color }}>
+      {platform.icon && (
+        <img
+          src={platform.icon}
+          alt={platform.label}
+          className="tutorial-platform-icon"
+          onError={(e) => { e.target.style.display = "none"; }}
+        />
+      )}
+      <span style={{ color: platform.color }}>{platform.label}</span>
+    </div>
+  );
+};
+
+// ─── Main component ───────────────────────────────────────────────────────────
 function Search() {
   const location  = useLocation();
   const searchRef = useRef(null);
 
-  const [query,   setQuery]   = useState("");
-  const [results, setResults] = useState({ users: [], groups: [], tutorials: [] });
-  const [searched, setSearched] = useState(false); // true after first submit
+  const [query,    setQuery]    = useState("");
+  const [results,  setResults]  = useState({ users: [], groups: [], tutorials: [], templates: [] });
+  const [searched, setSearched] = useState(false);
   const [shaking,  setShaking]  = useState(false);
 
-  // Filter toggles — all on by default
   const [filters, setFilters] = useState({
     users:     true,
     groups:    true,
     tutorials: true,
+    templates: true,
   });
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
-  // ── Derived: what's visible given current filters ────────────────────────
+  // ── Derived visible sets ─────────────────────────────────────────────────
   const visible = {
     users:     filters.users     ? results.users     : [],
     groups:    filters.groups    ? results.groups    : [],
     tutorials: filters.tutorials ? results.tutorials : [],
+    templates: filters.templates ? results.templates : [],
   };
 
   const totalVisible =
-    visible.users.length + visible.groups.length + visible.tutorials.length;
+    visible.users.length + visible.groups.length +
+    visible.tutorials.length + visible.templates.length;
 
   const nothingFound = searched && totalVisible === 0;
 
-  // ── Shake animation whenever nothingFound flips to true ─────────────────
   useEffect(() => {
     if (nothingFound) {
       setShaking(true);
@@ -83,7 +119,6 @@ function Search() {
     }
   }, [nothingFound]);
 
-  // ── Pre-fill query from URL ?query= param ────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const searchQuery = params.get("query") || "";
@@ -92,7 +127,6 @@ function Search() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
-  // ── Fetch ────────────────────────────────────────────────────────────────
   const fetchResults = useCallback(async (searchQuery) => {
     if (!searchQuery || !searchQuery.trim()) return;
     try {
@@ -103,11 +137,12 @@ function Search() {
         users:     Array.isArray(data.users)     ? data.users     : [],
         groups:    Array.isArray(data.groups)    ? data.groups    : [],
         tutorials: Array.isArray(data.tutorials) ? data.tutorials : [],
+        templates: Array.isArray(data.templates) ? data.templates : [],
       });
       setSearched(true);
     } catch (error) {
       console.error("Error fetching data:", error);
-      setResults({ users: [], groups: [], tutorials: [] });
+      setResults({ users: [], groups: [], tutorials: [], templates: [] });
       setSearched(true);
     }
   }, [apiUrl]);
@@ -115,12 +150,10 @@ function Search() {
   const handleInputChange = (e) => setQuery(e.target.value);
   const handleSearchClick = () => fetchResults(query);
   const handleKeyDown     = (e) => { if (e.key === "Enter") fetchResults(query); };
+  const toggleFilter      = (key) => setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const toggleFilter = (key) =>
-    setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
-
-  // ── Highlight matched text ───────────────────────────────────────────────
-  const highlightText = (text, q) => {
+  // ── Keyword highlight ────────────────────────────────────────────────────
+  const hl = (text, q) => {
     if (!text) return "";
     if (!q)    return text;
     try {
@@ -131,17 +164,29 @@ function Search() {
           ? <span key={i} className="search-highlight">{part}</span>
           : part
       );
-    } catch {
-      return text;
-    }
+    } catch { return text; }
   };
+
+  // ── Count label helper ───────────────────────────────────────────────────
+  const countLabel = (key, label) =>
+    `${label}${results[key].length ? ` (${results[key].length})` : ""}`;
+
+  // ── Shared submitter avatar ──────────────────────────────────────────────
+  const Avatar = ({ src, username }) =>
+    src ? (
+      <img src={src} alt={`${username || "User"}'s avatar`} className="tutorial-card-avatar" />
+    ) : (
+      <div className="tutorial-card-avatar tutorial-card-avatar--placeholder">
+        {(username || "?")[0].toUpperCase()}
+      </div>
+    );
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="page-home">
       <Helmet>
         <title data-rh="true">Search — MidwestCosplay Club</title>
-        <meta name="description" content="Search members, groups, and tutorials on MidwestCosplay Club." />
+        <meta name="description" content="Search members, groups, tutorials, and templates on MidwestCosplay Club." />
       </Helmet>
       <EnchantedBackground />
 
@@ -154,7 +199,7 @@ function Search() {
         <div className="search-bar-row">
           <input
             className="search-input"
-            placeholder="Search members, groups, tutorials…"
+            placeholder="Search members, groups, tutorials, templates…"
             ref={searchRef}
             value={query}
             onChange={handleInputChange}
@@ -167,21 +212,10 @@ function Search() {
 
         {/* ── Filter toggles ── */}
         <div className="search-filter-row">
-          <FilterToggle
-            label={`Everyone${results.users.length ? ` (${results.users.length})` : ""}`}
-            active={filters.users}
-            onClick={() => toggleFilter("users")}
-          />
-          <FilterToggle
-            label={`Groups${results.groups.length ? ` (${results.groups.length})` : ""}`}
-            active={filters.groups}
-            onClick={() => toggleFilter("groups")}
-          />
-          <FilterToggle
-            label={`Tutorials${results.tutorials.length ? ` (${results.tutorials.length})` : ""}`}
-            active={filters.tutorials}
-            onClick={() => toggleFilter("tutorials")}
-          />
+          <FilterToggle label={countLabel("users",     "Everyone")}  active={filters.users}     onClick={() => toggleFilter("users")} />
+          <FilterToggle label={countLabel("groups",    "Groups")}    active={filters.groups}    onClick={() => toggleFilter("groups")} />
+          <FilterToggle label={countLabel("tutorials", "Tutorials")} active={filters.tutorials} onClick={() => toggleFilter("tutorials")} />
+          <FilterToggle label={countLabel("templates", "Templates")} active={filters.templates} onClick={() => toggleFilter("templates")} />
         </div>
 
         {/* ── Nothing found ── */}
@@ -203,7 +237,7 @@ function Search() {
                   {group.groupimage && (
                     <img src={group.groupimage} alt={`${group.groupname}'s photo`} />
                   )}
-                  {group.groupname && <h3>{highlightText(group.groupname, query)}</h3>}
+                  {group.groupname && <h3>{hl(group.groupname, query)}</h3>}
                   <h4>{group.groupcity}, {group.groupstate}</h4>
                   <Link to={`/public/group/${group.groupslug || group.groupid}`}>
                     <button className="button">View Group</button>
@@ -227,54 +261,42 @@ function Search() {
                 return (
                   <div className="search-user-card" key={user.id}>
                     <div className="search-user-header">
-                      {user.image && (
-                        <img src={user.image} alt={`${user.username}'s avatar`} />
-                      )}
+                      {user.image && <img src={user.image} alt={`${user.username}'s avatar`} />}
                       <div className="search-user-name">
-                        {user.username && <h3>{highlightText(user.username, query)}</h3>}
-                        {fullName     && <p>{highlightText(fullName, query)}</p>}
+                        {user.username && <h3>{hl(user.username, query)}</h3>}
+                        {fullName      && <p>{hl(fullName, query)}</p>}
                       </div>
                     </div>
-
                     {user.imawhat && (
                       <div className="search-field">
                         <div className="search-field-label">I am a</div>
                         <div className="search-tag-row">
                           {user.imawhat.split(",").map((role, i) => (
-                            <span className="search-tag" key={i}>
-                              {highlightText(role.trim(), query)}
-                            </span>
+                            <span className="search-tag" key={i}>{hl(role.trim(), query)}</span>
                           ))}
                         </div>
                       </div>
                     )}
-
                     {user.complete && (
                       <div className="search-field">
                         <div className="search-field-label">Completed Cosplays</div>
                         <div className="search-tag-row">
                           {user.complete.split(",").map((item, i) => (
-                            <span className="search-tag" key={i}>
-                              {highlightText(item.trim(), query)}
-                            </span>
+                            <span className="search-tag" key={i}>{hl(item.trim(), query)}</span>
                           ))}
                         </div>
                       </div>
                     )}
-
                     {user.inprogress && (
                       <div className="search-field">
                         <div className="search-field-label">In Progress</div>
                         <div className="search-tag-row">
                           {user.inprogress.split(",").map((item, i) => (
-                            <span className="search-tag" key={i}>
-                              {highlightText(item.trim(), query)}
-                            </span>
+                            <span className="search-tag" key={i}>{hl(item.trim(), query)}</span>
                           ))}
                         </div>
                       </div>
                     )}
-
                     <Link to={`/public/${user.username}`}>
                       <button className="button">View Profile</button>
                     </Link>
@@ -290,65 +312,62 @@ function Search() {
           <div className="search-section">
             <h2 className="search-section-heading">Tutorials</h2>
             <div className="group-container">
-              {visible.tutorials.map((tutorial) => {
-                const platform = getPlatformInfo(tutorial.tutorialurl);
-                return (
-                  <div className="group-card tutorial-card" key={tutorial.tutorialid}>
-                    {tutorial.useravatar ? (
-                      <img
-                        src={tutorial.useravatar}
-                        alt={`${tutorial.username || "User"}'s avatar`}
-                        className="tutorial-card-avatar"
-                      />
-                    ) : (
-                      <div className="tutorial-card-avatar tutorial-card-avatar--placeholder">
-                        {(tutorial.username || "?")[0].toUpperCase()}
-                      </div>
-                    )}
+              {visible.tutorials.map((tutorial) => (
+                <div className="group-card tutorial-card" key={tutorial.tutorialid}>
+                  <Avatar src={tutorial.useravatar} username={tutorial.username} />
+                  <PlatformBadge url={tutorial.tutorialurl} type="tutorial" />
+                  {tutorial.tutorialtitle && <h3>{hl(tutorial.tutorialtitle, query)}</h3>}
+                  {tutorial.tutorialdescription && (
+                    <p className="tutorial-card-description">{hl(tutorial.tutorialdescription, query)}</p>
+                  )}
+                  {tutorial.username && (
+                    <p className="tutorial-card-submitter">
+                      Shared by <Link to={`/public/${tutorial.username}`}>{tutorial.username}</Link>
+                    </p>
+                  )}
+                  {tutorial.tutorialcategory && (
+                    <span className="tutorial-card-tag">{hl(tutorial.tutorialcategory, query)}</span>
+                  )}
+                  <a href={tutorial.tutorialurl} target="_blank" rel="noopener noreferrer">
+                    <button className="button">Watch / View</button>
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
-                    <div
-                      className="tutorial-platform-badge"
-                      style={{ borderColor: platform.color }}
-                    >
-                      {platform.icon && (
-                        <img
-                          src={platform.icon}
-                          alt={platform.label}
-                          className="tutorial-platform-icon"
-                          onError={(e) => { e.target.style.display = "none"; }}
-                        />
-                      )}
-                      <span style={{ color: platform.color }}>{platform.label}</span>
-                    </div>
-
-                    {tutorial.tutorialtitle && (
-                      <h3>{highlightText(tutorial.tutorialtitle, query)}</h3>
-                    )}
-
-                    {tutorial.tutorialdescription && (
-                      <p className="tutorial-card-description">
-                        {highlightText(tutorial.tutorialdescription, query)}
-                      </p>
-                    )}
-
-                    {tutorial.username && (
-                      <p className="tutorial-card-submitter">
-                        Shared by <Link to={`/public/${tutorial.username}`}>{tutorial.username}</Link>
-                      </p>
-                    )}
-
-                    {tutorial.tutorialcategory && (
-                      <span className="tutorial-card-tag">
-                        {highlightText(tutorial.tutorialcategory, query)}
-                      </span>
-                    )}
-
-                    <a href={tutorial.tutorialurl} target="_blank" rel="noopener noreferrer">
-                      <button className="button">Watch / View</button>
-                    </a>
-                  </div>
-                );
-              })}
+        {/* ── Templates ── */}
+        {visible.templates.length > 0 && (
+          <div className="search-section">
+            <h2 className="search-section-heading">Templates</h2>
+            <div className="group-container">
+              {visible.templates.map((template) => (
+                <div className="group-card tutorial-card" key={template.templateid}>
+                  <Avatar src={template.useravatar} username={template.username} />
+                  <PlatformBadge url={template.templateurl} type="template" />
+                  {template.templatetitle && <h3>{hl(template.templatetitle, query)}</h3>}
+                  {template.templatedescription && (
+                    <p className="tutorial-card-description">{hl(template.templatedescription, query)}</p>
+                  )}
+                  {template.templateisfree != null && (
+                    <span className={`template-price-badge ${template.templateisfree ? "template-price-badge--free" : "template-price-badge--paid"}`}>
+                      {template.templateisfree ? "Free" : "Paid"}
+                    </span>
+                  )}
+                  {template.username && (
+                    <p className="tutorial-card-submitter">
+                      Shared by <Link to={`/public/${template.username}`}>{template.username}</Link>
+                    </p>
+                  )}
+                  {template.templatecategory && (
+                    <span className="tutorial-card-tag">{hl(template.templatecategory, query)}</span>
+                  )}
+                  <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
+                    <button className="button">View Template</button>
+                  </a>
+                </div>
+              ))}
             </div>
           </div>
         )}
