@@ -20,6 +20,7 @@ const Login = () => {
       const response = await axios.post(apiUrl + "/login", { username: trimmedUsername, password });
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("username", response.data.username);
+      localStorage.setItem("id", response.data.id); 
       navigate("/motd");
     } catch (err) {
       console.error("Error: ", err);

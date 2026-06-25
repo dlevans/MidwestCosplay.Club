@@ -1,5 +1,5 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react"; 
+import { Route, Routes, useNavigate } from "react-router-dom"; 
 import Nav from "./Nav";
 import ErrorBoundary from "./ErrorBoundary";
 import CreateUser from "./pages/CreateUser";
@@ -32,6 +32,34 @@ import AddTemplate from "./pages/Addtemplate";
 import Templates from "./pages/Template";
 
 function App() {
+  const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return; // not logged in, nothing to check
+
+      try {
+        const res = await fetch(`${apiUrl}/login/verify`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+          // Token is expired or invalid — clear it out
+          localStorage.removeItem("token");
+          localStorage.removeItem("username");
+          navigate("/login");
+        }
+      } catch {
+        // Network error — optionally handle, but don't log them out
+        // in case of a blip. Remove this catch block if you'd rather
+        // be aggressive and log out on any failure.
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   return (
     <div className="main">
