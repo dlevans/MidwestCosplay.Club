@@ -1133,3 +1133,15 @@ select:focus { border-color: var(--accent); }
   .srch-cat-btn   { font-size: 0.75rem; padding: 0.25rem 0.65rem 0.25rem 0.5rem; }
   .srch-cat-label { font-size: 0.72rem; }
 }
+
+/* Clear search button — sits beside the Search button */
+.srch-clear-btn {
+  border-color: var(--text-muted);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.srch-clear-btn:hover {
+  border-color: #f87171;
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+}

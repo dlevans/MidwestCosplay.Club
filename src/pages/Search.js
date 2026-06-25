@@ -198,6 +198,18 @@ function Search() {
     navigate(`/search?query=${encodeURIComponent(query.trim())}`);
   };
 
+  const clearAll = () => {
+    setQuery("");
+    setResults({ users: [], groups: [], tutorials: [], templates: [] });
+    setSearched(false);
+    setFilters({ users: true, groups: true, tutorials: true, templates: true });
+    setTutorialCatFilter(null);
+    setTemplateCatFilter(null);
+    setIamaFilter(null);
+    navigate("/search", { replace: true });
+    if (searchRef.current) searchRef.current.focus();
+  };
+
   const handleKeyDown = (e) => { if (e.key === "Enter") doSearch(); };
   const toggleFilter  = (key) => setFilters((p) => ({ ...p, [key]: !p[key] }));
 
@@ -296,6 +308,9 @@ function Search() {
             onKeyDown={handleKeyDown}
           />
           <button className="button" type="button" onClick={doSearch}>Search</button>
+          {(query || searched) && (
+            <button className="button srch-clear-btn" type="button" onClick={clearAll}>✕ Clear</button>
+          )}
         </div>
         <SyntaxHint />
 
