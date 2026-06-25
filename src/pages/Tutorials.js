@@ -50,7 +50,7 @@ const CATEGORY_SUGGESTIONS = [
 const Tutorials = () => {
   const [tutorials, setTutorials]             = useState([]);
   const [page, setPage]                       = useState(1);
-  const [limit, setLimit]                     = useState(10);
+  const [limit, setLimit]                     = useState(500);
   const [totalTutorials, setTotalTutorials]   = useState(0);
 
   // Independent filter state — all stack together with AND logic
@@ -125,13 +125,13 @@ const Tutorials = () => {
 
   const isFiltering = search.trim() !== "" || activeCategory !== "" || creatorFilter.trim() !== "";
 
-  const totalPages = Math.ceil(totalTutorials / limit);
+  const totalPages = Math.ceil(filtered.length / limit);
 
   const PaginationBar = () => (
     <div className="pagination-controls">
       <label>Per page:</label>
       <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}>
-        {[5, 10, 20, 50].map((n) => <option key={n} value={n}>{n}</option>)}
+        {[10, 25, 50, 100, 500].map((n) => <option key={n} value={n}>{n}</option>)}
       </select>
       <button disabled={page === 1} onClick={() => setPage(page - 1)}>← Prev</button>
       <span>Page {page} of {totalPages || 1}</span>
