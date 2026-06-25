@@ -40,14 +40,19 @@ const getPlatformInfo = (url) => {
 
 // Emoji map for known categories — unknown ones get a default
 const CATEGORY_EMOJI = {
-  "Uncategorized":      "📁",
-  "Armor":              "🛡️",
-  "Props & Weapons":    "⚔️",
-  "Clothing":           "👗",
-  "Wings & Tails":      "🪶",
-  "Accessories":        "💍",
-  "Foam":               "🧱",
-  "3D Print":           "🖨️",
+  "Uncategorized":          "📁",
+  "Accessories & Jewelry":  "💍",
+  "Armor & Chest Pieces":   "🛡️",
+  "General / Other":        "🗂️",
+  "Helmets & Headgear":     "🪖",
+  "Props & Weapons":        "⚔️",
+  "Clothing":               "👗",
+  "Wings & Tails":          "🪶",
+  "Foam":                   "🧱",
+  "3D Print":               "🖨️",
+  "Shoes & Footwear":       "👠",
+  "Tails & Ears":           "🦊",
+  "Bags & Pouches":         "👜",
 };
 const DEFAULT_EMOJI = "🏷️";
 
