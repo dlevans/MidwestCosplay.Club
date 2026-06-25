@@ -19,15 +19,15 @@ const getPlatformInfo = (url) => {
     const { hostname } = new URL(url);
     const host = hostname.replace("www.", "");
     const platforms = {
-      "youtube.com":      { label: "YouTube",      icon: "https://www.youtube.com/favicon.ico",      color: "#FF0000" },
-      "youtu.be":         { label: "YouTube",      icon: "https://www.youtube.com/favicon.ico",      color: "#FF0000" },
-      "vimeo.com":        { label: "Vimeo",        icon: "https://vimeo.com/favicon.ico",            color: "#1AB7EA" },
-      "instructables.com":{ label: "Instructables",icon: "https://www.instructables.com/favicon.ico",color: "#F4A227" },
-      "tiktok.com":       { label: "TikTok",       icon: "https://www.tiktok.com/favicon.ico",       color: "#010101" },
-      "twitch.tv":        { label: "Twitch",       icon: "https://www.twitch.tv/favicon.ico",        color: "#9146FF" },
-      "patreon.com":      { label: "Patreon",      icon: "https://www.patreon.com/favicon.ico",      color: "#FF424D" },
-      "skillshare.com":   { label: "Skillshare",   icon: "https://www.skillshare.com/favicon.ico",   color: "#002333" },
-      "udemy.com":        { label: "Udemy",        icon: "https://www.udemy.com/favicon.ico",        color: "#A435F0" },
+      "youtube.com":       { label: "YouTube",      icon: "https://www.youtube.com/favicon.ico",       color: "#FF0000" },
+      "youtu.be":          { label: "YouTube",      icon: "https://www.youtube.com/favicon.ico",       color: "#FF0000" },
+      "vimeo.com":         { label: "Vimeo",        icon: "https://vimeo.com/favicon.ico",             color: "#1AB7EA" },
+      "instructables.com": { label: "Instructables",icon: "https://www.instructables.com/favicon.ico", color: "#F4A227" },
+      "tiktok.com":        { label: "TikTok",       icon: "https://www.tiktok.com/favicon.ico",        color: "#010101" },
+      "twitch.tv":         { label: "Twitch",       icon: "https://www.twitch.tv/favicon.ico",         color: "#9146FF" },
+      "patreon.com":       { label: "Patreon",      icon: "https://www.patreon.com/favicon.ico",       color: "#FF424D" },
+      "skillshare.com":    { label: "Skillshare",   icon: "https://www.skillshare.com/favicon.ico",    color: "#002333" },
+      "udemy.com":         { label: "Udemy",        icon: "https://www.udemy.com/favicon.ico",         color: "#A435F0" },
     };
     return platforms[host] || { label: host, icon: null, color: "#888" };
   } catch {
@@ -35,26 +35,28 @@ const getPlatformInfo = (url) => {
   }
 };
 
-// Categories shown as quick-pick tiles when search is empty
 const CATEGORY_SUGGESTIONS = [
-  { label: "Helmets & Masks",  emoji: "🪖" },
-  { label: "Armor",            emoji: "🛡️" },
-  { label: "Props & Weapons",  emoji: "⚔️" },
-  { label: "Clothing",         emoji: "👗" },
-  { label: "Wings & Tails",    emoji: "🪶" },
-  { label: "Accessories",      emoji: "💍" },
-  { label: "Foam",             emoji: "🧱" },
-  { label: "3D Print",         emoji: "🖨️" },
-  { label: "Uncategorized",    emoji: "📁" },
+  { label: "Helmets & Masks", emoji: "🪖" },
+  { label: "Armor",           emoji: "🛡️" },
+  { label: "Props & Weapons", emoji: "⚔️" },
+  { label: "Clothing",        emoji: "👗" },
+  { label: "Wings & Tails",   emoji: "🪶" },
+  { label: "Accessories",     emoji: "💍" },
+  { label: "Foam",            emoji: "🧱" },
+  { label: "3D Print",        emoji: "🖨️" },
+  { label: "Uncategorized",   emoji: "📁" },
 ];
 
 const Tutorials = () => {
-  const [tutorials, setTutorials]         = useState([]);
-  const [page, setPage]                   = useState(1);
-  const [limit, setLimit]                 = useState(10);
-  const [totalTutorials, setTotalTutorials] = useState(0);
-  const [search, setSearch]               = useState("");
-  const [activeCategory, setActiveCategory] = useState("");
+  const [tutorials, setTutorials]             = useState([]);
+  const [page, setPage]                       = useState(1);
+  const [limit, setLimit]                     = useState(10);
+  const [totalTutorials, setTotalTutorials]   = useState(0);
+
+  // Independent filter state — all stack together with AND logic
+  const [search, setSearch]                   = useState("");
+  const [activeCategory, setActiveCategory]   = useState("");
+  const [creatorFilter, setCreatorFilter]     = useState("");
 
   const navigate       = useNavigate();
   const token          = localStorage.getItem("token");
@@ -63,7 +65,6 @@ const Tutorials = () => {
 
   useEffect(() => {
     if (!token) { navigate("/login"); return; }
-
     const fetchAllTutorials = async () => {
       try {
         const response = await axios.get(`${apiUrl}/tutorials`, {
@@ -76,7 +77,6 @@ const Tutorials = () => {
         console.error(err);
       }
     };
-
     fetchAllTutorials();
   }, [navigate, token, limit, page, apiUrl]);
 
@@ -93,36 +93,39 @@ const Tutorials = () => {
     }
   };
 
-  // Client-side filter applied on top of the paginated results
+  // All filters applied together with AND logic
   const filtered = useMemo(() => {
-    const q   = search.trim().toLowerCase();
-    const cat = activeCategory.toLowerCase();
+    const q       = search.trim().toLowerCase();
+    const cat     = activeCategory.toLowerCase();
+    const creator = creatorFilter.trim().toLowerCase();
+
     return tutorials.filter((t) => {
       const matchesSearch = !q || [
-        t.tutorialtitle, t.tutorialdescription, t.tutorialcategory, t.username,
-      ].some((field) => field && field.toLowerCase().includes(q));
+        t.tutorialtitle,
+        t.tutorialdescription,
+      ].some((f) => f && f.toLowerCase().includes(q));
 
       const tutorialCat = (t.tutorialcategory || "Uncategorized").toLowerCase();
       const matchesCat  = !cat || tutorialCat === cat;
 
-      return matchesSearch && matchesCat;
+      const matchesCreator = !creator || (t.username && t.username.toLowerCase().includes(creator));
+
+      return matchesSearch && matchesCat && matchesCreator;
     });
-  }, [tutorials, search, activeCategory]);
+  }, [tutorials, search, activeCategory, creatorFilter]);
 
-  const handleCategoryClick = (label) => {
+  const toggleCategory = (label) =>
     setActiveCategory((prev) => (prev === label ? "" : label));
+
+  const clearAll = () => {
     setSearch("");
-  };
-
-  const handleSearchChange = (e) => {
-    setSearch(e.target.value);
     setActiveCategory("");
+    setCreatorFilter("");
   };
 
-  const clearFilters = () => { setSearch(""); setActiveCategory(""); };
+  const isFiltering = search.trim() !== "" || activeCategory !== "" || creatorFilter.trim() !== "";
 
-  const totalPages  = Math.ceil(totalTutorials / limit);
-  const isFiltering = search.trim() !== "" || activeCategory !== "";
+  const totalPages = Math.ceil(totalTutorials / limit);
 
   const PaginationBar = () => (
     <div className="pagination-controls">
@@ -155,30 +158,43 @@ const Tutorials = () => {
           </Link>
         )}
 
-        {/* ── Search bar ── */}
-        <div className="tl-search-wrap">
-          <input
-            className="tl-search-input"
-            type="text"
-            placeholder="Search tutorials by title, category, or creator…"
-            value={search}
-            onChange={handleSearchChange}
-          />
-          {isFiltering && (
-            <button className="tl-clear-btn" onClick={clearFilters}>✕ Clear</button>
-          )}
-        </div>
+        {/* ── Filter panel ── */}
+        <div className="tl-filter-panel">
 
-        {/* ── Category tiles — only shown when not actively filtering ── */}
-        {!isFiltering && (
-          <div className="tl-category-section">
-            <p className="tl-category-heading">Browse by category</p>
+          {/* Row 1: title search + creator search */}
+          <div className="tl-filter-row">
+            <div className="tl-filter-field">
+              <label className="tl-filter-label">Title / Description</label>
+              <input
+                className="tl-search-input"
+                type="text"
+                placeholder="e.g. flower, helmet, iron man…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            <div className="tl-filter-field">
+              <label className="tl-filter-label">Creator</label>
+              <input
+                className="tl-search-input"
+                type="text"
+                placeholder="e.g. sksprops"
+                value={creatorFilter}
+                onChange={(e) => setCreatorFilter(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Row 2: category tiles — always visible so they stack with text filters */}
+          <div className="tl-filter-row tl-filter-row--cats">
+            <label className="tl-filter-label">Category</label>
             <div className="tl-category-grid">
               {CATEGORY_SUGGESTIONS.map(({ label, emoji }) => (
                 <button
                   key={label}
                   className={`tl-category-tile${activeCategory === label ? " tl-category-tile--active" : ""}`}
-                  onClick={() => handleCategoryClick(label)}
+                  onClick={() => toggleCategory(label)}
                 >
                   <span className="tl-category-emoji">{emoji}</span>
                   <span className="tl-category-label">{label}</span>
@@ -186,32 +202,44 @@ const Tutorials = () => {
               ))}
             </div>
           </div>
-        )}
 
-        {/* ── Active filter pill ── */}
-        {isFiltering && (
-          <div className="tl-active-filter">
-            {activeCategory && (
-              <span className="tl-filter-pill">
-                Category: <strong>{activeCategory}</strong>
-                <button className="tl-filter-pill-x" onClick={clearFilters}>✕</button>
+          {/* Active filter summary */}
+          {isFiltering && (
+            <div className="tl-active-filter">
+              {activeCategory && (
+                <span className="tl-filter-pill">
+                  Category: <strong>{activeCategory}</strong>
+                  <button className="tl-filter-pill-x" onClick={() => setActiveCategory("")}>✕</button>
+                </span>
+              )}
+              {search.trim() && (
+                <span className="tl-filter-pill">
+                  Title: <strong>"{search.trim()}"</strong>
+                  <button className="tl-filter-pill-x" onClick={() => setSearch("")}>✕</button>
+                </span>
+              )}
+              {creatorFilter.trim() && (
+                <span className="tl-filter-pill">
+                  Creator: <strong>"{creatorFilter.trim()}"</strong>
+                  <button className="tl-filter-pill-x" onClick={() => setCreatorFilter("")}>✕</button>
+                </span>
+              )}
+              <span className="tl-filter-count">
+                {filtered.length} result{filtered.length !== 1 ? "s" : ""}
               </span>
-            )}
-            {search && (
-              <span className="tl-filter-pill">
-                Search: <strong>"{search}"</strong>
-                <button className="tl-filter-pill-x" onClick={clearFilters}>✕</button>
-              </span>
-            )}
-            <span className="tl-filter-count">{filtered.length} result{filtered.length !== 1 ? "s" : ""}</span>
-          </div>
-        )}
+              <button className="tl-clear-btn" onClick={clearAll}>✕ Clear all</button>
+            </div>
+          )}
+        </div>
 
         <PaginationBar />
 
         <div className="group-container">
           {filtered.length === 0 ? (
-            <p className="tl-no-results">No tutorials found. <button className="button" onClick={clearFilters}>Clear filters</button></p>
+            <p className="tl-no-results">
+              No tutorials match your filters.{" "}
+              <button className="button" onClick={clearAll}>Clear all filters</button>
+            </p>
           ) : (
             filtered.map((tutorial) => {
               const platform = getPlatformInfo(tutorial.tutorialurl);
@@ -242,11 +270,10 @@ const Tutorials = () => {
                     </p>
                   )}
 
-                  {/* Category badge — clickable to filter */}
                   <span
                     className="tutorial-card-tag tl-category-badge"
                     title="Filter by this category"
-                    onClick={() => handleCategoryClick(tutorial.tutorialcategory || "Uncategorized")}
+                    onClick={() => toggleCategory(tutorial.tutorialcategory || "Uncategorized")}
                   >
                     {tutorial.tutorialcategory || "Uncategorized"}
                   </span>
@@ -272,7 +299,6 @@ const Tutorials = () => {
         </div>
 
         {filtered.length > 6 && <PaginationBar />}
-
         <Footer />
       </div>
     </div>
