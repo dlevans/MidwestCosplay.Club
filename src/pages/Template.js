@@ -38,17 +38,18 @@ const getPlatformInfo = (url) => {
   }
 };
 
-const CATEGORY_SUGGESTIONS = [
-  { label: "Helmets & Masks", emoji: "🪖" },
-  { label: "Armor",           emoji: "🛡️" },
-  { label: "Props & Weapons", emoji: "⚔️" },
-  { label: "Clothing",        emoji: "👗" },
-  { label: "Wings & Tails",   emoji: "🪶" },
-  { label: "Accessories",     emoji: "💍" },
-  { label: "Foam",            emoji: "🧱" },
-  { label: "3D Print",        emoji: "🖨️" },
-  { label: "Uncategorized",   emoji: "📁" },
-];
+// Emoji map for known categories — unknown ones get a default
+const CATEGORY_EMOJI = {
+  "Uncategorized":      "📁",
+  "Armor":              "🛡️",
+  "Props & Weapons":    "⚔️",
+  "Clothing":           "👗",
+  "Wings & Tails":      "🪶",
+  "Accessories":        "💍",
+  "Foam":               "🧱",
+  "3D Print":           "🖨️",
+};
+const DEFAULT_EMOJI = "🏷️";
 
 const Templates = () => {
   const [templates, setTemplates]           = useState([]);
@@ -96,6 +97,17 @@ const Templates = () => {
       console.error("Delete template error:", err);
     }
   };
+
+  // Derive category list dynamically from loaded data
+  const categories = useMemo(() => {
+    const cats = new Set();
+    templates.forEach((t) => cats.add(t.templatecategory || "Uncategorized"));
+    return Array.from(cats).sort((a, b) => {
+      if (a === "Uncategorized") return 1;
+      if (b === "Uncategorized") return -1;
+      return a.localeCompare(b);
+    });
+  }, [templates]);
 
   // All filters applied together with AND logic
   const filtered = useMemo(() => {
@@ -211,13 +223,13 @@ const Templates = () => {
           <div className="tl-filter-row tl-filter-row--cats">
             <label className="tl-filter-label">Category</label>
             <div className="tl-category-grid">
-              {CATEGORY_SUGGESTIONS.map(({ label, emoji }) => (
+              {categories.map((label) => (
                 <button
                   key={label}
                   className={`tl-category-tile${activeCategory === label ? " tl-category-tile--active" : ""}`}
                   onClick={() => toggleCategory(label)}
                 >
-                  <span className="tl-category-emoji">{emoji}</span>
+                  <span className="tl-category-emoji">{CATEGORY_EMOJI[label] || DEFAULT_EMOJI}</span>
                   <span className="tl-category-label">{label}</span>
                 </button>
               ))}
