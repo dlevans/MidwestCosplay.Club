@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Footer from "../Footer";
 import { Helmet } from "react-helmet-async";
 import EnchantedBackground from "./Enchantedbackground.js";
 
-// ─── Shared platform helper ───────────────────────────────────────────────────
+// ─── Platform helpers ─────────────────────────────────────────────────────────
 const getPlatformInfo = (url, type = "tutorial") => {
   if (!url) return { label: "Link", icon: null, color: "#888" };
   try {
     const { hostname } = new URL(url);
     const host = hostname.replace("www.", "");
-
     const tutorialPlatforms = {
       "youtube.com":       { label: "YouTube",       icon: "https://www.youtube.com/favicon.ico",       color: "#FF0000" },
       "youtu.be":          { label: "YouTube",       icon: "https://www.youtube.com/favicon.ico",       color: "#FF0000" },
@@ -20,100 +19,160 @@ const getPlatformInfo = (url, type = "tutorial") => {
       "tiktok.com":        { label: "TikTok",        icon: "https://www.tiktok.com/favicon.ico",        color: "#010101" },
       "twitch.tv":         { label: "Twitch",        icon: "https://www.twitch.tv/favicon.ico",         color: "#9146FF" },
       "patreon.com":       { label: "Patreon",       icon: "https://www.patreon.com/favicon.ico",       color: "#FF424D" },
-      "skillshare.com":    { label: "Skillshare",    icon: "https://www.skillshare.com/favicon.ico",    color: "#002333" },
-      "udemy.com":         { label: "Udemy",         icon: "https://www.udemy.com/favicon.ico",         color: "#A435F0" },
     };
-
     const templatePlatforms = {
       "etsy.com":          { label: "Etsy",          icon: "https://www.etsy.com/favicon.ico",          color: "#F56400" },
       "patreon.com":       { label: "Patreon",       icon: "https://www.patreon.com/favicon.ico",       color: "#FF424D" },
       "gumroad.com":       { label: "Gumroad",       icon: "https://gumroad.com/favicon.ico",           color: "#FF90E8" },
       "ko-fi.com":         { label: "Ko-fi",         icon: "https://ko-fi.com/favicon.ico",             color: "#29ABE0" },
-      "sellfy.com":        { label: "Sellfy",        icon: "https://sellfy.com/favicon.ico",            color: "#21C45D" },
-      "redbubble.com":     { label: "Redbubble",     icon: "https://www.redbubble.com/favicon.ico",     color: "#E41321" },
-      "instructables.com": { label: "Instructables", icon: "https://www.instructables.com/favicon.ico", color: "#F4A227" },
-      "deviantart.com":    { label: "DeviantArt",    icon: "https://www.deviantart.com/favicon.ico",    color: "#05CC47" },
-      "pinterest.com":     { label: "Pinterest",     icon: "https://www.pinterest.com/favicon.ico",     color: "#E60023" },
-      "drive.google.com":  { label: "Google Drive",  icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png", color: "#4285F4" },
-      "dropbox.com":       { label: "Dropbox",       icon: "https://www.dropbox.com/favicon.ico",       color: "#0061FF" },
+      "sksprops.com":      { label: "SKS Props",     icon: null,                                         color: "#888"   },
     };
-
     const map = type === "template" ? templatePlatforms : tutorialPlatforms;
-    return map[host] || {
-      label: host,
-      icon: null,  // unknown domain — skip favicon, just show text label
-      color: "#888",
-    };
+    return map[host] || { label: host, icon: null, color: "#888" };
   } catch {
     return { label: "Link", icon: null, color: "#888" };
   }
 };
 
-// ─── Filter toggle pill ───────────────────────────────────────────────────────
-const FilterToggle = ({ label, active, onClick }) => (
+// ─── Emoji maps (same as Template.js / Tutorials.js) ─────────────────────────
+const TEMPLATE_CAT_EMOJI = {
+  "Uncategorized":         "📁",
+  "Accessories & Jewelry": "💍",
+  "Armor & Chest Pieces":  "🛡️",
+  "General / Other":       "🗂️",
+  "Helmets & Headgear":    "🪖",
+  "Props & Weapons":       "⚔️",
+  "Clothing":              "👗",
+  "Wings & Tails":         "🪶",
+  "Foam":                  "🧱",
+  "3D Print":              "🖨️",
+  "Shoes & Footwear":      "👠",
+};
+const TUTORIAL_CAT_EMOJI = {
+  "Uncategorized":         "📁",
+  "Armor":                 "🛡️",
+  "Electronics & LEDs":    "💡",
+  "Foam Crafting":         "🧱",
+  "General Crafting":      "🎨",
+  "Other":                 "🗂️",
+  "Props & Weapons":       "⚔️",
+  "Clothing":              "👗",
+  "Helmets & Headgear":    "🪖",
+  "Accessories & Jewelry": "💍",
+  "3D Print":              "🖨️",
+};
+const DEFAULT_EMOJI = "🏷️";
+
+// ─── Parse Google-style query into token groups ───────────────────────────────
+// "exact phrase"  → exact match required
+// -word           → exclude this word
+// -"exact phrase" → exclude this phrase
+// word            → plain keyword
+function parseQueryTokens(raw) {
+  const required = [], exact = [], negative = [];
+  const regex = /(-?"[^"]*"|-?\S+)/g;
+  let match;
+  while ((match = regex.exec(raw)) !== null) {
+    const t = match[1];
+    if (t.startsWith('-"') && t.endsWith('"')) negative.push(t.slice(2, -1).trim());
+    else if (t.startsWith('"') && t.endsWith('"')) exact.push(t.slice(1, -1).trim());
+    else if (t.startsWith("-") && t.length > 1)  negative.push(t.slice(1).trim());
+    else required.push(t.trim());
+  }
+  return { required, exact, negative };
+}
+
+// Build a plain highlight term from the parsed tokens (just the positive terms)
+function highlightTerms(tokens) {
+  return [...tokens.required, ...tokens.exact];
+}
+
+// ─── Keyword highlight (supports multiple terms) ──────────────────────────────
+function hl(text, terms) {
+  if (!text || !terms || terms.length === 0) return text;
+  try {
+    const escaped = terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    const regex   = new RegExp(`(${escaped.join("|")})`, "gi");
+    const parts   = String(text).split(regex);
+    return parts.map((part, i) =>
+      terms.some((t) => part.toLowerCase() === t.toLowerCase())
+        ? <span key={i} className="search-highlight">{part}</span>
+        : part
+    );
+  } catch { return text; }
+}
+
+// ─── Avatar ───────────────────────────────────────────────────────────────────
+const Avatar = ({ src, username }) =>
+  src ? (
+    <img src={src} alt={`${username || "User"}'s avatar`} className="tutorial-card-avatar" />
+  ) : (
+    <div className="tutorial-card-avatar tutorial-card-avatar--placeholder">
+      {(username || "?")[0].toUpperCase()}
+    </div>
+  );
+
+// ─── Category filter button ───────────────────────────────────────────────────
+// grayed out when count === 0, active when selected
+const CatButton = ({ label, emoji, count, active, onClick }) => (
   <button
     type="button"
-    className={`search-filter-toggle ${active ? "search-filter-toggle--active" : ""}`}
+    className={`srch-cat-btn${active ? " srch-cat-btn--active" : ""}${count === 0 ? " srch-cat-btn--empty" : ""}`}
     onClick={onClick}
+    disabled={count === 0}
+    title={count === 0 ? "No results in this category" : `${count} result${count !== 1 ? "s" : ""}`}
   >
-    {label}
+    <span className="srch-cat-emoji">{emoji}</span>
+    <span className="srch-cat-label">{label}</span>
+    {count > 0 && <span className="srch-cat-count">{count}</span>}
   </button>
 );
 
 // ─── Main component ───────────────────────────────────────────────────────────
 function Search() {
   const location  = useLocation();
+  const navigate  = useNavigate();
   const searchRef = useRef(null);
 
   const [query,    setQuery]    = useState("");
   const [results,  setResults]  = useState({ users: [], groups: [], tutorials: [], templates: [] });
+  const [meta,     setMeta]     = useState({ userIama: [], tutorialCats: [], templateCats: [] });
   const [searched, setSearched] = useState(false);
   const [shaking,  setShaking]  = useState(false);
 
+  // Section-level show/hide filters
   const [filters, setFilters] = useState({
-    users:     true,
-    groups:    true,
-    tutorials: true,
-    templates: true,
+    users: true, groups: true, tutorials: true, templates: true,
   });
+
+  // Category sub-filters (null = all, string = selected category)
+  const [tutorialCatFilter, setTutorialCatFilter] = useState(null);
+  const [templateCatFilter, setTemplateCatFilter] = useState(null);
+  const [iamaFilter,        setIamaFilter]        = useState(null);
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
-  // ── Derived visible sets ─────────────────────────────────────────────────
-  const visible = {
-    users:     filters.users     ? results.users     : [],
-    groups:    filters.groups    ? results.groups    : [],
-    tutorials: filters.tutorials ? results.tutorials : [],
-    templates: filters.templates ? results.templates : [],
-  };
-
-  const totalVisible =
-    visible.users.length + visible.groups.length +
-    visible.tutorials.length + visible.templates.length;
-
-  const nothingFound = searched && totalVisible === 0;
-
+  // ── Load meta on mount (for filter buttons before any search) ────────────
   useEffect(() => {
-    if (nothingFound) {
-      setShaking(true);
-      const t = setTimeout(() => setShaking(false), 600);
-      return () => clearTimeout(t);
-    }
-  }, [nothingFound]);
+    axios.get(`${apiUrl}/search`).then(({ data }) => {
+      if (data.meta) setMeta(data.meta);
+    }).catch(() => {});
+  }, [apiUrl]);
 
+  // ── URL-driven search ────────────────────────────────────────────────────
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
+    const params      = new URLSearchParams(location.search);
     const searchQuery = params.get("query") || "";
     setQuery(searchQuery);
     if (searchQuery) fetchResults(searchQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
-  const fetchResults = useCallback(async (searchQuery) => {
-    if (!searchQuery || !searchQuery.trim()) return;
+  const fetchResults = useCallback(async (raw) => {
+    if (!raw || !raw.trim()) return;
     try {
       const { data } = await axios.get(
-        `${apiUrl}/search?query=${encodeURIComponent(searchQuery.trim())}`
+        `${apiUrl}/search?query=${encodeURIComponent(raw.trim())}`
       );
       setResults({
         users:     Array.isArray(data.users)     ? data.users     : [],
@@ -121,47 +180,96 @@ function Search() {
         tutorials: Array.isArray(data.tutorials) ? data.tutorials : [],
         templates: Array.isArray(data.templates) ? data.templates : [],
       });
+      if (data.meta) setMeta(data.meta);
       setSearched(true);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+      // Reset sub-filters on new search
+      setTutorialCatFilter(null);
+      setTemplateCatFilter(null);
+      setIamaFilter(null);
+    } catch (err) {
+      console.error("Search error:", err);
       setResults({ users: [], groups: [], tutorials: [], templates: [] });
       setSearched(true);
     }
   }, [apiUrl]);
 
-  const handleInputChange = (e) => setQuery(e.target.value);
-  const handleSearchClick = () => fetchResults(query);
-  const handleKeyDown     = (e) => { if (e.key === "Enter") fetchResults(query); };
-  const toggleFilter      = (key) => setFilters((prev) => ({ ...prev, [key]: !prev[key] }));
-
-  // ── Keyword highlight ────────────────────────────────────────────────────
-  const hl = (text, q) => {
-    if (!text) return "";
-    if (!q)    return text;
-    try {
-      const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
-      const parts = String(text).split(regex);
-      return parts.map((part, i) =>
-        part.toLowerCase() === q.toLowerCase()
-          ? <span key={i} className="search-highlight">{part}</span>
-          : part
-      );
-    } catch { return text; }
+  const doSearch = () => {
+    if (!query.trim()) return;
+    navigate(`/search?query=${encodeURIComponent(query.trim())}`);
   };
 
-  // ── Count label helper ───────────────────────────────────────────────────
+  const handleKeyDown = (e) => { if (e.key === "Enter") doSearch(); };
+  const toggleFilter  = (key) => setFilters((p) => ({ ...p, [key]: !p[key] }));
+
+  // ── Shake on empty ───────────────────────────────────────────────────────
+  useEffect(() => {
+    const tokens  = parseQueryTokens(query);
+    const hlTerms = highlightTerms(tokens);
+    const total   =
+      results.users.length + results.groups.length +
+      results.tutorials.length + results.templates.length;
+    if (searched && total === 0) {
+      setShaking(true);
+      const t = setTimeout(() => setShaking(false), 600);
+      return () => clearTimeout(t);
+    }
+  }, [searched, results, query]);
+
+  // ── Derived visible lists (section filter + category sub-filter) ─────────
+  const tokens  = parseQueryTokens(query);
+  const hlTerms = highlightTerms(tokens);
+
+  const visibleUsers = filters.users
+    ? (iamaFilter
+        ? results.users.filter((u) =>
+            u.imawhat && u.imawhat.split(",").map((s) => s.trim()).includes(iamaFilter)
+          )
+        : results.users)
+    : [];
+
+  const visibleTutorials = filters.tutorials
+    ? (tutorialCatFilter
+        ? results.tutorials.filter((t) => (t.tutorialcategory || "") === tutorialCatFilter)
+        : results.tutorials)
+    : [];
+
+  const visibleTemplates = filters.templates
+    ? (templateCatFilter
+        ? results.templates.filter((t) => (t.templatecategory || "") === templateCatFilter)
+        : results.templates)
+    : [];
+
+  const visibleGroups = filters.groups ? results.groups : [];
+
+  const totalVisible =
+    visibleUsers.length + visibleGroups.length +
+    visibleTutorials.length + visibleTemplates.length;
+
+  const nothingFound = searched && totalVisible === 0;
+
+  // ── Count helpers for category buttons ──────────────────────────────────
+  const tutorialCatCount = (cat) =>
+    results.tutorials.filter((t) => (t.tutorialcategory || "") === cat).length;
+
+  const templateCatCount = (cat) =>
+    results.templates.filter((t) => (t.templatecategory || "") === cat).length;
+
+  const iamaCatCount = (role) =>
+    results.users.filter((u) =>
+      u.imawhat && u.imawhat.split(",").map((s) => s.trim()).includes(role)
+    ).length;
+
+  // Section-level count label
   const countLabel = (key, label) =>
     `${label}${results[key].length ? ` (${results[key].length})` : ""}`;
 
-  // ── Shared submitter avatar ──────────────────────────────────────────────
-  const Avatar = ({ src, username }) =>
-    src ? (
-      <img src={src} alt={`${username || "User"}'s avatar`} className="tutorial-card-avatar" />
-    ) : (
-      <div className="tutorial-card-avatar tutorial-card-avatar--placeholder">
-        {(username || "?")[0].toUpperCase()}
-      </div>
-    );
+  // ── Search syntax hint ───────────────────────────────────────────────────
+  const SyntaxHint = () => (
+    <p className="srch-syntax-hint">
+      Tip: use <code>"quotes"</code> for exact phrases · <code>-word</code> to exclude ·
+      e.g. <code>"lightsaber" -sksprops</code>
+    </p>
+  );
 
   // ── Render ───────────────────────────────────────────────────────────────
   return (
@@ -181,23 +289,30 @@ function Search() {
         <div className="search-bar-row">
           <input
             className="search-input"
-            placeholder="Search members, groups, tutorials, templates…"
+            placeholder='Search… try "lightsaber" -sksprops'
             ref={searchRef}
             value={query}
-            onChange={handleInputChange}
+            onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <button className="button" type="button" onClick={handleSearchClick}>
-            Search
-          </button>
+          <button className="button" type="button" onClick={doSearch}>Search</button>
         </div>
+        <SyntaxHint />
 
-        {/* ── Filter toggles ── */}
+        {/* ── Section filter toggles ── */}
         <div className="search-filter-row">
-          <FilterToggle label={countLabel("users",     "Everyone")}  active={filters.users}     onClick={() => toggleFilter("users")} />
-          <FilterToggle label={countLabel("groups",    "Groups")}    active={filters.groups}    onClick={() => toggleFilter("groups")} />
-          <FilterToggle label={countLabel("tutorials", "Tutorials")} active={filters.tutorials} onClick={() => toggleFilter("tutorials")} />
-          <FilterToggle label={countLabel("templates", "Templates")} active={filters.templates} onClick={() => toggleFilter("templates")} />
+          <button type="button" className={`search-filter-toggle${filters.users     ? " search-filter-toggle--active" : ""}`} onClick={() => toggleFilter("users")}>
+            {countLabel("users",     "Everyone")}
+          </button>
+          <button type="button" className={`search-filter-toggle${filters.groups    ? " search-filter-toggle--active" : ""}`} onClick={() => toggleFilter("groups")}>
+            {countLabel("groups",    "Groups")}
+          </button>
+          <button type="button" className={`search-filter-toggle${filters.tutorials ? " search-filter-toggle--active" : ""}`} onClick={() => toggleFilter("tutorials")}>
+            {countLabel("tutorials", "Tutorials")}
+          </button>
+          <button type="button" className={`search-filter-toggle${filters.templates ? " search-filter-toggle--active" : ""}`} onClick={() => toggleFilter("templates")}>
+            {countLabel("templates", "Templates")}
+          </button>
         </div>
 
         {/* ── Nothing found ── */}
@@ -205,48 +320,46 @@ function Search() {
           <div className={`search-empty ${shaking ? "search-empty--shake" : ""}`}>
             <span className="search-empty-icon">✦</span>
             <p>Nothing found for <strong>"{query}"</strong></p>
-            <p className="search-empty-sub">Try different keywords, or check your filters above.</p>
+            <p className="search-empty-sub">Try different keywords, or check your filters.</p>
           </div>
         )}
 
-        {/* ── Groups ── */}
-        {visible.groups.length > 0 && (
-          <div className="search-section">
-            <h2 className="search-section-heading">Groups</h2>
-            <div className="group-container">
-              {visible.groups.map((group) => (
-                <div className="group-card" key={group.groupid}>
-                  {group.groupimage && (
-                    <img src={group.groupimage} alt={`${group.groupname}'s photo`} />
-                  )}
-                  {group.groupname && <h3>{hl(group.groupname, query)}</h3>}
-                  <h4>{group.groupcity}, {group.groupstate}</h4>
-                  <Link to={`/public/group/${group.groupslug || group.groupid}`}>
-                    <button className="button">View Group</button>
-                  </Link>
-                  <a href={group.groupwebsite} target="_blank" rel="noopener noreferrer">
-                    <button className="button">Visit Website</button>
-                  </a>
-                </div>
+        {/* ══════════════════════════════════════════════
+            PEOPLE — iama category buttons
+        ══════════════════════════════════════════════ */}
+        {filters.users && searched && meta.userIama.length > 0 && (
+          <div className="srch-cat-section">
+            <p className="srch-cat-heading">Filter people by role</p>
+            <div className="srch-cat-grid">
+              {meta.userIama.map((role) => (
+                <CatButton
+                  key={role}
+                  label={role}
+                  emoji="🧑‍🎨"
+                  count={iamaCatCount(role)}
+                  active={iamaFilter === role}
+                  onClick={() => setIamaFilter((p) => (p === role ? null : role))}
+                />
               ))}
             </div>
           </div>
         )}
 
-        {/* ── People ── */}
-        {visible.users.length > 0 && (
+        {filters.users && visibleUsers.length > 0 && (
           <div className="search-section">
-            <h2 className="search-section-heading">People</h2>
+            <h2 className="search-section-heading">
+              People {iamaFilter && <span className="srch-active-cat">· {iamaFilter}</span>}
+            </h2>
             <div className="user-container">
-              {visible.users.map((user) => {
+              {visibleUsers.map((user) => {
                 const fullName = [user.firstname, user.lastname].filter(Boolean).join(" ");
                 return (
                   <div className="search-user-card" key={user.id}>
                     <div className="search-user-header">
                       {user.image && <img src={user.image} alt={`${user.username}'s avatar`} />}
                       <div className="search-user-name">
-                        {user.username && <h3>{hl(user.username, query)}</h3>}
-                        {fullName      && <p>{hl(fullName, query)}</p>}
+                        {user.username && <h3>{hl(user.username, hlTerms)}</h3>}
+                        {fullName      && <p>{hl(fullName, hlTerms)}</p>}
                       </div>
                     </div>
                     {user.imawhat && (
@@ -254,17 +367,17 @@ function Search() {
                         <div className="search-field-label">I am a</div>
                         <div className="search-tag-row">
                           {user.imawhat.split(",").map((role, i) => (
-                            <span className="search-tag" key={i}>{hl(role.trim(), query)}</span>
+                            <span className="search-tag" key={i}>{hl(role.trim(), hlTerms)}</span>
                           ))}
                         </div>
                       </div>
                     )}
                     {user.complete && (
                       <div className="search-field">
-                        <div className="search-field-label">Completed Cosplays</div>
+                        <div className="search-field-label">Completed</div>
                         <div className="search-tag-row">
                           {user.complete.split(",").map((item, i) => (
-                            <span className="search-tag" key={i}>{hl(item.trim(), query)}</span>
+                            <span className="search-tag" key={i}>{hl(item.trim(), hlTerms)}</span>
                           ))}
                         </div>
                       </div>
@@ -274,7 +387,7 @@ function Search() {
                         <div className="search-field-label">In Progress</div>
                         <div className="search-tag-row">
                           {user.inprogress.split(",").map((item, i) => (
-                            <span className="search-tag" key={i}>{hl(item.trim(), query)}</span>
+                            <span className="search-tag" key={i}>{hl(item.trim(), hlTerms)}</span>
                           ))}
                         </div>
                       </div>
@@ -289,28 +402,72 @@ function Search() {
           </div>
         )}
 
-        {/* ── Tutorials ── */}
-        {visible.tutorials.length > 0 && (
+        {/* ══════════════════════════════════════════════
+            GROUPS
+        ══════════════════════════════════════════════ */}
+        {visibleGroups.length > 0 && (
           <div className="search-section">
-            <h2 className="search-section-heading">Tutorials</h2>
+            <h2 className="search-section-heading">Groups</h2>
             <div className="group-container">
-              {visible.tutorials.map((tutorial) => {
+              {visibleGroups.map((group) => (
+                <div className="group-card" key={group.groupid}>
+                  {group.groupimage && (
+                    <img src={group.groupimage} alt={`${group.groupname}'s photo`} />
+                  )}
+                  {group.groupname && <h3>{hl(group.groupname, hlTerms)}</h3>}
+                  <h4>{group.groupcity}, {group.groupstate}</h4>
+                  <Link to={`/public/group/${group.groupslug || group.groupid}`}>
+                    <button className="button">View Group</button>
+                  </Link>
+                  {group.groupwebsite && (
+                    <a href={group.groupwebsite} target="_blank" rel="noopener noreferrer">
+                      <button className="button">Visit Website</button>
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════
+            TUTORIALS — category buttons
+        ══════════════════════════════════════════════ */}
+        {filters.tutorials && searched && meta.tutorialCats.length > 0 && (
+          <div className="srch-cat-section">
+            <p className="srch-cat-heading">Filter tutorials by category</p>
+            <div className="srch-cat-grid">
+              {meta.tutorialCats.map((cat) => (
+                <CatButton
+                  key={cat}
+                  label={cat}
+                  emoji={TUTORIAL_CAT_EMOJI[cat] || DEFAULT_EMOJI}
+                  count={tutorialCatCount(cat)}
+                  active={tutorialCatFilter === cat}
+                  onClick={() => setTutorialCatFilter((p) => (p === cat ? null : cat))}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {filters.tutorials && visibleTutorials.length > 0 && (
+          <div className="search-section">
+            <h2 className="search-section-heading">
+              Tutorials {tutorialCatFilter && <span className="srch-active-cat">· {tutorialCatFilter}</span>}
+            </h2>
+            <div className="group-container">
+              {visibleTutorials.map((tutorial) => {
                 const platform = getPlatformInfo(tutorial.tutorialurl, "tutorial");
                 return (
                   <div className="group-card tutorial-card" key={tutorial.tutorialid}>
-                    {/* User avatar — always shown */}
                     <Avatar src={tutorial.useravatar} username={tutorial.username} />
-                    {/* Custom thumbnail — shown below avatar if uploaded */}
                     {tutorial.tutorialimage && (
-                      <img
-                        src={tutorial.tutorialimage}
-                        alt={tutorial.tutorialtitle || "Tutorial thumbnail"}
-                        className="tutorial-card-thumbnail"
-                      />
+                      <img src={tutorial.tutorialimage} alt={tutorial.tutorialtitle || "Tutorial thumbnail"} className="tutorial-card-thumbnail" />
                     )}
-                    {tutorial.tutorialtitle && <h3>{hl(tutorial.tutorialtitle, query)}</h3>}
+                    {tutorial.tutorialtitle && <h3>{hl(tutorial.tutorialtitle, hlTerms)}</h3>}
                     {tutorial.tutorialdescription && (
-                      <p className="tutorial-card-description">{hl(tutorial.tutorialdescription, query)}</p>
+                      <p className="tutorial-card-description">{hl(tutorial.tutorialdescription, hlTerms)}</p>
                     )}
                     {tutorial.username && (
                       <p className="tutorial-card-submitter">
@@ -318,10 +475,10 @@ function Search() {
                       </p>
                     )}
                     {tutorial.tutorialcategory && (
-                      <span className="tutorial-card-tag">{hl(tutorial.tutorialcategory, query)}</span>
+                      <span className="tutorial-card-tag">{hl(tutorial.tutorialcategory, hlTerms)}</span>
                     )}
                     <a href={tutorial.tutorialurl} target="_blank" rel="noopener noreferrer">
-                      <button className="button">Watch Tutorial</button>
+                      <button className="button">Watch on {platform.label}</button>
                     </a>
                   </div>
                 );
@@ -330,29 +487,44 @@ function Search() {
           </div>
         )}
 
-        {/* ── Templates ── */}
-        {visible.templates.length > 0 && (
+        {/* ══════════════════════════════════════════════
+            TEMPLATES — category buttons
+        ══════════════════════════════════════════════ */}
+        {filters.templates && searched && meta.templateCats.length > 0 && (
+          <div className="srch-cat-section">
+            <p className="srch-cat-heading">Filter templates by category</p>
+            <div className="srch-cat-grid">
+              {meta.templateCats.map((cat) => (
+                <CatButton
+                  key={cat}
+                  label={cat}
+                  emoji={TEMPLATE_CAT_EMOJI[cat] || DEFAULT_EMOJI}
+                  count={templateCatCount(cat)}
+                  active={templateCatFilter === cat}
+                  onClick={() => setTemplateCatFilter((p) => (p === cat ? null : cat))}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {filters.templates && visibleTemplates.length > 0 && (
           <div className="search-section">
-            <h2 className="search-section-heading">Templates</h2>
+            <h2 className="search-section-heading">
+              Templates {templateCatFilter && <span className="srch-active-cat">· {templateCatFilter}</span>}
+            </h2>
             <div className="group-container">
-              {visible.templates.map((template) => {
+              {visibleTemplates.map((template) => {
                 const platform = getPlatformInfo(template.templateurl, "template");
                 return (
                   <div className="group-card tutorial-card" key={template.templateid}>
-                    {/* User avatar — always shown */}
                     <Avatar src={template.useravatar} username={template.username} />
-                    {/* Custom thumbnail — shown below avatar if uploaded */}
                     {template.templateimage && (
-                      <img
-                        src={template.templateimage}
-                        alt={template.templatetitle || "Template thumbnail"}
-                        className="tutorial-card-thumbnail"
-                      />
+                      <img src={template.templateimage} alt={template.templatetitle || "Template thumbnail"} className="tutorial-card-thumbnail" />
                     )}
-
-                    {template.templatetitle && <h3>{hl(template.templatetitle, query)}</h3>}
+                    {template.templatetitle && <h3>{hl(template.templatetitle, hlTerms)}</h3>}
                     {template.templatedescription && (
-                      <p className="tutorial-card-description">{hl(template.templatedescription, query)}</p>
+                      <p className="tutorial-card-description">{hl(template.templatedescription, hlTerms)}</p>
                     )}
                     {template.templateisfree != null && (
                       <span className={`template-price-badge ${template.templateisfree ? "template-price-badge--free" : "template-price-badge--paid"}`}>
@@ -365,7 +537,7 @@ function Search() {
                       </p>
                     )}
                     {template.templatecategory && (
-                      <span className="tutorial-card-tag">{hl(template.templatecategory, query)}</span>
+                      <span className="tutorial-card-tag">{hl(template.templatecategory, hlTerms)}</span>
                     )}
                     <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
                       <button className="button">View Template</button>
