@@ -706,7 +706,13 @@ select:focus { border-color: var(--accent); }
 .home-content {
   position: relative; z-index: 10;
   display: flex; flex-direction: column; align-items: center;
-  width: 100%; padding: 0 24px; margin-top: 30px;
+  width: 100%; padding: 0 24px 0 calc(var(--nav-width) + 24px); margin-top: 30px;
+}
+
+@media (max-width: 768px) {
+  .home-content {
+    padding: 0 24px;
+  }
 }
 
 /* Crest */
