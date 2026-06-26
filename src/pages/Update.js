@@ -70,6 +70,8 @@ const Update = () => {
   const canvasRef = useRef(null);
   const navigate = useNavigate();
   const { id: userID } = useParams();
+
+  const roles = [ "Actor", "Artist", "Author", "Cosplayer", "Crafter", "Maker", "Model", "Photographer", "Prop Builder", "Seamstress", "Tailor"];
   
   const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -131,22 +133,13 @@ const Update = () => {
     setUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSelectChange = (e) => {
-    const { options } = e.target;
-    let selectedValues = Array.from(options)
-      .filter(option => option.selected)
-      .map(option => option.value);
-  
-    if (selectedValues.includes("none")) {
-      selectedValues = [""];
-    }
-  
-    setUser(prevState => ({
-      ...prevState,
-      // Join the selections into a clean string to travel safely inside FormData
-      imawhat: selectedValues.join(","), 
-    }));
-  };
+  const handleRoleToggle = (role) => {
+  const current = user.imawhat ? user.imawhat.split(",").map(r => r.trim()).filter(Boolean) : [];
+  const updated = current.includes(role)
+    ? current.filter(r => r !== role)
+    : [...current, role];
+  setUser(prev => ({ ...prev, imawhat: updated.join(",") }));
+};
 
   const handleImageChange = (e) => {
     if (e.target.files[0]) {
@@ -284,19 +277,29 @@ const Update = () => {
         <label htmlFor="location">Location (City, State):</label>
         <input type="text" placeholder="e.g. Kansas City, MO" name="location" value={user.location || ""} onChange={handleChange} />
 
-        <label htmlFor="imawhat">I am a (select all that apply):</label>
-        <select multiple name="imawhat" value={selectedRoles} onChange={handleSelectChange}>
-          <option value=" Artist">Artist</option>
-          <option value=" Cosplayer">Cosplayer</option>
-          <option value=" Crafter">Crafter</option>        
-          <option value=" Maker">Maker</option>
-          <option value=" Model">Model</option>
-          <option value=" Photographer">Photographer</option>
-          <option value=" Prop Builder">Prop Builder</option>
-          <option value=" Seamstress">Seamstress</option>
-          <option value=" Tailor">Tailor</option>
-          <option value="none">None of the above</option>
-        </select>
+        <label htmlFor="imawhat">I am a (select all that apply):</label>        
+
+        <label>I am a (select all that apply):</label>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", margin: "8px 0" }}>
+          {roles.map(role => (
+            <button
+              key={role}
+              type="button"
+              onClick={() => handleRoleToggle(role)}
+              style={{
+                padding: "6px 14px",
+                borderRadius: "20px",
+                border: "2px solid #7b4fa6",
+                background: selectedRoles.includes(role) ? "#7b4fa6" : "transparent",
+                color: selectedRoles.includes(role) ? "#fff" : "#7b4fa6",
+                cursor: "pointer",
+                fontWeight: selectedRoles.includes(role) ? "bold" : "normal",
+              }}
+            >
+              {role}
+            </button>
+          ))}
+        </div>
 
         <label htmlFor="email">Email:</label>
         <input type="email" placeholder="Enter Email" name="email" value={user.email || ""} onChange={handleChange} autoComplete="email"/>
