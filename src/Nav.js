@@ -8,6 +8,18 @@ function Nav() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 769);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const isLoggedIn = !!token;
+  const payload = token ? JSON.parse(atob(token.split(".")[1])) : null;
+  const loggedInUserId = payload?.id ?? null;
+
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    navigate("/login");
+  };
+
+  const closeMenu = () => setMenuOpen(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 769);
@@ -18,27 +30,7 @@ function Nav() {
   // Close menu when switching to desktop
   useEffect(() => {
     if (!isMobile) setMenuOpen(false);
-  }, [isMobile]);
-
-  const token = localStorage.getItem("token");
-  const isLoggedIn = !!token;
-
-  const getUserId = () => {
-    try {
-      return token ? JSON.parse(atob(token.split(".")[1])).id : null;
-    } catch (e) {
-      return null;
-    }
-  };
-  const loggedInUserId = getUserId();
-
-  const handleSignOut = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
-    navigate("/login");
-  };
-
-  const closeMenu = () => setMenuOpen(false);
+  }, [isMobile]);  
 
   return (
     <nav className={`navbar ${menuOpen ? "open" : ""}`}>
@@ -178,6 +170,14 @@ function Nav() {
             <span className="link-text">Templates</span>
           </NavLink>
         </li>
+
+        {payload?.is_admin && (
+        <li className="nav-item">
+          <NavLink className="nav-link" to="/admin">
+            <FontAwesomeIcon icon={faPersonCircleCheck} /> {/* pick whichever icon fits */}
+            <span className="link-text">Admin</span>
+          </NavLink>
+        </li>)}
 
       </ul>
     </nav>
