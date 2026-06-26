@@ -1,12 +1,16 @@
 .game-container {
   position: relative;
-  width: 600px;
+  width: min(600px, calc(100vw - 32px));
   margin: 0 auto;
 }
 
 .game-canvas {
   border: 2px solid #333;
   background-color: #1a1a1a;
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none; /* allow touchmove without scroll interference */
 }
 
 .game-info {
@@ -28,6 +32,7 @@
   color: white;
   padding: 20px;
   border-radius: 10px;
+  width: max-content;
 }
 
 .game-overlay h2 {
@@ -36,4 +41,21 @@
 
 .game-overlay p {
   margin: 5px 0;
+}
+
+.bb-btn {
+  display: inline-block;
+  margin-top: 12px;
+  background: rgba(109, 40, 217, 0.85);
+  color: #f5f3ff;
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.bb-btn:hover {
+  background: rgba(91, 33, 182, 0.95);
 }

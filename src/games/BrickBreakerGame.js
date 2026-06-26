@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './BrickBreaker.css';
 
-const BrickBreaker = () => {
+const BrickBreaker = ({ onGameOver }) => {
   console.log("BrickBreakerGame.js");
   const canvasRef = useRef(null);
   const gameLoop = useRef(null); // Declare the game loop with useRef to persist it across renders
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
+  const scoreRef = useRef(0); // Ref for stale-closure-safe reads in the game loop
   const [lives, setLives] = useState(3);
 
   // Game objects
@@ -28,6 +29,7 @@ const BrickBreaker = () => {
     setIsGameOver(false);
     setIsPlaying(false);
     setScore(0);
+    scoreRef.current = 0;
     setLives(3);
     initializeBricks();
     resetBall();
@@ -36,15 +38,18 @@ const BrickBreaker = () => {
   // Memoize handleBallLost to avoid unnecessary recreations
   const handleBallLost = useCallback(() => {
     if (lives <= 1) {
-      setLives(0);  // Explicitly set lives to 0
-      setIsGameOver(true);  // Set the game over state
-      setIsPlaying(false);  // Stop the game from playing
-      clearInterval(gameLoop.current);  // Clear the game loop interval to stop the ball from moving
+      setLives(0);
+      setIsGameOver(true);
+      setIsPlaying(false);
+      clearInterval(gameLoop.current);
+      if (typeof onGameOver === 'function') {
+        onGameOver(scoreRef.current);
+      }
     } else {
-      setLives((l) => l - 1);  // Decrease lives
-      resetBall();  // Reset the ball position
+      setLives((l) => l - 1);
+      resetBall();
     }
-  }, [lives]);
+  }, [lives, onGameOver]);
 
   // Initialize bricks
   useEffect(() => {
@@ -65,17 +70,65 @@ const BrickBreaker = () => {
   // Handle keyboard input
   useEffect(() => {
     const handleKeyDown = (e) => {
+      if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+        e.preventDefault();
+      }
       if (e.key === 'ArrowLeft') paddle.current.x = Math.max(0, paddle.current.x - 20);
       if (e.key === 'ArrowRight') paddle.current.x = Math.min(600 - paddle.current.width, paddle.current.x + 20);
       if (e.key === ' ') {
         if (isGameOver) resetGame();
-        else setIsPlaying(!isPlaying);
+        else setIsPlaying((prev) => !prev);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isPlaying, isGameOver, resetGame]);
+
+  // Mouse and touch controls for mobile paddle movement
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const getCanvasX = (clientX) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = 600 / rect.width;
+      return (clientX - rect.left) * scaleX;
+    };
+
+    const movePaddleTo = (clientX) => {
+      const x = getCanvasX(clientX);
+      paddle.current.x = Math.max(0, Math.min(600 - paddle.current.width, x - paddle.current.width / 2));
+    };
+
+    const handleMouseMove = (e) => movePaddleTo(e.clientX);
+
+    const handleTouchMove = (e) => {
+      e.preventDefault();
+      movePaddleTo(e.touches[0].clientX);
+    };
+
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    return () => {
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      canvas.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
+
+  // Make canvas scale responsively
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const resize = () => {
+      const maxW = Math.min(600, window.innerWidth - 32);
+      canvas.style.width = maxW + 'px';
+      canvas.style.height = maxW + 'px';
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
 
   // Game loop
   useEffect(() => {
@@ -145,7 +198,11 @@ const BrickBreaker = () => {
           ) {
             ball.current.dy = -ball.current.dy;
             brick.status = 0;
-            setScore((s) => s + 100);
+            setScore((s) => {
+              const next = s + 100;
+              scoreRef.current = next;
+              return next;
+            });
           }
         }
       }
@@ -197,14 +254,15 @@ const BrickBreaker = () => {
       {isGameOver && (
         <div className="game-overlay">
           <h2>GAME OVER</h2>
-          <p>Press Space to restart</p>
+          <p>Final score: {score}</p>
+          <button className="bb-btn" onClick={resetGame}>Play again</button>
         </div>
       )}
       {!isPlaying && !isGameOver && (
         <div className="game-overlay">
           <h2>BRICK BREAKER</h2>
-          <p>Press Space to start</p>
-          <p>Use arrow keys to move</p>
+          <p>Arrow keys or drag to move</p>
+          <button className="bb-btn" onClick={() => setIsPlaying(true)}>Start</button>
         </div>
       )}
     </div>

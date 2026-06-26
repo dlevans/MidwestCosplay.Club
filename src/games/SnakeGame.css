@@ -1,35 +1,135 @@
 .grid {
-    display: grid;
-    grid-template-rows: repeat(20, 20px);
-    gap: 2px;
-    background-color: black;
-    padding: 10px;
+  display: grid;
+  grid-template-rows: repeat(20, clamp(14px, 4vw, 20px));
+  gap: 2px;
+  background-color: black;
+  padding: 10px;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(20, clamp(14px, 4vw, 20px));
+  gap: 2px;
+}
+
+.cell {
+  width: clamp(14px, 4vw, 20px);
+  height: clamp(14px, 4vw, 20px);
+  background-color: #222;
+}
+
+.snake {
+  background-color: green;
+}
+
+.food {
+  background-color: red;
+}
+
+.game-over {
+  color: white;
+  font-size: 24px;
+  text-align: center;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.game-paused {
+  color: white;
+  font-size: 20px;
+  text-align: center;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* HUD row: lives | pause | score */
+.snake-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: calc(20 * clamp(14px, 4vw, 20px) + 20 * 2px + 20px);
+  margin: 0 auto 6px;
+  color: white;
+  font-size: 1rem;
+}
+
+.lives, .score {
+  font-size: 1rem;
+  color: white;
+}
+
+/* General button */
+.snake-btn {
+  background: rgba(109, 40, 217, 0.85);
+  color: #f5f3ff;
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.snake-btn:hover {
+  background: rgba(91, 33, 182, 0.95);
+}
+
+.snake-btn--pause {
+  padding: 0.3rem 0.9rem;
+  font-size: 0.8rem;
+}
+
+/* D-pad (shown on mobile, hidden on desktop) */
+.snake-dpad {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 16px;
+}
+
+.dpad-row {
+  display: flex;
+  gap: 4px;
+}
+
+.dpad-btn {
+  width: 56px;
+  height: 56px;
+  font-size: 1.4rem;
+  background: rgba(30, 20, 60, 0.9);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.dpad-btn:active {
+  background: rgba(109, 40, 217, 0.7);
+}
+
+.dpad-btn--center {
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+  cursor: default;
+}
+
+@media (max-width: 520px) {
+  .snake-dpad {
+    display: flex;
   }
-  
-  .row {
-    display: grid;
-    grid-template-columns: repeat(20, 20px);
-    gap: 2px;
-  }
-  
-  .cell {
-    width: 20px;
-    height: 20px;
-    background-color: #222;
-  }
-  
-  .snake {
-    background-color: green;
-  }
-  
-  .food {
-    background-color: red;
-  }
-  
-  .game-over {
-    color: white;
-    font-size: 24px;
-    text-align: center;
-    margin-top: 20px;
-  }
-  
+}
