@@ -69,7 +69,13 @@ const Tutorials = () => {
   const navigate       = useNavigate();
   const token          = localStorage.getItem("token");
   const apiUrl         = process.env.REACT_APP_API_URL;
-  const loggedInUserId = getUserId(token);
+  const getPayload = (token) => {
+  try { return token ? JSON.parse(atob(token.split(".")[1])) : null; }
+  catch { return null; }
+};
+const payload = getPayload(token);
+const loggedInUserId = payload?.id ?? null;
+const isAdmin = payload?.is_admin ?? false;
 
   useEffect(() => {
     if (!token) { navigate("/login"); return; }
@@ -301,7 +307,7 @@ const Tutorials = () => {
                     <button className="button">Watch on {platform.label}</button>
                   </a>
 
-                  {tutorial.userid === loggedInUserId && (
+                  {(tutorial.userid === loggedInUserId || isAdmin) && (
                     <>
                       <Link to={`/addtutorial/${tutorial.tutorialid}`}>
                         <button className="button">Edit</button>

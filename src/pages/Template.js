@@ -71,7 +71,13 @@ const Templates = () => {
   const navigate       = useNavigate();
   const token          = localStorage.getItem("token");
   const apiUrl         = process.env.REACT_APP_API_URL;
-  const loggedInUserId = getUserId(token);
+  const getPayload = (token) => {
+  try { return token ? JSON.parse(atob(token.split(".")[1])) : null; }
+  catch { return null; }
+};
+const payload = getPayload(token);
+const loggedInUserId = payload?.id ?? null;
+const isAdmin = payload?.is_admin ?? false;
 
   useEffect(() => {
     if (!token) { navigate("/login"); return; }
@@ -332,7 +338,7 @@ const Templates = () => {
                     <button className="button">View Template</button>
                   </a>
 
-                  {template.userid === loggedInUserId && (
+                  {(tutorial.userid === loggedInUserId || isAdmin) && (
                     <>
                       <Link to={`/addtemplate/${template.templateid}`}>
                         <button className="button">Edit</button>

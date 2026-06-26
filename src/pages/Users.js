@@ -5,6 +5,11 @@ import Footer from "../Footer";
 import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
+const getPayload = (token) => {
+  try { return token ? JSON.parse(atob(token.split(".")[1])) : null; }
+  catch { return null; }
+};
+
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
@@ -13,6 +18,10 @@ const Users = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const apiUrl = process.env.REACT_APP_API_URL;
+  const payload = getPayload(token);
+  const loggedInUserId = payload?.id ?? null;
+  const isAdmin = payload?.is_admin ?? false;
+  
 
   useEffect(() => {
     if (!token) { navigate("/login"); return; }
@@ -83,11 +92,17 @@ const Users = () => {
                 }
               </h4>
             )}
+            {(user.id === loggedInUserId || isAdmin) && (
+            <Link to={`/update/${user.id}`}>
+              <button className="button">Edit</button>
+            </Link>
+            )}
             <Link to={`/public/${user.username}`}>
               <button className="button">View profile</button>
             </Link>
           </div>
         ))}
+        
       </div>
 
       {users.length > 6 && <PaginationBar />}
