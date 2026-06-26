@@ -1,31 +1,57 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../Footer";
 import SnakeGame from "../games/SnakeGame";
 import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
-const Snake = () => {
+/**
+ * Submits a final score to the leaderboard API.
+ * Call this from SnakeGame when the game ends.
+ *
+ * @param {number} score - The player's final score
+ */
+const useScoreSubmit = (game) => {
+  const submitScore = useCallback(async (score) => {
+    const token = localStorage.getItem("token");
+    if (!token || typeof score !== "number") return;
 
-   console.log("Snake.js");
-    const navigate = useNavigate();
-  
+    try {
+      const res = await fetch("/api/scores", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ game, score }),
+      });
+      if (!res.ok) {
+        console.error("Score submission failed:", res.status);
+      }
+    } catch (err) {
+      console.error("Score submission error:", err);
+    }
+  }, [game]);
+
+  return submitScore;
+};
+
+const Snake = () => {
+  const navigate = useNavigate();
+  const submitScore = useScoreSubmit("snake");
+
   useEffect(() => {
-    const token = localStorage.getItem("token"); // Check if token exists in localStorage
-  
+    const token = localStorage.getItem("token");
     if (!token) {
-      // If no token, redirect to the login page
       navigate("/login");
       return;
     }
   }, [navigate]);
 
-
-
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Snake Game</title>
+        <title data-rh="true">Snake — MidwestCosplay Club</title>
         <meta name="description" content="Snake game for MidwestCosplay Club members." />
       </Helmet>
       <EnchantedBackground />
@@ -35,11 +61,17 @@ const Snake = () => {
           <h1 className="home-headline">Snake</h1>
         </div>
 
-    <SnakeGame />
+        {/*
+          Pass `onGameOver` to SnakeGame so it can call submitScore
+          when the game ends. Wire it inside SnakeGame like:
+            props.onGameOver(finalScore)
+        */}
+        <SnakeGame onGameOver={submitScore} />
+      </div>
 
-  </div>
-        <Footer />
+      <Footer />
     </div>
   );
 };
+
 export default Snake;

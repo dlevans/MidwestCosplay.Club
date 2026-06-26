@@ -1,0 +1,230 @@
+/* =====================================================
+   Games Hub — Dark Fantasy Arcade Theme
+   MidwestCosplay Club
+   ===================================================== */
+
+/* ---------- Layout ---------- */
+
+.games-hub {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+/* ---------- Header ---------- */
+
+.games-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.games-eyebrow {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a78bfa;          /* violet-400 */
+  margin: 0 0 0.5rem;
+}
+
+.games-headline {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 700;
+  color: #f0e6ff;          /* near-white with violet tint */
+  margin: 0 0 0.5rem;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.games-subhead {
+  font-size: 1rem;
+  color: #9ca3af;          /* gray-400 */
+  margin: 0;
+}
+
+/* ---------- Game cards grid ---------- */
+
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.game-card {
+  background: rgba(15, 10, 30, 0.75);
+  border: 1px solid rgba(139, 92, 246, 0.3);   /* violet border */
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.game-card:hover {
+  border-color: rgba(167, 139, 250, 0.6);
+  transform: translateY(-2px);
+}
+
+/* ---------- Card top row ---------- */
+
+.game-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.game-icon {
+  font-size: 2.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.game-title {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #ede9fe;          /* violet-100 */
+  margin: 0 0 0.2rem;
+}
+
+.game-desc {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ---------- Play button ---------- */
+
+.game-play-btn {
+  display: block;
+  text-align: center;
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  background: rgba(124, 58, 237, 0.85);    /* violet-700 */
+  color: #f5f3ff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  transition: background 0.15s ease;
+}
+
+.game-play-btn:hover {
+  background: rgba(109, 40, 217, 0.95);    /* violet-800 */
+  color: #fff;
+}
+
+/* ---------- Leaderboard ---------- */
+
+.leaderboard {
+  border-top: 1px solid rgba(139, 92, 246, 0.2);
+  padding-top: 1rem;
+}
+
+.lb-heading {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #7c3aed;          /* violet-700 */
+  margin: 0 0 0.75rem;
+}
+
+/* ---------- Leaderboard list ---------- */
+
+.lb-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  transition: background 0.15s;
+}
+
+.lb-row:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+/* Podium highlights */
+.lb-row--gold   { background: rgba(250, 199, 117, 0.1); }
+.lb-row--silver { background: rgba(196, 201, 214, 0.08); }
+.lb-row--bronze { background: rgba(196, 134, 100, 0.08); }
+
+.lb-rank {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.75rem;
+  width: 1.5rem;
+  text-align: right;
+  flex-shrink: 0;
+  color: #6b7280;          /* gray-500 */
+}
+
+/* Gold / silver / bronze rank numbers */
+.lb-row--gold   .lb-rank { color: #fbbf24; font-weight: 700; }
+.lb-row--silver .lb-rank { color: #c4c9d6; font-weight: 700; }
+.lb-row--bronze .lb-rank { color: #c48664; font-weight: 700; }
+
+.lb-username {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #d1d5db;          /* gray-300 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-score {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.875rem;
+  color: #a78bfa;          /* violet-400 */
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+/* Gold / silver / bronze score colors */
+.lb-row--gold   .lb-score { color: #fbbf24; }
+.lb-row--silver .lb-score { color: #c4c9d6; }
+.lb-row--bronze .lb-score { color: #c48664; }
+
+/* ---------- Empty / loading states ---------- */
+
+.lb-state {
+  padding: 0.75rem 0;
+  text-align: center;
+}
+
+.lb-state-text {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.lb-state-error {
+  color: #f87171;          /* red-400 */
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 480px) {
+  .games-grid {
+    grid-template-columns: 1fr;
+  }
+  .games-headline {
+    font-size: 2.25rem;
+  }
+}
