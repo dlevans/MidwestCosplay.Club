@@ -30,6 +30,7 @@ import AnalyticsTracker from './components/AnalyticsTracker';
 import AddTutorial from "./pages/Addtutorial";
 import AddTemplate from "./pages/Addtemplate";
 import Templates from "./pages/Template";
+import Admin from "./pages/Admin";
 
 function App() {
   const navigate = useNavigate();
@@ -97,6 +98,7 @@ function App() {
           <Route path="/templates"              element={<Templates />} />
           <Route path="/addtemplate"            element={<AddTemplate />} />
           <Route path="/addtemplate/:templateid" element={<AddTemplate />} />
+          <Route path="/admin"            element={<Admin />} />
           <Route path="/" element={<Home />} />
           <Route path="/*" element={<PageNotFound />} />
         </Routes>
