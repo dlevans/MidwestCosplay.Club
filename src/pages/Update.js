@@ -277,10 +277,8 @@ const Update = () => {
         <label htmlFor="location">Location (City, State):</label>
         <input type="text" placeholder="e.g. Kansas City, MO" name="location" value={user.location || ""} onChange={handleChange} />
 
-        <label htmlFor="imawhat">I am a (select all that apply):</label>        
-
         <label>I am a (select all that apply):</label>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", margin: "8px 0" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", margin: "8px 0", maxWidth: "462px" }}>
           {roles.map(role => (
             <button
               key={role}
