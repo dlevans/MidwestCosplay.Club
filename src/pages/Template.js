@@ -338,7 +338,7 @@ const isAdmin = payload?.is_admin ?? false;
                     <button className="button">View Template</button>
                   </a>
 
-                  {(tutorial.userid === loggedInUserId || isAdmin) && (
+                  {(template.userid === loggedInUserId || isAdmin) && (
                     <>
                       <Link to={`/addtemplate/${template.templateid}`}>
                         <button className="button">Edit</button>
