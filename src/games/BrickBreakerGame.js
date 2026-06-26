@@ -1,62 +1,30 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './BrickBreaker.css';
 
-const BrickBreaker = ({ onGameOver }) => {
-  console.log("BrickBreakerGame.js");
+const BRICK_ROWS = 5;
+const BRICK_COLS = 8;
+const BRICK_WIDTH = 70;
+const BRICK_HEIGHT = 20;
+const BRICK_PADDING = 10;
+const BRICK_OFFSET_TOP = 60;
+
+const BrickBreaker = () => {
   const canvasRef = useRef(null);
-  const gameLoop = useRef(null); // Declare the game loop with useRef to persist it across renders
+  const gameLoop = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
-  const scoreRef = useRef(0); // Ref for stale-closure-safe reads in the game loop
+  const scoreRef = useRef(0);
   const [lives, setLives] = useState(3);
 
-  // Game objects
+  // "idle" | "submitting" | "submitted" | "error"
+  const [submitStatus, setSubmitStatus] = useState("idle");
+
   const ball = useRef({ x: 300, y: 400, dx: 4, dy: -4, radius: 8 });
   const paddle = useRef({ width: 100, height: 15, x: 300 });
   const bricks = useRef([]);
 
-  // Brick configuration
-  const BRICK_ROWS = 5;
-  const BRICK_COLS = 8;
-  const BRICK_WIDTH = 70;
-  const BRICK_HEIGHT = 20;
-  const BRICK_PADDING = 10;
-  const BRICK_OFFSET_TOP = 60;
-
-  // Memoize resetGame to avoid unnecessary recreations
-  const resetGame = useCallback(() => {
-    setIsGameOver(false);
-    setIsPlaying(false);
-    setScore(0);
-    scoreRef.current = 0;
-    setLives(3);
-    initializeBricks();
-    resetBall();
-  }, []);
-
-  // Memoize handleBallLost to avoid unnecessary recreations
-  const handleBallLost = useCallback(() => {
-    if (lives <= 1) {
-      setLives(0);
-      setIsGameOver(true);
-      setIsPlaying(false);
-      clearInterval(gameLoop.current);
-      if (typeof onGameOver === 'function') {
-        onGameOver(scoreRef.current);
-      }
-    } else {
-      setLives((l) => l - 1);
-      resetBall();
-    }
-  }, [lives, onGameOver]);
-
-  // Initialize bricks
-  useEffect(() => {
-    initializeBricks();
-  }, []);
-
-  const initializeBricks = () => {
+  const initializeBricks = useCallback(() => {
     const arr = [];
     for (let c = 0; c < BRICK_COLS; c++) {
       arr[c] = [];
@@ -65,65 +33,105 @@ const BrickBreaker = ({ onGameOver }) => {
       }
     }
     bricks.current = arr;
-  };
+  }, []);
 
-  // Handle keyboard input
+  const resetBall = useCallback(() => {
+    ball.current = { x: 300, y: 400, dx: 4, dy: -4, radius: 8 };
+  }, []);
+
+  const resetGame = useCallback(() => {
+    setIsGameOver(false);
+    setIsPlaying(false);
+    setScore(0);
+    scoreRef.current = 0;
+    setLives(3);
+    setSubmitStatus("idle");
+    initializeBricks();
+    resetBall();
+  }, [initializeBricks, resetBall]);
+
+  const submitScore = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) { setSubmitStatus("error"); return; }
+    setSubmitStatus("submitting");
+    try {
+      const res = await fetch("/api/scores", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ game: "brickbreaker", score: scoreRef.current }),
+      });
+      setSubmitStatus(res.ok ? "submitted" : "error");
+    } catch {
+      setSubmitStatus("error");
+    }
+  }, []);
+
+  // livesRef so handleBallLost inside the interval always sees the current value
+  const livesRef = useRef(3);
+  useEffect(() => { livesRef.current = lives; }, [lives]);
+
+  const handleBallLost = useCallback(() => {
+    if (livesRef.current <= 1) {
+      setLives(0);
+      setIsGameOver(true);
+      setIsPlaying(false);
+      clearInterval(gameLoop.current);
+    } else {
+      setLives((l) => { livesRef.current = l - 1; return l - 1; });
+      resetBall();
+    }
+  }, [resetBall]);
+
+  // Initialize bricks on mount
+  useEffect(() => { initializeBricks(); }, [initializeBricks]);
+
+  // Keyboard controls
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) {
-        e.preventDefault();
-      }
-      if (e.key === 'ArrowLeft') paddle.current.x = Math.max(0, paddle.current.x - 20);
+      if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) e.preventDefault();
+      if (e.key === 'ArrowLeft')  paddle.current.x = Math.max(0, paddle.current.x - 20);
       if (e.key === 'ArrowRight') paddle.current.x = Math.min(600 - paddle.current.width, paddle.current.x + 20);
       if (e.key === ' ') {
         if (isGameOver) resetGame();
         else setIsPlaying((prev) => !prev);
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isPlaying, isGameOver, resetGame]);
+  }, [isGameOver, resetGame]);
 
-  // Mouse and touch controls for mobile paddle movement
+  // Mouse & touch paddle control
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const getCanvasX = (clientX) => {
+    const getX = (clientX) => {
       const rect = canvas.getBoundingClientRect();
-      const scaleX = 600 / rect.width;
-      return (clientX - rect.left) * scaleX;
+      return (clientX - rect.left) * (600 / rect.width);
     };
-
-    const movePaddleTo = (clientX) => {
-      const x = getCanvasX(clientX);
-      paddle.current.x = Math.max(0, Math.min(600 - paddle.current.width, x - paddle.current.width / 2));
+    const moveTo = (clientX) => {
+      paddle.current.x = Math.max(0, Math.min(600 - paddle.current.width, getX(clientX) - paddle.current.width / 2));
     };
-
-    const handleMouseMove = (e) => movePaddleTo(e.clientX);
-
-    const handleTouchMove = (e) => {
-      e.preventDefault();
-      movePaddleTo(e.touches[0].clientX);
-    };
-
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    const onMouseMove = (e) => moveTo(e.clientX);
+    const onTouchMove = (e) => { e.preventDefault(); moveTo(e.touches[0].clientX); };
+    canvas.addEventListener('mousemove', onMouseMove);
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
     return () => {
-      canvas.removeEventListener('mousemove', handleMouseMove);
-      canvas.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('mousemove', onMouseMove);
+      canvas.removeEventListener('touchmove', onTouchMove);
     };
   }, []);
 
-  // Make canvas scale responsively
+  // Responsive canvas size
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const resize = () => {
-      const maxW = Math.min(600, window.innerWidth - 32);
-      canvas.style.width = maxW + 'px';
-      canvas.style.height = maxW + 'px';
+      const w = Math.min(600, window.innerWidth - 32);
+      canvas.style.width = w + 'px';
+      canvas.style.height = w + 'px';
     };
     resize();
     window.addEventListener('resize', resize);
@@ -132,112 +140,90 @@ const BrickBreaker = ({ onGameOver }) => {
 
   // Game loop
   useEffect(() => {
-    if (isGameOver) {
-      clearInterval(gameLoop.current);  // Clear the interval if the game is over
-      return;
-    }
+    if (isGameOver) { clearInterval(gameLoop.current); return; }
 
     const ctx = canvasRef.current.getContext('2d');
-    gameLoop.current = setInterval(() => {
-      if (!isPlaying) return;  // If the game is paused, stop the loop
 
-      // Clear canvas
+    const checkBrickCollisions = () => {
+      for (let c = 0; c < BRICK_COLS; c++) {
+        for (let r = 0; r < BRICK_ROWS; r++) {
+          const brick = bricks.current[c][r];
+          if (brick.status !== 1) continue;
+          const bx = c * (BRICK_WIDTH + BRICK_PADDING) + BRICK_OFFSET_TOP;
+          const by = r * (BRICK_HEIGHT + BRICK_PADDING) + BRICK_OFFSET_TOP;
+          if (
+            ball.current.x > bx && ball.current.x < bx + BRICK_WIDTH &&
+            ball.current.y > by && ball.current.y < by + BRICK_HEIGHT
+          ) {
+            ball.current.dy = -ball.current.dy;
+            brick.status = 0;
+            setScore((s) => { const n = s + 100; scoreRef.current = n; return n; });
+          }
+        }
+      }
+    };
+
+    gameLoop.current = setInterval(() => {
+      if (!isPlaying) return;
+
       ctx.clearRect(0, 0, 600, 600);
 
-      // Update ball position
       ball.current.x += ball.current.dx;
       ball.current.y += ball.current.dy;
 
       // Wall collisions
-      if (ball.current.x + ball.current.dx > 600 - ball.current.radius || 
+      if (ball.current.x + ball.current.dx > 600 - ball.current.radius ||
           ball.current.x + ball.current.dx < ball.current.radius) {
         ball.current.dx = -ball.current.dx;
       }
-
-      // Ceiling collision
+      // Ceiling
       if (ball.current.y + ball.current.dy < ball.current.radius) {
         ball.current.dy = -ball.current.dy;
       }
-
-      // Paddle collision
+      // Paddle
       if (ball.current.y + ball.current.dy > 600 - paddle.current.height - ball.current.radius) {
         if (ball.current.x > paddle.current.x && ball.current.x < paddle.current.x + paddle.current.width) {
           ball.current.dy = -ball.current.dy;
-          // Add paddle hit effect
           ball.current.dx += (Math.random() - 0.5) * 2;
         } else {
           handleBallLost();
         }
       }
 
-      // Brick collisions
       checkBrickCollisions();
 
-      // Draw elements
-      drawBall(ctx);
-      drawPaddle(ctx);
-      drawBricks(ctx);
+      // Draw ball
+      ctx.beginPath();
+      ctx.arc(ball.current.x, ball.current.y, ball.current.radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#ff4444';
+      ctx.fill();
+      ctx.closePath();
+
+      // Draw paddle
+      ctx.fillStyle = '#44ff44';
+      ctx.fillRect(paddle.current.x, 600 - paddle.current.height, paddle.current.width, paddle.current.height);
+
+      // Draw bricks
+      bricks.current.forEach((col, c) => {
+        col.forEach((brick, r) => {
+          if (brick.status !== 1) return;
+          const bx = c * (BRICK_WIDTH + BRICK_PADDING) + BRICK_OFFSET_TOP;
+          const by = r * (BRICK_HEIGHT + BRICK_PADDING) + BRICK_OFFSET_TOP;
+          ctx.fillStyle = '#4444ff';
+          ctx.fillRect(bx, by, BRICK_WIDTH, BRICK_HEIGHT);
+        });
+      });
     }, 16);
 
-    return () => clearInterval(gameLoop.current);  // Clear the interval on cleanup
-  }, [isPlaying, isGameOver, handleBallLost, resetGame]);  // Include handleBallLost and resetGame in dependencies
+    return () => clearInterval(gameLoop.current);
+  }, [isPlaying, isGameOver, handleBallLost]);
 
-  const checkBrickCollisions = () => {
-    for (let c = 0; c < BRICK_COLS; c++) {
-      for (let r = 0; r < BRICK_ROWS; r++) {
-        const brick = bricks.current[c][r];
-        if (brick.status === 1) {
-          const brickX = c * (BRICK_WIDTH + BRICK_PADDING) + BRICK_OFFSET_TOP;
-          const brickY = r * (BRICK_HEIGHT + BRICK_PADDING) + BRICK_OFFSET_TOP;
-
-          if (
-            ball.current.x > brickX &&
-            ball.current.x < brickX + BRICK_WIDTH &&
-            ball.current.y > brickY &&
-            ball.current.y < brickY + BRICK_HEIGHT
-          ) {
-            ball.current.dy = -ball.current.dy;
-            brick.status = 0;
-            setScore((s) => {
-              const next = s + 100;
-              scoreRef.current = next;
-              return next;
-            });
-          }
-        }
-      }
-    }
-  };
-
-  const resetBall = () => {
-    ball.current = { x: 300, y: 400, dx: 4, dy: -4, radius: 8 };
-  };
-
-  const drawBall = (ctx) => {
-    ctx.beginPath();
-    ctx.arc(ball.current.x, ball.current.y, ball.current.radius, 0, Math.PI * 2);
-    ctx.fillStyle = '#ff4444';
-    ctx.fill();
-    ctx.closePath();
-  };
-
-  const drawPaddle = (ctx) => {
-    ctx.fillStyle = '#44ff44';
-    ctx.fillRect(paddle.current.x, 600 - paddle.current.height, paddle.current.width, paddle.current.height);
-  };
-
-  const drawBricks = (ctx) => {
-    bricks.current.forEach((column, c) => {
-      column.forEach((brick, r) => {
-        if (brick.status === 1) {
-          const brickX = c * (BRICK_WIDTH + BRICK_PADDING) + BRICK_OFFSET_TOP;
-          const brickY = r * (BRICK_HEIGHT + BRICK_PADDING) + BRICK_OFFSET_TOP;
-          ctx.fillStyle = '#4444ff';
-          ctx.fillRect(brickX, brickY, BRICK_WIDTH, BRICK_HEIGHT);
-        }
-      });
-    });
-  };
+  const submitLabel = {
+    idle: "Submit score",
+    submitting: "Submitting…",
+    submitted: "Score submitted!",
+    error: "Submission failed — try again",
+  }[submitStatus];
 
   return (
     <div className="game-container">
@@ -245,17 +231,19 @@ const BrickBreaker = ({ onGameOver }) => {
         <div>Score: {score}</div>
         <div>Lives: {lives}</div>
       </div>
-      <canvas
-        ref={canvasRef}
-        width="600"
-        height="600"
-        className="game-canvas"
-      />
+      <canvas ref={canvasRef} width="600" height="600" className="game-canvas" />
       {isGameOver && (
         <div className="game-overlay">
           <h2>GAME OVER</h2>
           <p>Final score: {score}</p>
-          <button className="bb-btn" onClick={resetGame}>Play again</button>
+          <button
+            className="bb-btn"
+            onClick={submitScore}
+            disabled={submitStatus === "submitting" || submitStatus === "submitted"}
+          >
+            {submitLabel}
+          </button>
+          <button className="bb-btn bb-btn--secondary" onClick={resetGame}>Play again</button>
         </div>
       )}
       {!isPlaying && !isGameOver && (

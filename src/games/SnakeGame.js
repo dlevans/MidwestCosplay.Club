@@ -4,30 +4,60 @@ import "./SnakeGame.css";
 const GRID_SIZE = 20;
 const INITIAL_SNAKE = [{ x: 10, y: 10 }];
 const INITIAL_DIRECTION = { x: 0, y: 1 };
-const INITIAL_LIVES = 3; // Initial number of lives
-const INITIAL_SCORE = 0; // Initial score
+const INITIAL_LIVES = 3;
+const INITIAL_SCORE = 0;
 
-const SnakeGame = ({ onGameOver }) => {
-  console.log("SnakeGame.js");
+function generateFoodPosition() {
+  return {
+    x: Math.floor(Math.random() * GRID_SIZE),
+    y: Math.floor(Math.random() * GRID_SIZE),
+  };
+}
+
+const SnakeGame = () => {
   const [snake, setSnake] = useState(INITIAL_SNAKE);
-  const [food, setFood] = useState(generateFoodPosition());
+  const [food, setFood] = useState(generateFoodPosition);
   const [direction, setDirection] = useState(INITIAL_DIRECTION);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isPaused, setIsPaused] = useState(true);
-  const [lives, setLives] = useState(INITIAL_LIVES); // Lives state
-  const [score, setScore] = useState(INITIAL_SCORE); // Score state
-  const scoreRef = useRef(INITIAL_SCORE); // Ref so onGameOver always reads the latest value
+  const [lives, setLives] = useState(INITIAL_LIVES);
+  const [score, setScore] = useState(INITIAL_SCORE);
+  const scoreRef = useRef(INITIAL_SCORE);
 
-  // Define checkCollision outside of useCallback to avoid warning
+  // "idle" | "submitting" | "submitted" | "error"
+  const [submitStatus, setSubmitStatus] = useState("idle");
+
+  const submitScore = useCallback(async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setSubmitStatus("error");
+      return;
+    }
+    setSubmitStatus("submitting");
+    try {
+      const res = await fetch("/api/scores", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ game: "snake", score: scoreRef.current }),
+      });
+      setSubmitStatus(res.ok ? "submitted" : "error");
+    } catch {
+      setSubmitStatus("error");
+    }
+  }, []);
+
   const checkCollision = useCallback((head) => {
     return (
       head.x < 0 ||
       head.x >= GRID_SIZE ||
       head.y < 0 ||
       head.y >= GRID_SIZE ||
-      snake.some(segment => segment.x === head.x && segment.y === head.y)
+      snake.some((seg) => seg.x === head.x && seg.y === head.y)
     );
-  }, [snake]); // Include 'snake' in the dependencies
+  }, [snake]);
 
   const moveSnake = useCallback(() => {
     if (isPaused || isGameOver) return;
@@ -40,17 +70,12 @@ const SnakeGame = ({ onGameOver }) => {
 
     if (checkCollision(newHead)) {
       if (lives > 1) {
-        // Decrement lives and reset snake position
-        setLives((prevLives) => prevLives - 1);
-        setSnake(INITIAL_SNAKE); // Reset snake to initial position
+        setLives((l) => l - 1);
+        setSnake(INITIAL_SNAKE);
         return;
       } else {
-        // No lives left, end the game
         setIsGameOver(true);
         setIsPaused(true);
-        if (typeof onGameOver === 'function') {
-          onGameOver(scoreRef.current);
-        }
         return;
       }
     }
@@ -58,17 +83,17 @@ const SnakeGame = ({ onGameOver }) => {
     newSnake.unshift(newHead);
     if (newHead.x === food.x && newHead.y === food.y) {
       setFood(generateFoodPosition());
-      setScore((prevScore) => {
-        const next = prevScore + 100;
+      setScore((prev) => {
+        const next = prev + 100;
         scoreRef.current = next;
         return next;
-      }); // Increment score
+      });
     } else {
       newSnake.pop();
     }
 
     setSnake(newSnake);
-  }, [snake, direction, food, isPaused, isGameOver, lives, checkCollision]); // Include checkCollision
+  }, [snake, direction, food, isPaused, isGameOver, lives, checkCollision]);
 
   useEffect(() => {
     if (isPaused || isGameOver) return;
@@ -82,108 +107,85 @@ const SnakeGame = ({ onGameOver }) => {
     setDirection(INITIAL_DIRECTION);
     setIsGameOver(false);
     setIsPaused(true);
-    setLives(INITIAL_LIVES); // Reset lives
-    setScore(INITIAL_SCORE); // Reset score
+    setLives(INITIAL_LIVES);
+    setScore(INITIAL_SCORE);
     scoreRef.current = INITIAL_SCORE;
-  }, []); // Use useCallback with an empty dependency array
+    setSubmitStatus("idle");
+  }, []);
 
+  // Keyboard controls
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      // Prevent arrow keys from scrolling the page
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(event.key)) {
-        event.preventDefault();
+    const handleKeyDown = (e) => {
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+        e.preventDefault();
       }
-
-      if (event.key === " ") {
-        if (isGameOver) {
-          resetGame();
-        } else {
-          setIsPaused((prev) => !prev);
-        }
+      if (e.key === " ") {
+        if (isGameOver) resetGame();
+        else setIsPaused((prev) => !prev);
       }
-      switch (event.key) {
-        case "ArrowUp":
-          if (direction.y === 0) setDirection({ x: 0, y: -1 });
-          break;
-        case "ArrowDown":
-          if (direction.y === 0) setDirection({ x: 0, y: 1 });
-          break;
-        case "ArrowLeft":
-          if (direction.x === 0) setDirection({ x: -1, y: 0 });
-          break;
-        case "ArrowRight":
-          if (direction.x === 0) setDirection({ x: 1, y: 0 });
-          break;
-        default:
-          break;
+      switch (e.key) {
+        case "ArrowUp":    if (direction.y === 0) setDirection({ x: 0, y: -1 }); break;
+        case "ArrowDown":  if (direction.y === 0) setDirection({ x: 0, y: 1 });  break;
+        case "ArrowLeft":  if (direction.x === 0) setDirection({ x: -1, y: 0 }); break;
+        case "ArrowRight": if (direction.x === 0) setDirection({ x: 1, y: 0 });  break;
+        default: break;
       }
     };
-
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [direction, isGameOver, resetGame]); // Include resetGame in dependencies
+  }, [direction, isGameOver, resetGame]);
 
-  // Touch swipe controls for mobile
+  // Touch swipe controls
   useEffect(() => {
-    let touchStartX = null;
-    let touchStartY = null;
-
-    const handleTouchStart = (e) => {
-      touchStartX = e.touches[0].clientX;
-      touchStartY = e.touches[0].clientY;
-    };
-
-    const handleTouchEnd = (e) => {
-      if (touchStartX === null || touchStartY === null) return;
-
-      const dx = e.changedTouches[0].clientX - touchStartX;
-      const dy = e.changedTouches[0].clientY - touchStartY;
-      const absDx = Math.abs(dx);
-      const absDy = Math.abs(dy);
-
-      // Require a minimum swipe distance to avoid accidental taps
-      if (Math.max(absDx, absDy) < 20) return;
-
-      if (absDx > absDy) {
-        // Horizontal swipe
+    let startX = null;
+    let startY = null;
+    const onStart = (e) => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; };
+    const onEnd = (e) => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+      if (Math.abs(dx) > Math.abs(dy)) {
         if (dx > 0 && direction.x === 0) setDirection({ x: 1, y: 0 });
         else if (dx < 0 && direction.x === 0) setDirection({ x: -1, y: 0 });
       } else {
-        // Vertical swipe
         if (dy > 0 && direction.y === 0) setDirection({ x: 0, y: 1 });
         else if (dy < 0 && direction.y === 0) setDirection({ x: 0, y: -1 });
       }
-
-      touchStartX = null;
-      touchStartY = null;
+      startX = null; startY = null;
     };
-
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
-    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchend", onEnd, { passive: true });
     return () => {
-      window.removeEventListener("touchstart", handleTouchStart);
-      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchend", onEnd);
     };
   }, [direction]);
 
-  function generateFoodPosition() {
-    return {
-      x: Math.floor(Math.random() * GRID_SIZE),
-      y: Math.floor(Math.random() * GRID_SIZE),
-    };
-  }
+  const submitLabel = {
+    idle: "Submit score",
+    submitting: "Submitting…",
+    submitted: "Score submitted!",
+    error: "Submission failed — try again",
+  }[submitStatus];
 
   return (
     <div>
       {isGameOver ? (
         <div className="game-over">
-          Game Over! Final score: {score}
-          <br />
+          <p>Game over! Final score: {score}</p>
+          <button
+            className="snake-btn snake-btn--submit"
+            onClick={submitScore}
+            disabled={submitStatus === "submitting" || submitStatus === "submitted"}
+          >
+            {submitLabel}
+          </button>
           <button className="snake-btn" onClick={resetGame}>Play again</button>
         </div>
       ) : isPaused ? (
         <div className="game-paused">
-          <p>Press Space or tap the button to start</p>
+          <p>Press Space or tap to start</p>
           <button className="snake-btn" onClick={() => setIsPaused(false)}>Start</button>
         </div>
       ) : (
@@ -197,14 +199,10 @@ const SnakeGame = ({ onGameOver }) => {
             {Array.from({ length: GRID_SIZE }).map((_, y) => (
               <div key={y} className="row">
                 {Array.from({ length: GRID_SIZE }).map((_, x) => {
-                  let className = "cell";
-                  if (snake.some(segment => segment.x === x && segment.y === y)) {
-                    className += " snake";
-                  }
-                  if (food.x === x && food.y === y) {
-                    className += " food";
-                  }
-                  return <div key={x} className={className}></div>;
+                  let cls = "cell";
+                  if (snake.some((seg) => seg.x === x && seg.y === y)) cls += " snake";
+                  if (food.x === x && food.y === y) cls += " food";
+                  return <div key={x} className={cls} />;
                 })}
               </div>
             ))}

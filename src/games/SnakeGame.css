@@ -133,3 +133,14 @@
     display: flex;
   }
 }
+
+.snake-btn--submit {
+  background: rgba(16, 100, 60, 0.85);
+  border-color: rgba(52, 211, 153, 0.4);
+  width: 100%;
+}
+
+.snake-btn--submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
