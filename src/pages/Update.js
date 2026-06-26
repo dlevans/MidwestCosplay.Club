@@ -44,6 +44,11 @@ const Update = () => {
     cosplaygroup: "",
     imawhat: "", // Will hold a clean comma-separated string to match your backend expectations
     location: "", // Added to align with your updated PostgreSQL schema
+    website: "",
+    website1: "",
+    website2: "",
+    website3: "",
+    onlyfans: "",
   });
   const [image, setImage] = useState(null);
   const [error, setError] = useState(false);
@@ -394,11 +399,27 @@ const Update = () => {
         <label htmlFor="vimeo">Vimeo username:</label>
         <input type="text" placeholder="Vimeo" name="vimeo" value={user.vimeo || ""} onChange={handleChange} />
 
+        <label htmlFor="website">Website:</label>
+        <input type="url" placeholder="https://yoursite.com" name="website" value={user.website || ""} onChange={handleChange} />
+
+        <label htmlFor="website1">Website 2:</label>
+        <input type="url" placeholder="https://yoursite.com" name="website1" value={user.website1 || ""} onChange={handleChange} />
+
+        <label htmlFor="website2">Website 3:</label>
+        <input type="url" placeholder="https://yoursite.com" name="website2" value={user.website2 || ""} onChange={handleChange} />
+
+        <label htmlFor="website3">Website 4:</label>
+        <input type="url" placeholder="https://yoursite.com" name="website3" value={user.website3 || ""} onChange={handleChange} />
+
+
         <label htmlFor="patreon">Patreon page:</label>
         <input type="text" placeholder="Patreon" name="patreon" value={user.patreon || ""} onChange={handleChange} />
 
         <label htmlFor="kofi">Kofi username:</label>
         <input type="text" placeholder="Kofi" name="kofi" value={user.kofi || ""} onChange={handleChange} />
+
+        <label htmlFor="onlyfans">OnlyFans username:</label>
+        <input type="text" placeholder="OnlyFans" name="onlyfans" value={user.onlyfans || ""} onChange={handleChange} />
 
         <label htmlFor="venmo">Venmo username:</label>
         <input type="text" placeholder="Venmo" name="venmo" value={user.venmo || ""} onChange={handleChange} />

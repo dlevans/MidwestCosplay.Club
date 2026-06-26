@@ -27,11 +27,16 @@ const SOCIAL_LINKS = [
   { key: "twitch",    label: "Twitch",    icon: "ti-brand-twitch",    url: (v) => `https://www.twitch.tv/${v}` },
   { key: "youtube",   label: "YouTube",   icon: "ti-brand-youtube",   url: (v) => `https://www.youtube.com/@${v}` },
   { key: "vimeo",     label: "Vimeo",     icon: "ti-brand-vimeo",     url: (v) => `https://vimeo.com/${v}` },
+  { key: "website",  label: "Website",   icon: "ti-world", url: (v) => v },
+  { key: "website1", label: "Website 2", icon: "ti-world", url: (v) => v },
+  { key: "website2", label: "Website 3", icon: "ti-world", url: (v) => v },
+  { key: "website3", label: "Website 4", icon: "ti-world", url: (v) => v },
 ];
 
 const SUPPORT_LINKS = [
   { key: "patreon",   label: "Patreon",    icon: "ti-heart",           url: (v) => `https://www.patreon.com/${v}` },
   { key: "kofi",      label: "Ko-fi",      icon: "ti-coffee",          url: (v) => `https://ko-fi.com/${v}` },
+  { key: "onlyfans",  label: "OnlyFans",   icon: "ti-heart",           url: (v) => `https://onlyfans.com/${v}` },
   { key: "venmo",     label: "Venmo",      icon: "ti-currency-dollar", url: (v) => `https://venmo.com/${v}` },
   { key: "cashapp",   label: "CashApp",    icon: "ti-currency-dollar", url: (v) => `https://cash.app/$${v}` },
   { key: "paypal",    label: "PayPal",     icon: "ti-brand-paypal",    url: (v) => `https://www.paypal.me/${v}` },
