@@ -18,8 +18,7 @@ function Footer() {
   return (
     <div className="footer">
       <p>
-        © {today.getFullYear()} MidwestCosplay.Club. All rights reserved. <Link to={`https://www.patreon.com/c/midwestcosplayclub`}>Support us on Patreon!!!</Link>
-        <br />
+        © {today.getFullYear()} MidwestCosplay.Club. All rights reserved.
         <br />
         All brands are registered trademarks of their respective brands and are not affiliated with MidwestCosplay.Club.
       </p>
