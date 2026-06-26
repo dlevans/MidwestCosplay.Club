@@ -82,7 +82,7 @@ const Update = () => {
 
     const payload = JSON.parse(atob(token.split(".")[1]));
 
-    if(parseInt(userID) !== payload.id)
+    if(parseInt(userID) !== payload.id && !payload.is_admin)
     {
       navigate("/users");
       return;
