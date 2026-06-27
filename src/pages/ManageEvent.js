@@ -455,7 +455,7 @@ const ManageEvent = () => {
 
         {isEditing && (
           <div className="event-members-section">
-            <h2>Members</h2>
+            <h2>Users who have attended this event:</h2>
 
             {memberError && <p style={{ color: "red" }}>{memberError}!!!</p>}
 
