@@ -291,6 +291,7 @@ const Public = () => {
   const hasContact  = user.phonenumber || user.email;
   const hasCalendar = user.calendar && user.calendar !== "null";
   const hasGroups   = user.groups && user.groups.length > 0;
+  const hasEvents   = user.events && user.events.length > 0;
 
   const renderCosplayChips = (value, dot) =>
     value
@@ -427,6 +428,34 @@ const Public = () => {
                     >
                       <div style={s.groupTileOverlay}>
                         <span style={s.groupTileName}>{group.groupname}</span>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ── Attended Events ── */}
+          {hasEvents && (
+            <>
+              <div style={s.divider} />
+              <div style={s.section}>
+                <p style={s.sectionLabel}>Events I've attended:</p>
+                <div style={s.groupGrid}>
+                  {user.events.map((event) => (
+                    <a
+                      key={event.eventid}
+                      href={event.eventwebsite}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        ...s.eventTile,
+                        backgroundImage: event.eventimage ? `url(${event.eventimage})` : "none",
+                      }}
+                    >
+                      <div style={s.eventTileOverlay}>
+                        <span style={s.eventTileName}>{event.eventname}</span>
                       </div>
                     </a>
                   ))}
