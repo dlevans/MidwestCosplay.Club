@@ -4,6 +4,7 @@ import { useParams, Link } from "react-router-dom";
 import Footer from "../Footer";
 import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
+import EventAttendance from "./EventAttendance";
 
 const s = {
   page: {
@@ -39,13 +40,13 @@ const s = {
     fontSize: 36,
     color: "var(--text-muted)",
   },
-  groupName: {
+  eventName: {
     fontSize: 22,
     fontWeight: 500,
     color: "var(--text-primary)",
     margin: "0 0 2px",
   },
-  groupLocation: {
+  eventLocation: {
     fontSize: 14,
     color: "var(--text-secondary)",
     margin: "0 0 8px",
@@ -76,70 +77,37 @@ const s = {
     color: "var(--text-muted)",
     margin: "0 0 10px",
   },
-  memberGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 10 },
-  memberCard: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    textAlign: "center",
-    textDecoration: "none",
-    padding: "0.75rem 0.5rem",
-    borderRadius: "var(--radius-md)",
-    border: "1px solid var(--border)",
-    background: "var(--bg-surface)",
-  },
-  memberAvatar: {
-    width: 56,
-    height: 56,
-    borderRadius: "50%",
-    objectFit: "cover",
-    border: "2px solid var(--border)",
-    marginBottom: 6,
-  },
-  memberAvatarPlaceholder: {
-    width: 56,
-    height: 56,
-    borderRadius: "50%",
-    background: "var(--bg-elevated)",
-    border: "2px solid var(--border)",
-    marginBottom: 6,
-  },
-  memberName: { fontSize: 13, color: "var(--text-primary)", fontWeight: 500 },
-  memberHandle: { fontSize: 11, color: "var(--text-muted)" },
-  noMembersText: { fontSize: 14, color: "var(--text-secondary)" },
 };
 
 const PublicEvent = () => {
-  console.log("PublicGroup.js");
-  const { groupid } = useParams();
-  const [group, setGroup] = useState(null);
+  console.log("PublicEvent.js");
+  const { eventid } = useParams();
+  const [event, setEvent] = useState(null);
   const [error, setError] = useState(false);
   const apiUrl = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
-    const fetchGroup = async () => {
-      if (!groupid) return;
+    const fetchEvent = async () => {
+      if (!eventid) return;
       try {
-        const response = await axios.get(`${apiUrl}/public/group/${groupid}`);
-        setGroup(response.data || null);
+        const response = await axios.get(`${apiUrl}/public/event/${eventid}`);
+        setEvent(response.data || null);
       } catch (err) {
-        console.error("Error fetching group data: ", err);
+        console.error("Error fetching event data: ", err);
         setError(true);
       }
     };
-    fetchGroup();
-  }, [apiUrl, groupid]);
+    fetchEvent();
+  }, [apiUrl, eventid]);
 
-  if (error) return <div style={s.page}>Error loading group. Please try again later.</div>;
-  if (!group) return <div style={s.page}>Loading...</div>;
-
-  const hasMembers = group.members && group.members.length > 0;
+  if (error) return <div style={s.page}>Error loading event. Please try again later.</div>;
+  if (!event) return <div style={s.page}>Loading...</div>;
 
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Public Groups</title>
-        <meta name="description" content="Public group listing page." />
+        <title data-rh="true">{event.eventname} — MidwestCosplay</title>
+        <meta name="description" content={`${event.eventname} in ${event.eventcity}, ${event.eventstate}`} />
       </Helmet>
       <EnchantedBackground />
 
@@ -148,44 +116,29 @@ const PublicEvent = () => {
 
           {/* ── Hero ── */}
           <div style={s.hero}>
-            {group.groupimage ? (
-              <img src={group.groupimage} alt={`${group.groupname}'s photo`} style={s.bannerImg} />
+            {event.eventimage ? (
+              <img src={event.eventimage} alt={`${event.eventname}`} style={s.bannerImg} />
             ) : (
               <div style={s.bannerPlaceholder}>
-                <i className="ti ti-users" aria-hidden="true" />
+                <i className="ti ti-calendar-event" aria-hidden="true" />
               </div>
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={s.groupName}>{group.groupname}</p>
-              <p style={s.groupLocation}>{group.groupcity}, {group.groupstate}</p>
-              <a href={group.groupwebsite} target="_blank" rel="noopener noreferrer" style={s.websiteBtn}>
+              <p style={s.eventName}>{event.eventname}</p>
+              <p style={s.eventLocation}>{event.eventcity}, {event.eventstate}</p>
+              <a href={event.eventwebsite} target="_blank" rel="noopener noreferrer" style={s.websiteBtn}>
                 Visit Website
               </a>
             </div>
           </div>
 
-          {/* ── Members ── */}
+          {/* ── Attendance ── */}
           <div style={s.divider} />
-          <div style={s.section}>
-            <p style={s.sectionLabel}>Members</p>
-            {hasMembers ? (
-              <div style={s.memberGrid}>
-                {group.members.map((member) => (
-                  <Link key={member.id} to={`/public/${member.username}`} style={s.memberCard}>
-                    {member.image ? (
-                      <img src={member.image} alt={`${member.username}'s avatar`} style={s.memberAvatar} />
-                    ) : (
-                      <div style={s.memberAvatarPlaceholder} />
-                    )}
-                    <span style={s.memberName}>{member.firstname} {member.lastname}</span>
-                    <span style={s.memberHandle}>@{member.username}</span>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <p style={s.noMembersText}>No members yet. </p>
-            )}
-          </div>
+          <EventAttendance
+            eventid={event.eventid}
+            eventownerid={event.eventownerid}
+            initialMembers={event.members || []}
+          />
 
         </div>
         <Footer />

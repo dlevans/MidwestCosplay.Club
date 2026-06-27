@@ -84,6 +84,8 @@ function App() {
           <Route path="/memory" element={<MemoryGame />} />
           <Route path="/protected" element={<Protected />} />
           <Route path="/motd" element={<MOTD />} />
+          <Route path="/public/event/:eventid" element={<PublicEvent />} />
+          <Route path="/public/group/:groupid" element={<PublicGroup />} />
           <Route path="/public/:username" element={<Public />} />
           <Route path="/search" element={<Search />} />
           <Route path="/update/:id" element={<Update />} />
@@ -94,7 +96,6 @@ function App() {
           <Route path="/managegroup/:groupid" element={<ManageGroup />} />
           <Route path="/manageevent" element={<ManageEvent />} />
           <Route path="/manageevent/:eventid" element={<ManageEvent />} />
-          <Route path="/public/group/:groupid" element={<PublicGroup />} />
           <Route path="/measurements" element={<MeasurementsIndex />} />
           <Route path="/bodymeasurements" element={<BodyMeasurements />} />
           <Route path="/shapemeasurements" element={<ShapeMeasurements />} />
