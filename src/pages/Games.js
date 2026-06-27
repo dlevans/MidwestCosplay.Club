@@ -20,6 +20,12 @@ const GAMES = [
     description: "Break every brick. Don't drop the ball.",
     icon: "🧱",
   },
+  { key: "memory", 
+    label: "Memory Match", 
+    path: "/memory", 
+    description: "Find every pair. How few moves can you take?", 
+    icon: "🃏" 
+  },
 ];
 
 const LeaderboardTable = ({ game, scores, loading, error }) => {
