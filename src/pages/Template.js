@@ -84,7 +84,7 @@ const isAdmin = payload?.is_admin ?? false;
     const fetchAllTemplates = async () => {
       try {
         const response = await axios.get(`${apiUrl}/templates`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
           params: { limit, page },
         });
         setTemplates(response.data.templates || []);

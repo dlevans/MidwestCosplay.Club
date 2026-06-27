@@ -81,8 +81,8 @@ const isAdmin = payload?.is_admin ?? false;
     if (!token) { navigate("/login"); return; }
     const fetchAllTutorials = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/tutorials`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await axios.get(`${apiUrl}/templates`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
           params: { limit, page },
         });
         setTutorials(response.data.tutorials || []);
