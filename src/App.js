@@ -81,7 +81,6 @@ function App() {
           <Route path="/memory" element={<MemoryGame />} />
           <Route path="/protected" element={<Protected />} />
           <Route path="/motd" element={<MOTD />} />
-          <Route path="/tutorials" element={<Tutorials />} />
           <Route path="/public/:username" element={<Public />} />
           <Route path="/search" element={<Search />} />
           <Route path="/update/:id" element={<Update />} />
