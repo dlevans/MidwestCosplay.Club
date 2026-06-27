@@ -80,7 +80,6 @@ const loggedInUserId = payload?.id ?? null;
 const isAdmin = payload?.is_admin ?? false;
 
   useEffect(() => {
-    if (!token) { navigate("/login"); return; }
     const fetchAllTemplates = async () => {
       try {
         const response = await axios.get(`${apiUrl}/templates`, {
