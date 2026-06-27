@@ -80,7 +80,7 @@ const isAdmin = payload?.is_admin ?? false;
   useEffect(() => {
     const fetchAllTutorials = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/templates`, {
+        const response = await axios.get(`${apiUrl}/tutorials`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           params: { limit, page },
         });
