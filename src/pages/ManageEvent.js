@@ -473,7 +473,7 @@ const ManageEvent = () => {
               )}
             </div>
 
-            <label htmlFor="membersearch">Add a member:</label>
+            <label htmlFor="membersearch">Add an attendee:</label>
             <input
               type="text"
               id="membersearch"
