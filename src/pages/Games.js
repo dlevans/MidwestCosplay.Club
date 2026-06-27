@@ -73,7 +73,7 @@ const Games = () => {
 
     const fetchLeaderboard = async (game) => {
       try {
-        const res = await fetch(`/api/scores/top?game=${game}&limit=10`, {
+        const res = await fetch(`https://midwestcosplayclubapi-1.onrender.com/api/scores/top?game=${game}&limit=10`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch");
