@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faTimes, faGamepad, faSearch, faUsers, faPeopleGroup, faUserPlus, faPersonCircleCheck, faPersonDotsFromLine, faPersonChalkboard, faRightFromBracket, faRuler, faScroll } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faTimes, faGamepad, faSearch, faUsers, faPeopleGroup, faUserPlus, faPersonCircleCheck, faTicketSimple, faPersonDotsFromLine, faPersonChalkboard, faRightFromBracket, faRuler, faScroll } from "@fortawesome/free-solid-svg-icons";
 import { faReddit, faDiscord, faFortAwesomeAlt } from "@fortawesome/free-brands-svg-icons";
 
 function Nav() {
@@ -123,6 +123,13 @@ function Nav() {
         </li>
 
         <li className="nav-item">
+          <NavLink className="nav-link" to="/events">
+            <FontAwesomeIcon icon={faTicketSimple} />
+            <span className="link-text">Events</span>
+          </NavLink>
+        </li>
+
+        <li className="nav-item">
           <NavLink className="nav-link" to="/calendar">
             <FontAwesomeIcon icon={faPersonChalkboard} />
             <span className="link-text">Calendar</span>
@@ -133,6 +140,20 @@ function Nav() {
           <NavLink className="nav-link" to="/games">
             <FontAwesomeIcon icon={faGamepad} />
             <span className="link-text">Games</span>
+          </NavLink>
+        </li>
+
+        <li className="nav-item">
+          <NavLink className="nav-link" to="/tutorials">
+            <FontAwesomeIcon icon={faPersonDotsFromLine} />
+            <span className="link-text">Tutorials</span>
+          </NavLink>
+        </li>
+
+        <li className="nav-item">
+          <NavLink className="nav-link" to="/templates">
+            <FontAwesomeIcon icon={faScroll} />
+            <span className="link-text">Templates</span>
           </NavLink>
         </li>
 
@@ -155,21 +176,7 @@ function Nav() {
             <FontAwesomeIcon icon={faReddit} />
             <span className="link-text">Reddit</span>
           </NavLink>
-        </li>
-
-        <li className="nav-item">
-          <NavLink className="nav-link" to="/tutorials">
-            <FontAwesomeIcon icon={faPersonDotsFromLine} />
-            <span className="link-text">Tutorials</span>
-          </NavLink>
-        </li>
-
-        <li className="nav-item">
-          <NavLink className="nav-link" to="/templates">
-            <FontAwesomeIcon icon={faScroll} />
-            <span className="link-text">Templates</span>
-          </NavLink>
-        </li>
+        </li>        
 
         {payload?.is_admin && (
         <li className="nav-item">
