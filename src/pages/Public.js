@@ -201,6 +201,34 @@ const s = {
     textShadow: "0 1px 3px rgba(0,0,0,0.7)",
     WebkitTextStroke: "0.6px rgba(0,0,0,0.9)",
   },
+    eventTile: {
+    position: "relative",
+    height: 110,
+    borderRadius: "var(--radius-md)",
+    overflow: "hidden",
+    display: "block",
+    border: "1px solid var(--border)",
+    backgroundColor: "var(--bg-surface)",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  },
+  eventTileOverlay: {
+    position: "absolute",
+    inset: 0,
+    background: "linear-gradient(0deg, rgba(0,0,0,0.65), rgba(0,0,0,0.15))",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "0 10px",
+    textAlign: "center",
+  },
+  eventTileName: {
+    color: "var(--text-primary)",
+    fontSize: 14,
+    fontWeight: 600,
+    textShadow: "0 1px 3px rgba(0,0,0,0.7)",
+    WebkitTextStroke: "0.6px rgba(0,0,0,0.9)",
+  },
   qrOverlay: {
     position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
     background: "rgba(0,0,0,0.5)",
@@ -459,27 +487,6 @@ const Public = () => {
                       </div>
                     </a>
                   ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* ── Cosplay groups ── */}
-          {user.cosplaygroup && (
-            <>
-              <div style={s.divider} />
-              <div style={s.section}>
-                <p style={s.sectionLabel}>Cosplay group affiliations</p>
-                <div style={s.cosplayGrid}>
-                  {user.cosplaygroup.split(",").map((g, i) => {
-                    const trimmed = g.trim();
-                    return (
-                      <Link key={i} to={`/search?query=${encodeURIComponent(trimmed)}`} style={s.cosplayChip}>
-                        <i className="ti ti-users" aria-hidden="true" style={{ fontSize: 14 }} />
-                        {trimmed}
-                      </Link>
-                    );
-                  })}
                 </div>
               </div>
             </>
