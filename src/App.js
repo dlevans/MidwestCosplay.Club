@@ -19,6 +19,7 @@ import MOTD from "./pages/MessageOfTheDay";
 import Games from "./pages/Games"
 import Snake from "./pages/Snake"
 import BrickBreaker from "./pages/BrickBreaker";
+import MemoryGame from "./games/MemoryGame";
 import ForgotPassword from "./pages/ForgotPassword"
 import PasswordReset from "./pages/PasswordReset";
 import PageNotFound from "./pages/PageNotFound";
@@ -77,6 +78,7 @@ function App() {
           <Route path="/games" element={<Games />} />
           <Route path="/snake" element={<Snake />} />
           <Route path="/brickbreaker" element={<BrickBreaker />} />
+          <Route path="/memory" element={<MemoryGame />} />
           <Route path="/protected" element={<Protected />} />
           <Route path="/motd" element={<MOTD />} />
           <Route path="/tutorials" element={<Tutorials />} />
