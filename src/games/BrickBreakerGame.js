@@ -55,7 +55,7 @@ const BrickBreaker = () => {
     if (!token) { setSubmitStatus("error"); return; }
     setSubmitStatus("submitting");
     try {
-      const res = await fetch("/api/scores", {
+      const res = await fetch("https://midwestcosplayclubapi-1.onrender.com/api/scores", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
