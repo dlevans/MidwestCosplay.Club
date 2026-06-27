@@ -10,8 +10,11 @@ import Search from "./pages/Search";
 import Update from "./pages/Update";
 import Users from "./pages/Users";
 import Groups from "./pages/Groups";
+import Events from "./pages/Events";
 import ManageGroup from "./pages/ManageGroup";
+import ManageEvent from "./pages/ManageEvent";
 import PublicGroup from "./pages/PublicGroup";
+import PublicEvent from "./pages/PublicEvent";
 import Calendar from "./pages/Calendar";
 import Protected from "./pages/Protected";
 import Tutorials from "./pages/Tutorials"
@@ -86,8 +89,11 @@ function App() {
           <Route path="/update/:id" element={<Update />} />
           <Route path="/users" element={<Users />} />
           <Route path="/groups" element={<Groups />} />
+          <Route path="/events" element={<Events />} />
           <Route path="/managegroup" element={<ManageGroup />} />
           <Route path="/managegroup/:groupid" element={<ManageGroup />} />
+          <Route path="/manageevent" element={<ManageEvent />} />
+          <Route path="/manageevent/:eventid" element={<ManageEvent />} />
           <Route path="/public/group/:groupid" element={<PublicGroup />} />
           <Route path="/measurements" element={<MeasurementsIndex />} />
           <Route path="/bodymeasurements" element={<BodyMeasurements />} />
