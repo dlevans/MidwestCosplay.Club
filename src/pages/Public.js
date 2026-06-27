@@ -472,11 +472,9 @@ const Public = () => {
                 <p style={s.sectionLabel}>Events I've attended:</p>
                 <div style={s.groupGrid}>
                   {user.events.map((event) => (
-                    <a
+                    <Link                                                      // ← was <a>
                       key={event.eventid}
-                      href={event.eventwebsite}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      to={`/public/event/${event.eventslug || event.eventid}`} // ← was href={event.eventwebsite}
                       style={{
                         ...s.eventTile,
                         backgroundImage: event.eventimage ? `url(${event.eventimage})` : "none",
@@ -485,7 +483,7 @@ const Public = () => {
                       <div style={s.eventTileOverlay}>
                         <span style={s.eventTileName}>{event.eventname}</span>
                       </div>
-                    </a>
+                    </Link>                                                    // ← was </a>
                   ))}
                 </div>
               </div>
