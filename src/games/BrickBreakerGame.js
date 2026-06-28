@@ -6,21 +6,20 @@ const BRICK_WIDTH   = 70;
 const BRICK_HEIGHT  = 20;
 const BRICK_PADDING = 10;
 const BRICK_OFFSET_TOP  = 60;
-const BRICK_OFFSET_LEFT = 30;   // horizontal centering handled per-level
+const BRICK_OFFSET_LEFT = 30;
 
 // Map color index → hex (must match the level editor palette)
 const BRICK_COLORS = [
-  null,          // 0 = empty
-  '#4c7eff',    // 1 blue
-  '#ff4c6e',    // 2 red
-  '#4cff9f',    // 3 green
-  '#ffd94c',    // 4 yellow
-  '#c84cff',    // 5 purple
-  '#ff8c4c',    // 6 orange
+  null,
+  '#4c7eff',
+  '#ff4c6e',
+  '#4cff9f',
+  '#ffd94c',
+  '#c84cff',
+  '#ff8c4c',
 ];
 
 // ── Load all level JSON files from /levels/ folder ───────────────────────────
-// Files must be named level-1.json, level-2.json, … and served statically.
 async function loadLevels() {
   const levels = [];
   let i = 1;
@@ -35,10 +34,7 @@ async function loadLevels() {
       break;
     }
   }
-  // Fallback: one hard-coded default level so the game always works
-  if (levels.length === 0) {
-    levels.push(defaultLevel());
-  }
+  if (levels.length === 0) levels.push(defaultLevel());
   return levels;
 }
 
@@ -63,14 +59,14 @@ const BrickBreaker = () => {
   const canvasRef = useRef(null);
   const gameLoop  = useRef(null);
 
-  const [levels, setLevels]       = useState([]);
+  const [levels, setLevels]         = useState([]);
   const [levelIndex, setLevelIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying]   = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
-  const [isWin, setIsWin]         = useState(false);
-  const [score, setScore]         = useState(0);
+  const [isWin, setIsWin]           = useState(false);
+  const [score, setScore]           = useState(0);
   const scoreRef = useRef(0);
-  const [lives, setLives]         = useState(3);
+  const [lives, setLives]           = useState(3);
   const livesRef = useRef(3);
 
   const [submitStatus, setSubmitStatus] = useState('idle');
@@ -78,6 +74,42 @@ const BrickBreaker = () => {
   const ball   = useRef({ x: 300, y: 400, dx: 4, dy: -4, radius: 8 });
   const paddle = useRef({ width: 100, height: 15, x: 300 });
   const bricks = useRef([]);
+
+  // ── Cheat state ─────────────────────────────────────────────────────────────
+  const [cheatActive, setCheatActive] = useState(false);
+
+  // Keyboard: Konami code  ↑↑↓↓←→←→BA
+  const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  const konamiProgress = useRef(0);
+
+  // Mobile: tap Score×3 → Lives×3 → Level name×1
+  const TAP_SEQUENCE = ['score','score','score','lives','lives','lives','level'];
+  const tapProgress  = useRef(0);
+  const tapTimer     = useRef(null);
+
+  const activateCheat = useCallback(() => {
+    livesRef.current = 99;
+    setLives(99);
+    setCheatActive(true);
+  }, []);
+
+  // Called by HUD element onTouchEnd / onClick handlers
+  const handleHudTap = useCallback((id) => {
+    clearTimeout(tapTimer.current);
+    if (id === TAP_SEQUENCE[tapProgress.current]) {
+      tapProgress.current += 1;
+      if (tapProgress.current === TAP_SEQUENCE.length) {
+        tapProgress.current = 0;
+        activateCheat();
+        return;
+      }
+    } else {
+      // Wrong tap — restart, but count it if it begins the sequence
+      tapProgress.current = id === TAP_SEQUENCE[0] ? 1 : 0;
+    }
+    // Reset if nothing tapped for 2 s
+    tapTimer.current = setTimeout(() => { tapProgress.current = 0; }, 2000);
+  }, [activateCheat]);
 
   // ── Build brick grid from a level object ────────────────────────────────────
   const initLevel = useCallback((level) => {
@@ -93,11 +125,9 @@ const BrickBreaker = () => {
   }, []);
 
   const resetBall = useCallback((speed = 4) => {
-    const s = speed;
-    ball.current = { x: 300, y: 400, dx: s, dy: -s, radius: 8 };
+    ball.current = { x: 300, y: 400, dx: speed, dy: -speed, radius: 8 };
   }, []);
 
-  // Full game reset back to level 1
   const resetGame = useCallback(() => {
     setIsGameOver(false);
     setIsWin(false);
@@ -110,16 +140,16 @@ const BrickBreaker = () => {
     setSubmitStatus('idle');
     setCheatActive(false);
     konamiProgress.current = 0;
+    tapProgress.current = 0;
+    clearTimeout(tapTimer.current);
     if (levels.length > 0) {
       initLevel(levels[0]);
       resetBall(levels[0].ballSpeed ?? 4);
     }
   }, [levels, initLevel, resetBall]);
 
-  // Advance to the next level (keeps score & lives)
   const advanceLevel = useCallback((nextIdx) => {
     if (nextIdx >= levels.length) {
-      // All levels cleared — total win!
       setIsWin(true);
       setIsPlaying(false);
       return;
@@ -128,7 +158,6 @@ const BrickBreaker = () => {
     const level = levels[nextIdx];
     initLevel(level);
     resetBall(level.ballSpeed ?? 4);
-    // Brief pause so the player sees the level transition
     setIsPlaying(false);
   }, [levels, initLevel, resetBall]);
 
@@ -158,29 +187,17 @@ const BrickBreaker = () => {
     });
   }, [initLevel, resetBall]);
 
-  // ── Konami code cheat ───────────────────────────────────────────────────────
-  const KONAMI = [
-    'ArrowUp','ArrowUp','ArrowDown','ArrowDown',
-    'ArrowLeft','ArrowRight','ArrowLeft','ArrowRight',
-    'b','a',
-  ];
-  const konamiProgress = useRef(0);
-  const [cheatActive, setCheatActive] = useState(false);
-
-  // ── Keyboard controls ───────────────────────────────────────────────────────
+  // ── Keyboard controls (includes Konami tracker) ─────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Konami code tracker (runs before anything else)
+      // Konami tracker
       if (e.key === KONAMI[konamiProgress.current]) {
         konamiProgress.current += 1;
         if (konamiProgress.current === KONAMI.length) {
           konamiProgress.current = 0;
-          livesRef.current = 99;
-          setLives(99);
-          setCheatActive(true);
+          activateCheat();
         }
       } else {
-        // Partial mismatch — restart, but check if this key starts the sequence
         konamiProgress.current = e.key === KONAMI[0] ? 1 : 0;
       }
 
@@ -194,7 +211,7 @@ const BrickBreaker = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isGameOver, isWin, resetGame]);
+  }, [isGameOver, isWin, resetGame, activateCheat]);
 
   // ── Mouse & touch paddle ────────────────────────────────────────────────────
   useEffect(() => {
@@ -247,6 +264,9 @@ const BrickBreaker = () => {
     }
   }, [levels, levelIndex, resetBall]);
 
+  // ── Sync livesRef ───────────────────────────────────────────────────────────
+  useEffect(() => { livesRef.current = lives; }, [lives]);
+
   // ── Game loop ───────────────────────────────────────────────────────────────
   useEffect(() => {
     if (isGameOver || isWin || levels.length === 0) {
@@ -260,8 +280,6 @@ const BrickBreaker = () => {
 
     const level = levels[levelIndex];
     const { cols, rows } = level;
-
-    // Compute horizontal offset so the brick field is centred
     const fieldWidth = cols * (BRICK_WIDTH + BRICK_PADDING) - BRICK_PADDING;
     const offsetLeft = Math.max(BRICK_OFFSET_LEFT, (600 - fieldWidth) / 2);
 
@@ -296,16 +314,13 @@ const BrickBreaker = () => {
       ball.current.x += ball.current.dx;
       ball.current.y += ball.current.dy;
 
-      // Wall collisions
       if (ball.current.x + ball.current.dx > 600 - ball.current.radius ||
           ball.current.x + ball.current.dx < ball.current.radius) {
         ball.current.dx = -ball.current.dx;
       }
-      // Ceiling
       if (ball.current.y + ball.current.dy < ball.current.radius) {
         ball.current.dy = -ball.current.dy;
       }
-      // Bottom / paddle
       if (ball.current.y + ball.current.dy > 600 - paddle.current.height - ball.current.radius) {
         if (ball.current.x > paddle.current.x && ball.current.x < paddle.current.x + paddle.current.width) {
           ball.current.dy = -ball.current.dy;
@@ -322,20 +337,18 @@ const BrickBreaker = () => {
         return;
       }
 
-      // ── Draw ──────────────────────────────────────────────────────────────
-
-      // Ball
+      // Draw ball
       ctx.beginPath();
       ctx.arc(ball.current.x, ball.current.y, ball.current.radius, 0, Math.PI * 2);
       ctx.fillStyle = '#ff4444';
       ctx.fill();
       ctx.closePath();
 
-      // Paddle
+      // Draw paddle
       ctx.fillStyle = '#44ff44';
       ctx.fillRect(paddle.current.x, 600 - paddle.current.height, paddle.current.width, paddle.current.height);
 
-      // Bricks
+      // Draw bricks
       for (let c = 0; c < cols; c++) {
         for (let r = 0; r < rows; r++) {
           const brick = bricks.current[c]?.[r];
@@ -351,9 +364,6 @@ const BrickBreaker = () => {
     return () => clearInterval(gameLoop.current);
   }, [isPlaying, isGameOver, isWin, levels, levelIndex, handleBallLost, advanceLevel]);
 
-  // ── Sync livesRef ────────────────────────────────────────────────────────────
-  useEffect(() => { livesRef.current = lives; }, [lives]);
-
   const levelName = levels[levelIndex]?.name ?? '';
 
   const submitLabel = {
@@ -366,9 +376,28 @@ const BrickBreaker = () => {
   return (
     <div className="game-container">
       <div className="game-info">
-        <div>Score: {score}</div>
-        <div>{levelName}</div>
-        <div>Lives: {lives}{cheatActive && <span className="cheat-badge"> ★ CHEAT</span>}</div>
+        {/* Each element is a tap target for the mobile cheat sequence */}
+        <div
+          onClick={() => handleHudTap('score')}
+          onTouchEnd={(e) => { e.preventDefault(); handleHudTap('score'); }}
+          style={{ cursor: 'default', WebkitUserSelect: 'none', userSelect: 'none' }}
+        >
+          Score: {score}
+        </div>
+        <div
+          onClick={() => handleHudTap('level')}
+          onTouchEnd={(e) => { e.preventDefault(); handleHudTap('level'); }}
+          style={{ cursor: 'default', WebkitUserSelect: 'none', userSelect: 'none' }}
+        >
+          {levelName}
+        </div>
+        <div
+          onClick={() => handleHudTap('lives')}
+          onTouchEnd={(e) => { e.preventDefault(); handleHudTap('lives'); }}
+          style={{ cursor: 'default', WebkitUserSelect: 'none', userSelect: 'none' }}
+        >
+          Lives: {lives}{cheatActive && <span className="cheat-badge"> ★ Konami Active </span>}
+        </div>
       </div>
 
       <canvas ref={canvasRef} width="600" height="600" className="game-canvas" />
