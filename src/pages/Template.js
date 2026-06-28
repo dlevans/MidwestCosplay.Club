@@ -1,17 +1,9 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import Footer from "../Footer";
 import { Helmet } from "react-helmet-async";
 import EnchantedBackground from "./Enchantedbackground";
-
-const getUserId = (token) => {
-  try {
-    return token ? JSON.parse(atob(token.split(".")[1])).id : null;
-  } catch (e) {
-    return null;
-  }
-};
 
 const getPlatformInfo = (url) => {
   if (!url) return { label: "Link", icon: null, color: "#888" };
@@ -38,7 +30,6 @@ const getPlatformInfo = (url) => {
   }
 };
 
-// Emoji map for known categories — unknown ones get a default
 const CATEGORY_EMOJI = {
   "Uncategorized":          "📁",
   "Accessories & Jewelry":  "💍",
@@ -57,43 +48,82 @@ const CATEGORY_EMOJI = {
 const DEFAULT_EMOJI = "🏷️";
 
 const Templates = () => {
-  const [templates, setTemplates]           = useState([]);
-  const [page, setPage]                     = useState(1);
-  const [limit, setLimit]                   = useState(500);
+  const [templates, setTemplates]         = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+  const [page, setPage]                   = useState(1);
+  const [limit, setLimit]                 = useState(25);
   const [totalTemplates, setTotalTemplates] = useState(0);
+  const [loading, setLoading]             = useState(false);
 
-  // Independent filter state — all stack together with AND logic
-  const [search, setSearch]                 = useState("");
+  // Filter state — each change triggers a new server fetch
+  const [search, setSearch]               = useState("");
   const [activeCategory, setActiveCategory] = useState("");
-  const [freeOnly, setFreeOnly]             = useState(false);
-  const [creatorFilter, setCreatorFilter]   = useState("");
+  const [freeOnly, setFreeOnly]           = useState(false);
+  const [creatorFilter, setCreatorFilter] = useState("");
 
-  const navigate       = useNavigate();
-  const token          = localStorage.getItem("token");
-  const apiUrl         = process.env.REACT_APP_API_URL;
-  const getPayload = (token) => {
-  try { return token ? JSON.parse(atob(token.split(".")[1])) : null; }
-  catch { return null; }
-};
-const payload = getPayload(token);
-const loggedInUserId = payload?.id ?? null;
-const isAdmin = payload?.is_admin ?? false;
+  // Pending input values — committed on Enter / blur
+  const [searchInput, setSearchInput]   = useState("");
+  const [creatorInput, setCreatorInput] = useState("");
 
+  const navigate = useNavigate();
+  const token    = localStorage.getItem("token");
+  const apiUrl   = process.env.REACT_APP_API_URL;
+
+  const getPayload = (t) => {
+    try { return t ? JSON.parse(atob(t.split(".")[1])) : null; }
+    catch { return null; }
+  };
+  const payload        = getPayload(token);
+  const loggedInUserId = payload?.id ?? null;
+  const isAdmin        = payload?.is_admin ?? false;
+
+  // Fetch categories once on mount so tiles are always populated
   useEffect(() => {
-    const fetchAllTemplates = async () => {
+    const fetchCategories = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/templates`, {
+        const response = await axios.get(`${apiUrl}/templates/categories`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
-          params: { limit, page },
         });
-        setTemplates(response.data.templates || []);
-        setTotalTemplates(response.data.total || 0);
-      } catch (err) {
-        console.error(err);
+        setAllCategories(response.data.categories || []);
+      } catch {
+        // If no dedicated endpoint, categories will populate from first page fetch below
       }
     };
-    fetchAllTemplates();
-  }, [navigate, token, limit, page, apiUrl]);
+    fetchCategories();
+  }, [apiUrl, token]);
+
+  const fetchTemplates = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${apiUrl}/templates`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        params: {
+          limit,
+          page,
+          ...(search.trim()          && { search: search.trim() }),
+          ...(activeCategory         && { category: activeCategory }),
+          ...(freeOnly               && { free: true }),
+          ...(creatorFilter.trim()   && { creator: creatorFilter.trim() }),
+        },
+      });
+      setTemplates(response.data.templates || []);
+      setTotalTemplates(response.data.total || 0);
+
+      // Populate category tiles from response if no dedicated endpoint
+      if (allCategories.length === 0 && response.data.categories) {
+        setAllCategories(response.data.categories);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [apiUrl, token, limit, page, search, activeCategory, freeOnly, creatorFilter, allCategories.length]);
+
+  useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
+
+  // Reset to page 1 whenever filters or limit change
+  useEffect(() => { setPage(1); }, [search, activeCategory, freeOnly, creatorFilter, limit]);
 
   const handleDelete = async (templateid) => {
     if (!window.confirm("Remove this template?")) return;
@@ -108,8 +138,9 @@ const isAdmin = payload?.is_admin ?? false;
     }
   };
 
-  // Derive category list dynamically from loaded data
+  // Derive category list from loaded templates if server doesn't provide them
   const categories = useMemo(() => {
+    if (allCategories.length > 0) return allCategories;
     const cats = new Set();
     templates.forEach((t) => cats.add(t.templatecategory || "Uncategorized"));
     return Array.from(cats).sort((a, b) => {
@@ -117,54 +148,29 @@ const isAdmin = payload?.is_admin ?? false;
       if (b === "Uncategorized") return -1;
       return a.localeCompare(b);
     });
-  }, [templates]);
+  }, [templates, allCategories]);
 
-  // All filters applied together with AND logic
-  const filtered = useMemo(() => {
-    const q   = search.trim().toLowerCase();
-    const cat = activeCategory.toLowerCase();
-    const creator = creatorFilter.trim().toLowerCase();
-
-    return templates.filter((t) => {
-      // Title / description text search
-      const matchesSearch = !q || [
-        t.templatetitle,
-        t.templatedescription,
-      ].some((f) => f && f.toLowerCase().includes(q));
-
-      // Category pill filter
-      const templateCat = (t.templatecategory || "Uncategorized").toLowerCase();
-      const matchesCat  = !cat || templateCat === cat;
-
-      // Free/paid toggle
-      const matchesFree = !freeOnly || t.templateisfree === true;
-
-      // Creator name filter
-      const matchesCreator = !creator || (t.username && t.username.toLowerCase().includes(creator));
-
-      return matchesSearch && matchesCat && matchesFree && matchesCreator;
-    });
-  }, [templates, search, activeCategory, freeOnly, creatorFilter]);
+  const commitSearch  = () => setSearch(searchInput);
+  const commitCreator = () => setCreatorFilter(creatorInput);
 
   const toggleCategory = (label) =>
     setActiveCategory((prev) => (prev === label ? "" : label));
 
   const clearAll = () => {
-    setSearch("");
+    setSearchInput("");   setSearch("");
+    setCreatorInput("");  setCreatorFilter("");
     setActiveCategory("");
     setFreeOnly(false);
-    setCreatorFilter("");
   };
 
   const isFiltering = search.trim() !== "" || activeCategory !== "" || freeOnly || creatorFilter.trim() !== "";
-
-  const totalPages = Math.ceil(filtered.length / limit);
+  const totalPages  = Math.ceil(totalTemplates / limit);
 
   const PaginationBar = () => (
     <div className="pagination-controls">
       <label>Per page:</label>
       <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}>
-        {[10, 25, 50, 100, 500].map((n) => <option key={n} value={n}>{n}</option>)}
+        {[10, 25, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
       </select>
       <button disabled={page === 1} onClick={() => setPage(page - 1)}>← Prev</button>
       <span>Page {page} of {totalPages || 1}</span>
@@ -202,8 +208,10 @@ const isAdmin = payload?.is_admin ?? false;
                 className="tl-search-input"
                 type="text"
                 placeholder="e.g. flower, helmet, iron man…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && commitSearch()}
+                onBlur={commitSearch}
               />
             </div>
 
@@ -213,8 +221,10 @@ const isAdmin = payload?.is_admin ?? false;
                 className="tl-search-input"
                 type="text"
                 placeholder="e.g. sksprops"
-                value={creatorFilter}
-                onChange={(e) => setCreatorFilter(e.target.value)}
+                value={creatorInput}
+                onChange={(e) => setCreatorInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && commitCreator()}
+                onBlur={commitCreator}
               />
             </div>
 
@@ -229,7 +239,7 @@ const isAdmin = payload?.is_admin ?? false;
             </div>
           </div>
 
-          {/* Row 2: category tiles — always visible so you can combine with text search */}
+          {/* Row 2: category tiles */}
           <div className="tl-filter-row tl-filter-row--cats">
             <label className="tl-filter-label">Category</label>
             <div className="tl-category-grid">
@@ -258,13 +268,13 @@ const isAdmin = payload?.is_admin ?? false;
               {search.trim() && (
                 <span className="tl-filter-pill">
                   Title: <strong>"{search.trim()}"</strong>
-                  <button className="tl-filter-pill-x" onClick={() => setSearch("")}>✕</button>
+                  <button className="tl-filter-pill-x" onClick={() => { setSearch(""); setSearchInput(""); }}>✕</button>
                 </span>
               )}
               {creatorFilter.trim() && (
                 <span className="tl-filter-pill">
                   Creator: <strong>"{creatorFilter.trim()}"</strong>
-                  <button className="tl-filter-pill-x" onClick={() => setCreatorFilter("")}>✕</button>
+                  <button className="tl-filter-pill-x" onClick={() => { setCreatorFilter(""); setCreatorInput(""); }}>✕</button>
                 </span>
               )}
               {freeOnly && (
@@ -274,7 +284,7 @@ const isAdmin = payload?.is_admin ?? false;
                 </span>
               )}
               <span className="tl-filter-count">
-                {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+                {totalTemplates} result{totalTemplates !== 1 ? "s" : ""}
               </span>
               <button className="tl-clear-btn" onClick={clearAll}>✕ Clear all</button>
             </div>
@@ -284,13 +294,15 @@ const isAdmin = payload?.is_admin ?? false;
         <PaginationBar />
 
         <div className="group-container">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <p className="tl-no-results">Loading…</p>
+          ) : templates.length === 0 ? (
             <p className="tl-no-results">
               No templates match your filters.{" "}
               <button className="button" onClick={clearAll}>Clear all filters</button>
             </p>
           ) : (
-            filtered.map((template) => {
+            templates.map((template) => {
               const platform = getPlatformInfo(template.templateurl);
               return (
                 <div className="group-card tutorial-card" key={template.templateid}>
@@ -353,7 +365,7 @@ const isAdmin = payload?.is_admin ?? false;
           )}
         </div>
 
-        {filtered.length > 6 && <PaginationBar />}
+        {totalTemplates > limit && <PaginationBar />}
         <Footer />
       </div>
     </div>

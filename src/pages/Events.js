@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import Footer from "../Footer";
@@ -31,40 +31,53 @@ const MIDWEST_STATES = [
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(500);
+  const [limit, setLimit] = useState(25);
   const [totalEvents, setTotalEvents] = useState(0);
+  const [loading, setLoading] = useState(false);
 
-  // Filter state
+  // Filter state — changes trigger a new server fetch
   const [search, setSearch] = useState("");
   const [activeState, setActiveState] = useState("");
+
+  // Pending input values (only committed on Enter / blur to avoid a fetch per keystroke)
+  const [searchInput, setSearchInput] = useState("");
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const apiUrl = process.env.REACT_APP_API_URL;
   const loggedInUserId = getUserId(token);
 
-  useEffect(() => {
+  const fetchEvents = useCallback(async () => {
     if (!token) { navigate("/login"); return; }
+    setLoading(true);
+    try {
+      const response = await axios.get(`${apiUrl}/events`, {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          limit,
+          page,
+          ...(search.trim() && { search: search.trim() }),
+          ...(activeState && { state: activeState }),
+        },
+      });
+      setEvents(response.data.events || []);
+      setTotalEvents(response.data.total || 0);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate, token, apiUrl, limit, page, search, activeState]);
 
-    const fetchAllEvents = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/events`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { limit, page },
-        });
-        setEvents(response.data.events || []);
-        setTotalEvents(response.data.total || 0);
-      } catch (err) {
-        console.error(err);
-      }
-    };
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
-    fetchAllEvents();
-  }, [navigate, token, limit, page]);
+  // Reset to page 1 whenever filters change
+  useEffect(() => { setPage(1); }, [search, activeState, limit]);
 
   const handleDelete = async (eventid) => {
     if (!window.confirm("Remove this event from your site?")) return;
-
     try {
       await axios.delete(`${apiUrl}/events/${eventid}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -76,41 +89,26 @@ const Events = () => {
     }
   };
 
-  // Client-side filtering
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+  const commitSearch = () => setSearch(searchInput);
 
-    return events.filter((e) => {
-      const matchesSearch = !q || [
-        e.eventname,
-        e.eventcity,
-        e.eventstate,
-      ].some((f) => f && f.toLowerCase().includes(q));
-
-      const matchesState = !activeState ||
-        (e.eventstate && e.eventstate.toUpperCase() === activeState);
-
-      return matchesSearch && matchesState;
-    });
-  }, [events, search, activeState]);
-
-  const toggleState = (abbr) =>
+  const toggleState = (abbr) => {
     setActiveState((prev) => (prev === abbr ? "" : abbr));
+  };
 
   const clearAll = () => {
+    setSearchInput("");
     setSearch("");
     setActiveState("");
   };
 
   const isFiltering = search.trim() !== "" || activeState !== "";
-
-  const totalPages = Math.ceil(filtered.length / limit);
+  const totalPages = Math.ceil(totalEvents / limit);
 
   const PaginationBar = () => (
     <div className="pagination-controls">
       <label>Per page:</label>
       <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}>
-        {[10, 25, 50, 100, 500].map((n) => (
+        {[10, 25, 50, 100].map((n) => (
           <option key={n} value={n}>{n}</option>
         ))}
       </select>
@@ -154,8 +152,10 @@ const Events = () => {
                 className="tl-search-input"
                 type="text"
                 placeholder="e.g. anime, Chicago, convention…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && commitSearch()}
+                onBlur={commitSearch}
               />
             </div>
           </div>
@@ -189,11 +189,11 @@ const Events = () => {
               {search.trim() && (
                 <span className="tl-filter-pill">
                   Search: <strong>"{search.trim()}"</strong>
-                  <button className="tl-filter-pill-x" onClick={() => setSearch("")}>✕</button>
+                  <button className="tl-filter-pill-x" onClick={() => { setSearch(""); setSearchInput(""); }}>✕</button>
                 </span>
               )}
               <span className="tl-filter-count">
-                {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+                {totalEvents} result{totalEvents !== 1 ? "s" : ""}
               </span>
               <button className="tl-clear-btn" onClick={clearAll}>✕ Clear all</button>
             </div>
@@ -203,13 +203,15 @@ const Events = () => {
         <PaginationBar />
 
         <div className="event-container">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <p className="tl-no-results">Loading…</p>
+          ) : events.length === 0 ? (
             <p className="tl-no-results">
               No events match your filters.{" "}
               <button className="button" onClick={clearAll}>Clear all filters</button>
             </p>
           ) : (
-            filtered.map((event) => (
+            events.map((event) => (
               <div className="event-card" key={event.eventid}>
                 {event.eventimage && (
                   <img src={event.eventimage} alt={`${event.eventname}'s photo`} />
@@ -235,7 +237,7 @@ const Events = () => {
           )}
         </div>
 
-        {filtered.length > 6 && <PaginationBar />}
+        {totalEvents > limit && <PaginationBar />}
 
         <Footer />
       </div>
