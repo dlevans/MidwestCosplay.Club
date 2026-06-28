@@ -77,24 +77,13 @@ const Users = () => {
 
       <PaginationBar />
 
-      <div className="user-container" style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(8, 1fr)",
-        gap: "12px",
-      }}>
+      <div className="user-container">
         {users.map((user) => (
-          <div className="user-card" key={user.id} style={{ minWidth: 0 }}>
+          <div className="user-card" key={user.id}>
             {user.image && (
               <img src={user.image} alt={`${user.username}'s avatar`} />
             )}
-            {user.username && (
-              <h3 style={{
-                overflowWrap: "break-word",
-                wordBreak: "break-word",
-                hyphens: "auto",
-                width: "100%",
-              }}>{user.username}</h3>
-            )}
+            {user.username && <h3>{user.username}</h3>}
             {user.about && (
               <h4>
                 {user.about.length > 250
