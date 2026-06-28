@@ -76,3 +76,11 @@
   opacity: 0.6;
   cursor: default;
 }
+
+.cheat-badge {
+  color: #ffd94c;
+  font-size: 0.7em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-left: 6px;
+}

@@ -108,6 +108,8 @@ const BrickBreaker = () => {
     livesRef.current = 3;
     setLevelIndex(0);
     setSubmitStatus('idle');
+    setCheatActive(false);
+    konamiProgress.current = 0;
     if (levels.length > 0) {
       initLevel(levels[0]);
       resetBall(levels[0].ballSpeed ?? 4);
@@ -156,9 +158,32 @@ const BrickBreaker = () => {
     });
   }, [initLevel, resetBall]);
 
+  // ── Konami code cheat ───────────────────────────────────────────────────────
+  const KONAMI = [
+    'ArrowUp','ArrowUp','ArrowDown','ArrowDown',
+    'ArrowLeft','ArrowRight','ArrowLeft','ArrowRight',
+    'b','a',
+  ];
+  const konamiProgress = useRef(0);
+  const [cheatActive, setCheatActive] = useState(false);
+
   // ── Keyboard controls ───────────────────────────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e) => {
+      // Konami code tracker (runs before anything else)
+      if (e.key === KONAMI[konamiProgress.current]) {
+        konamiProgress.current += 1;
+        if (konamiProgress.current === KONAMI.length) {
+          konamiProgress.current = 0;
+          livesRef.current = 99;
+          setLives(99);
+          setCheatActive(true);
+        }
+      } else {
+        // Partial mismatch — restart, but check if this key starts the sequence
+        konamiProgress.current = e.key === KONAMI[0] ? 1 : 0;
+      }
+
       if (['ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
       if (e.key === 'ArrowLeft')  paddle.current.x = Math.max(0, paddle.current.x - 20);
       if (e.key === 'ArrowRight') paddle.current.x = Math.min(600 - paddle.current.width, paddle.current.x + 20);
@@ -343,7 +368,7 @@ const BrickBreaker = () => {
       <div className="game-info">
         <div>Score: {score}</div>
         <div>{levelName}</div>
-        <div>Lives: {lives}</div>
+        <div>Lives: {lives}{cheatActive && <span className="cheat-badge"> ★ CHEAT</span>}</div>
       </div>
 
       <canvas ref={canvasRef} width="600" height="600" className="game-canvas" />
