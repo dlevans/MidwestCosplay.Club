@@ -35,11 +35,9 @@ const Events = () => {
   const [totalEvents, setTotalEvents] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // Filter state — changes trigger a new server fetch
+  // Multi-select state filter — stored as a Set of abbreviations
+  const [activeStates, setActiveStates] = useState(new Set());
   const [search, setSearch] = useState("");
-  const [activeState, setActiveState] = useState("");
-
-  // Pending input values (only committed on Enter / blur to avoid a fetch per keystroke)
   const [searchInput, setSearchInput] = useState("");
 
   const navigate = useNavigate();
@@ -51,14 +49,13 @@ const Events = () => {
     if (!token) { navigate("/login"); return; }
     setLoading(true);
     try {
+      const params = { limit, page };
+      if (search.trim())         params.search = search.trim();
+      if (activeStates.size > 0) params.state  = [...activeStates].join(",");
+
       const response = await axios.get(`${apiUrl}/events`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: {
-          limit,
-          page,
-          ...(search.trim() && { search: search.trim() }),
-          ...(activeState && { state: activeState }),
-        },
+        params,
       });
       setEvents(response.data.events || []);
       setTotalEvents(response.data.total || 0);
@@ -67,14 +64,10 @@ const Events = () => {
     } finally {
       setLoading(false);
     }
-  }, [navigate, token, apiUrl, limit, page, search, activeState]);
+  }, [navigate, token, apiUrl, limit, page, search, activeStates]);
 
-  useEffect(() => {
-    fetchEvents();
-  }, [fetchEvents]);
-
-  // Reset to page 1 whenever filters change
-  useEffect(() => { setPage(1); }, [search, activeState, limit]);
+  useEffect(() => { fetchEvents(); }, [fetchEvents]);
+  useEffect(() => { setPage(1); }, [search, activeStates, limit]);
 
   const handleDelete = async (eventid) => {
     if (!window.confirm("Remove this event from your site?")) return;
@@ -92,16 +85,20 @@ const Events = () => {
   const commitSearch = () => setSearch(searchInput);
 
   const toggleState = (abbr) => {
-    setActiveState((prev) => (prev === abbr ? "" : abbr));
+    setActiveStates((prev) => {
+      const next = new Set(prev);
+      next.has(abbr) ? next.delete(abbr) : next.add(abbr);
+      return next;
+    });
   };
 
   const clearAll = () => {
     setSearchInput("");
     setSearch("");
-    setActiveState("");
+    setActiveStates(new Set());
   };
 
-  const isFiltering = search.trim() !== "" || activeState !== "";
+  const isFiltering = search.trim() !== "" || activeStates.size > 0;
   const totalPages = Math.ceil(totalEvents / limit);
 
   const PaginationBar = () => (
@@ -112,13 +109,9 @@ const Events = () => {
           <option key={n} value={n}>{n}</option>
         ))}
       </select>
-      <button disabled={page === 1} onClick={() => setPage(page - 1)}>
-        ← Prev
-      </button>
+      <button disabled={page === 1} onClick={() => setPage(page - 1)}>← Prev</button>
       <span>Page {page} of {totalPages || 1}</span>
-      <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
-        Next →
-      </button>
+      <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Next →</button>
     </div>
   );
 
@@ -141,10 +134,7 @@ const Events = () => {
           </Link>
         )}
 
-        {/* ── Filter panel ── */}
         <div className="tl-filter-panel">
-
-          {/* Row 1: name/city search */}
           <div className="tl-filter-row">
             <div className="tl-filter-field">
               <label className="tl-filter-label">Search</label>
@@ -160,14 +150,13 @@ const Events = () => {
             </div>
           </div>
 
-          {/* Row 2: state tiles */}
           <div className="tl-filter-row tl-filter-row--cats">
-            <label className="tl-filter-label">State</label>
+            <label className="tl-filter-label">State — select one or more</label>
             <div className="tl-category-grid">
               {MIDWEST_STATES.map(([abbr, name]) => (
                 <button
                   key={abbr}
-                  className={`tl-category-tile${activeState === abbr ? " tl-category-tile--active" : ""}`}
+                  className={`tl-category-tile${activeStates.has(abbr) ? " tl-category-tile--active" : ""}`}
                   onClick={() => toggleState(abbr)}
                 >
                   <span className="tl-category-emoji">📍</span>
@@ -177,15 +166,14 @@ const Events = () => {
             </div>
           </div>
 
-          {/* Active filter summary + clear */}
           {isFiltering && (
             <div className="tl-active-filter">
-              {activeState && (
-                <span className="tl-filter-pill">
-                  State: <strong>{MIDWEST_STATES.find(([a]) => a === activeState)?.[1]}</strong>
-                  <button className="tl-filter-pill-x" onClick={() => setActiveState("")}>✕</button>
+              {[...activeStates].map((abbr) => (
+                <span key={abbr} className="tl-filter-pill">
+                  State: <strong>{MIDWEST_STATES.find(([a]) => a === abbr)?.[1]}</strong>
+                  <button className="tl-filter-pill-x" onClick={() => toggleState(abbr)}>✕</button>
                 </span>
-              )}
+              ))}
               {search.trim() && (
                 <span className="tl-filter-pill">
                   Search: <strong>"{search.trim()}"</strong>
@@ -238,7 +226,6 @@ const Events = () => {
         </div>
 
         {totalEvents > limit && <PaginationBar />}
-
         <Footer />
       </div>
     </div>

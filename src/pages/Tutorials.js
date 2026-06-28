@@ -6,23 +6,20 @@ import { Helmet } from "react-helmet-async";
 import EnchantedBackground from "./Enchantedbackground";
 
 const getPlatformInfo = (url) => {
-  if (!url) return { label: "Link", icon: null, color: "#888" };
+  if (!url) return { label: "Link", icon: null };
   try {
     const { hostname } = new URL(url);
     const host = hostname.replace("www.", "");
     const platforms = {
-      "etsy.com":          { label: "Etsy",         icon: "https://www.etsy.com/favicon.ico",           color: "#F56400" },
-      "patreon.com":       { label: "Patreon",       icon: "https://www.patreon.com/favicon.ico",        color: "#FF424D" },
-      "gumroad.com":       { label: "Gumroad",       icon: "https://gumroad.com/favicon.ico",            color: "#FF90E8" },
-      "ko-fi.com":         { label: "Ko-fi",         icon: "https://ko-fi.com/favicon.ico",              color: "#29ABE0" },
-      "sellfy.com":        { label: "Sellfy",        icon: "https://sellfy.com/favicon.ico",             color: "#21C45D" },
-      "redbubble.com":     { label: "Redbubble",     icon: "https://www.redbubble.com/favicon.ico",      color: "#E41321" },
-      "instructables.com": { label: "Instructables", icon: "https://www.instructables.com/favicon.ico",  color: "#F4A227" },
-      "deviantart.com":    { label: "DeviantArt",    icon: "https://www.deviantart.com/favicon.ico",     color: "#05CC47" },
-      "pinterest.com":     { label: "Pinterest",     icon: "https://www.pinterest.com/favicon.ico",      color: "#E60023" },
-      "drive.google.com":  { label: "Google Drive",  icon: "https://ssl.gstatic.com/images/branding/product/1x/drive_2020q4_32dp.png", color: "#4285F4" },
-      "dropbox.com":       { label: "Dropbox",       icon: "https://www.dropbox.com/favicon.ico",        color: "#0061FF" },
-      "sksprops.com":      { label: "SKS Props",     icon: null,                                          color: "#888" },
+      "youtube.com":       { label: "YouTube",       icon: "https://www.youtube.com/favicon.ico",       color: "#FF0000" },
+      "youtu.be":          { label: "YouTube",       icon: "https://www.youtube.com/favicon.ico",       color: "#FF0000" },
+      "vimeo.com":         { label: "Vimeo",         icon: "https://vimeo.com/favicon.ico",             color: "#1AB7EA" },
+      "instructables.com": { label: "Instructables", icon: "https://www.instructables.com/favicon.ico", color: "#F4A227" },
+      "tiktok.com":        { label: "TikTok",        icon: "https://www.tiktok.com/favicon.ico",        color: "#010101" },
+      "twitch.tv":         { label: "Twitch",        icon: "https://www.twitch.tv/favicon.ico",         color: "#9146FF" },
+      "patreon.com":       { label: "Patreon",       icon: "https://www.patreon.com/favicon.ico",       color: "#FF424D" },
+      "skillshare.com":    { label: "Skillshare",    icon: "https://www.skillshare.com/favicon.ico",    color: "#002333" },
+      "udemy.com":         { label: "Udemy",         icon: "https://www.udemy.com/favicon.ico",         color: "#A435F0" },
     };
     return platforms[host] || { label: host, icon: null, color: "#888" };
   } catch {
@@ -31,39 +28,38 @@ const getPlatformInfo = (url) => {
 };
 
 const CATEGORY_EMOJI = {
-  "Uncategorized":          "📁",
-  "Accessories & Jewelry":  "💍",
-  "Armor & Chest Pieces":   "🛡️",
-  "General / Other":        "🗂️",
-  "Helmets & Headgear":     "🪖",
-  "Props & Weapons":        "⚔️",
-  "Clothing":               "👗",
-  "Wings & Tails":          "🪶",
-  "Foam":                   "🧱",
-  "3D Print":               "🖨️",
-  "Shoes & Footwear":       "👠",
-  "Tails & Ears":           "🦊",
-  "Bags & Pouches":         "👜",
+  "Uncategorized":         "📁",
+  "Armor":                 "🛡️",
+  "Electronics & LEDs":   "💡",
+  "Foam Crafting":         "🧱",
+  "General Crafting":      "🎨",
+  "Other":                 "🗂️",
+  "Props & Weapons":       "⚔️",
+  "Clothing":              "👗",
+  "Wings & Tails":         "🪶",
+  "Helmets & Headgear":   "🪖",
+  "Accessories & Jewelry": "💍",
+  "3D Print":              "🖨️",
+  "Shoes & Footwear":     "👠",
+  "Tails & Ears":          "🦊",
+  "Bags & Pouches":        "👜",
 };
 const DEFAULT_EMOJI = "🏷️";
 
-const Templates = () => {
-  const [templates, setTemplates]         = useState([]);
+const Tutorials = () => {
+  const [tutorials, setTutorials]         = useState([]);
   const [allCategories, setAllCategories] = useState([]);
   const [page, setPage]                   = useState(1);
   const [limit, setLimit]                 = useState(25);
-  const [totalTemplates, setTotalTemplates] = useState(0);
+  const [totalTutorials, setTotalTutorials] = useState(0);
   const [loading, setLoading]             = useState(false);
 
-  // Filter state — each change triggers a new server fetch
-  const [search, setSearch]               = useState("");
-  const [activeCategory, setActiveCategory] = useState("");
-  const [freeOnly, setFreeOnly]           = useState(false);
-  const [creatorFilter, setCreatorFilter] = useState("");
-
-  // Pending input values — committed on Enter / blur
-  const [searchInput, setSearchInput]   = useState("");
-  const [creatorInput, setCreatorInput] = useState("");
+  // Multi-select category filter — stored as a Set of category strings
+  const [activeCategories, setActiveCategories] = useState(new Set());
+  const [search, setSearch]                     = useState("");
+  const [creatorFilter, setCreatorFilter]       = useState("");
+  const [searchInput, setSearchInput]           = useState("");
+  const [creatorInput, setCreatorInput]         = useState("");
 
   const navigate = useNavigate();
   const token    = localStorage.getItem("token");
@@ -77,94 +73,83 @@ const Templates = () => {
   const loggedInUserId = payload?.id ?? null;
   const isAdmin        = payload?.is_admin ?? false;
 
-  // Fetch categories once on mount so tiles are always populated
+  // Fetch all categories once on mount — independent of pagination
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(`${apiUrl}/templates/categories`, {
+        const response = await axios.get(`${apiUrl}/tutorials/categories`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         setAllCategories(response.data.categories || []);
-      } catch {
-        // If no dedicated endpoint, categories will populate from first page fetch below
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
       }
     };
     fetchCategories();
   }, [apiUrl, token]);
 
-  const fetchTemplates = useCallback(async () => {
+  const fetchTutorials = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${apiUrl}/templates`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        params: {
-          limit,
-          page,
-          ...(search.trim()          && { search: search.trim() }),
-          ...(activeCategory         && { category: activeCategory }),
-          ...(freeOnly               && { free: true }),
-          ...(creatorFilter.trim()   && { creator: creatorFilter.trim() }),
-        },
-      });
-      setTemplates(response.data.templates || []);
-      setTotalTemplates(response.data.total || 0);
+      const params = { limit, page };
+      if (search.trim())              params.search   = search.trim();
+      if (activeCategories.size > 0)  params.category = [...activeCategories].join(",");
+      if (creatorFilter.trim())       params.creator  = creatorFilter.trim();
 
-      // Populate category tiles from response if no dedicated endpoint
-      if (allCategories.length === 0 && response.data.categories) {
-        setAllCategories(response.data.categories);
-      }
+      const response = await axios.get(`${apiUrl}/tutorials`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        params,
+      });
+      setTutorials(response.data.tutorials || []);
+      setTotalTutorials(response.data.total || 0);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [apiUrl, token, limit, page, search, activeCategory, freeOnly, creatorFilter, allCategories.length]);
+  }, [apiUrl, token, limit, page, search, activeCategories, creatorFilter]);
 
-  useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
+  useEffect(() => { fetchTutorials(); }, [fetchTutorials]);
+  useEffect(() => { setPage(1); }, [search, activeCategories, creatorFilter, limit]);
 
-  // Reset to page 1 whenever filters or limit change
-  useEffect(() => { setPage(1); }, [search, activeCategory, freeOnly, creatorFilter, limit]);
-
-  const handleDelete = async (templateid) => {
-    if (!window.confirm("Remove this template?")) return;
+  const handleDelete = async (tutorialid) => {
+    if (!window.confirm("Remove this tutorial?")) return;
     try {
-      await axios.delete(`${apiUrl}/templates/${templateid}`, {
+      await axios.delete(`${apiUrl}/tutorials/${tutorialid}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTemplates((prev) => prev.filter((t) => t.templateid !== templateid));
-      setTotalTemplates((prev) => prev - 1);
+      setTutorials((prev) => prev.filter((t) => t.tutorialid !== tutorialid));
+      setTotalTutorials((prev) => prev - 1);
     } catch (err) {
-      console.error("Delete template error:", err);
+      console.error("Delete tutorial error:", err);
     }
   };
-
-  // Derive category list from loaded templates if server doesn't provide them
-  const categories = useMemo(() => {
-    if (allCategories.length > 0) return allCategories;
-    const cats = new Set();
-    templates.forEach((t) => cats.add(t.templatecategory || "Uncategorized"));
-    return Array.from(cats).sort((a, b) => {
-      if (a === "Uncategorized") return 1;
-      if (b === "Uncategorized") return -1;
-      return a.localeCompare(b);
-    });
-  }, [templates, allCategories]);
 
   const commitSearch  = () => setSearch(searchInput);
   const commitCreator = () => setCreatorFilter(creatorInput);
 
-  const toggleCategory = (label) =>
-    setActiveCategory((prev) => (prev === label ? "" : label));
+  const toggleCategory = (label) => {
+    setActiveCategories((prev) => {
+      const next = new Set(prev);
+      next.has(label) ? next.delete(label) : next.add(label);
+      return next;
+    });
+  };
 
   const clearAll = () => {
     setSearchInput("");   setSearch("");
     setCreatorInput("");  setCreatorFilter("");
-    setActiveCategory("");
-    setFreeOnly(false);
+    setActiveCategories(new Set());
   };
 
-  const isFiltering = search.trim() !== "" || activeCategory !== "" || freeOnly || creatorFilter.trim() !== "";
-  const totalPages  = Math.ceil(totalTemplates / limit);
+  const isFiltering = search.trim() !== "" || activeCategories.size > 0 || creatorFilter.trim() !== "";
+  const totalPages  = Math.ceil(totalTutorials / limit);
+
+  // Derive sorted category list from the dedicated /categories fetch
+  const categories = useMemo(() => {
+    if (allCategories.length > 0) return allCategories;
+    return [];
+  }, [allCategories]);
 
   const PaginationBar = () => (
     <div className="pagination-controls">
@@ -181,26 +166,23 @@ const Templates = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club Templates</title>
-        <meta name="description" content="Cosplay pattern and template links shared by MidwestCosplay Club members." />
+        <title data-rh="true">MidwestCosplay Club Tutorials</title>
+        <meta name="MidwestCosplay Tutorials" content="Tutorial links shared by MidwestCosplay Club members." />
       </Helmet>
       <EnchantedBackground />
 
       <div className="home-content">
         <div className="home-headline-section">
-          <h1 className="home-headline">Templates ✦</h1>
+          <h1 className="home-headline">Tutorials ✦</h1>
         </div>
 
         {loggedInUserId && (
-          <Link to="/addtemplate">
-            <button className="button">Add a Template</button>
+          <Link to="/addtutorial">
+            <button className="button">Add a Tutorial</button>
           </Link>
         )}
 
-        {/* ── Filter panel ── */}
         <div className="tl-filter-panel">
-
-          {/* Row 1: title search + creator search + free toggle */}
           <div className="tl-filter-row">
             <div className="tl-filter-field">
               <label className="tl-filter-label">Title / Description</label>
@@ -214,7 +196,6 @@ const Templates = () => {
                 onBlur={commitSearch}
               />
             </div>
-
             <div className="tl-filter-field">
               <label className="tl-filter-label">Creator</label>
               <input
@@ -227,26 +208,15 @@ const Templates = () => {
                 onBlur={commitCreator}
               />
             </div>
-
-            <div className="tl-filter-field tl-filter-field--toggle">
-              <label className="tl-filter-label">Free only</label>
-              <button
-                className={`tl-toggle-btn${freeOnly ? " tl-toggle-btn--on" : ""}`}
-                onClick={() => setFreeOnly((v) => !v)}
-              >
-                {freeOnly ? "✓ Free" : "All"}
-              </button>
-            </div>
           </div>
 
-          {/* Row 2: category tiles */}
           <div className="tl-filter-row tl-filter-row--cats">
-            <label className="tl-filter-label">Category</label>
+            <label className="tl-filter-label">Category — select one or more</label>
             <div className="tl-category-grid">
               {categories.map((label) => (
                 <button
                   key={label}
-                  className={`tl-category-tile${activeCategory === label ? " tl-category-tile--active" : ""}`}
+                  className={`tl-category-tile${activeCategories.has(label) ? " tl-category-tile--active" : ""}`}
                   onClick={() => toggleCategory(label)}
                 >
                   <span className="tl-category-emoji">{CATEGORY_EMOJI[label] || DEFAULT_EMOJI}</span>
@@ -256,15 +226,14 @@ const Templates = () => {
             </div>
           </div>
 
-          {/* Active filter summary + clear */}
           {isFiltering && (
             <div className="tl-active-filter">
-              {activeCategory && (
-                <span className="tl-filter-pill">
-                  Category: <strong>{activeCategory}</strong>
-                  <button className="tl-filter-pill-x" onClick={() => setActiveCategory("")}>✕</button>
+              {[...activeCategories].map((label) => (
+                <span key={label} className="tl-filter-pill">
+                  Category: <strong>{label}</strong>
+                  <button className="tl-filter-pill-x" onClick={() => toggleCategory(label)}>✕</button>
                 </span>
-              )}
+              ))}
               {search.trim() && (
                 <span className="tl-filter-pill">
                   Title: <strong>"{search.trim()}"</strong>
@@ -277,14 +246,8 @@ const Templates = () => {
                   <button className="tl-filter-pill-x" onClick={() => { setCreatorFilter(""); setCreatorInput(""); }}>✕</button>
                 </span>
               )}
-              {freeOnly && (
-                <span className="tl-filter-pill">
-                  Free only
-                  <button className="tl-filter-pill-x" onClick={() => setFreeOnly(false)}>✕</button>
-                </span>
-              )}
               <span className="tl-filter-count">
-                {totalTemplates} result{totalTemplates !== 1 ? "s" : ""}
+                {totalTutorials} result{totalTutorials !== 1 ? "s" : ""}
               </span>
               <button className="tl-clear-btn" onClick={clearAll}>✕ Clear all</button>
             </div>
@@ -296,65 +259,51 @@ const Templates = () => {
         <div className="group-container">
           {loading ? (
             <p className="tl-no-results">Loading…</p>
-          ) : templates.length === 0 ? (
+          ) : tutorials.length === 0 ? (
             <p className="tl-no-results">
-              No templates match your filters.{" "}
+              No tutorials match your filters.{" "}
               <button className="button" onClick={clearAll}>Clear all filters</button>
             </p>
           ) : (
-            templates.map((template) => {
-              const platform = getPlatformInfo(template.templateurl);
+            tutorials.map((tutorial) => {
+              const platform = getPlatformInfo(tutorial.tutorialurl);
               return (
-                <div className="group-card tutorial-card" key={template.templateid}>
-                  {template.useravatar ? (
-                    <img src={template.useravatar} alt={`${template.username || "User"}'s avatar`} className="tutorial-card-avatar" />
+                <div className="group-card tutorial-card" key={tutorial.tutorialid}>
+                  {tutorial.useravatar ? (
+                    <img src={tutorial.useravatar} alt={`${tutorial.username || "User"}'s avatar`} className="tutorial-card-avatar" />
                   ) : (
                     <div className="tutorial-card-avatar tutorial-card-avatar--placeholder">
-                      {(template.username || "?")[0].toUpperCase()}
+                      {(tutorial.username || "?")[0].toUpperCase()}
                     </div>
                   )}
-
-                  {template.templateimage && (
-                    <img src={template.templateimage} alt={template.templatetitle || "Template thumbnail"} className="tutorial-card-thumbnail" />
+                  {tutorial.tutorialimage && (
+                    <img src={tutorial.tutorialimage} alt={tutorial.tutorialtitle || "Tutorial thumbnail"} className="tutorial-card-thumbnail" />
                   )}
-
-                  {template.templatetitle && <h3>{template.templatetitle}</h3>}
-
-                  {template.templatedescription && (
-                    <p className="tutorial-card-description">{template.templatedescription}</p>
+                  {tutorial.tutorialtitle && <h3>{tutorial.tutorialtitle}</h3>}
+                  {tutorial.tutorialdescription && (
+                    <p className="tutorial-card-description">{tutorial.tutorialdescription}</p>
                   )}
-
-                  {template.templateisfree != null && (
-                    <span className={`template-price-badge ${template.templateisfree ? "template-price-badge--free" : "template-price-badge--paid"}`}>
-                      {template.templateisfree ? "Free" : "Paid"}
-                    </span>
-                  )}
-
-                  {template.username && (
+                  {tutorial.username && (
                     <p className="tutorial-card-submitter">
-                      Shared by{" "}
-                      <Link to={`/public/${template.username}`}>{template.username}</Link>
+                      Shared by <Link to={`/public/${tutorial.userslug || tutorial.userid}`}>{tutorial.username}</Link>
                     </p>
                   )}
-
                   <span
                     className="tutorial-card-tag tl-category-badge"
                     title="Filter by this category"
-                    onClick={() => toggleCategory(template.templatecategory || "Uncategorized")}
+                    onClick={() => toggleCategory(tutorial.tutorialcategory || "Uncategorized")}
                   >
-                    {template.templatecategory || "Uncategorized"}
+                    {tutorial.tutorialcategory || "Uncategorized"}
                   </span>
-
-                  <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
-                    <button className="button">View Template</button>
+                  <a href={tutorial.tutorialurl} target="_blank" rel="noopener noreferrer">
+                    <button className="button">Watch on {platform.label}</button>
                   </a>
-
-                  {(template.userid === loggedInUserId || isAdmin) && (
+                  {(tutorial.userid === loggedInUserId || isAdmin) && (
                     <>
-                      <Link to={`/addtemplate/${template.templateid}`}>
+                      <Link to={`/addtutorial/${tutorial.tutorialid}`}>
                         <button className="button">Edit</button>
                       </Link>
-                      <button className="button" type="button" onClick={() => handleDelete(template.templateid)}>
+                      <button className="button" type="button" onClick={() => handleDelete(tutorial.tutorialid)}>
                         Delete
                       </button>
                     </>
@@ -365,11 +314,11 @@ const Templates = () => {
           )}
         </div>
 
-        {totalTemplates > limit && <PaginationBar />}
+        {totalTutorials > limit && <PaginationBar />}
         <Footer />
       </div>
     </div>
   );
 };
 
-export default Templates;
+export default Tutorials;

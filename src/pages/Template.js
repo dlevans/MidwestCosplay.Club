@@ -31,19 +31,19 @@ const getPlatformInfo = (url) => {
 };
 
 const CATEGORY_EMOJI = {
-  "Uncategorized":          "📁",
-  "Accessories & Jewelry":  "💍",
-  "Armor & Chest Pieces":   "🛡️",
-  "General / Other":        "🗂️",
-  "Helmets & Headgear":     "🪖",
-  "Props & Weapons":        "⚔️",
-  "Clothing":               "👗",
-  "Wings & Tails":          "🪶",
-  "Foam":                   "🧱",
-  "3D Print":               "🖨️",
-  "Shoes & Footwear":       "👠",
-  "Tails & Ears":           "🦊",
-  "Bags & Pouches":         "👜",
+  "Uncategorized":         "📁",
+  "Accessories & Jewelry": "💍",
+  "Armor & Chest Pieces":  "🛡️",
+  "General / Other":       "🗂️",
+  "Helmets & Headgear":   "🪖",
+  "Props & Weapons":       "⚔️",
+  "Clothing":              "👗",
+  "Wings & Tails":         "🪶",
+  "Foam":                  "🧱",
+  "3D Print":              "🖨️",
+  "Shoes & Footwear":     "👠",
+  "Tails & Ears":          "🦊",
+  "Bags & Pouches":        "👜",
 };
 const DEFAULT_EMOJI = "🏷️";
 
@@ -55,15 +55,13 @@ const Templates = () => {
   const [totalTemplates, setTotalTemplates] = useState(0);
   const [loading, setLoading]             = useState(false);
 
-  // Filter state — each change triggers a new server fetch
-  const [search, setSearch]               = useState("");
-  const [activeCategory, setActiveCategory] = useState("");
-  const [freeOnly, setFreeOnly]           = useState(false);
-  const [creatorFilter, setCreatorFilter] = useState("");
-
-  // Pending input values — committed on Enter / blur
-  const [searchInput, setSearchInput]   = useState("");
-  const [creatorInput, setCreatorInput] = useState("");
+  // Multi-select category filter — stored as a Set of category strings
+  const [activeCategories, setActiveCategories] = useState(new Set());
+  const [freeOnly, setFreeOnly]                 = useState(false);
+  const [search, setSearch]                     = useState("");
+  const [creatorFilter, setCreatorFilter]       = useState("");
+  const [searchInput, setSearchInput]           = useState("");
+  const [creatorInput, setCreatorInput]         = useState("");
 
   const navigate = useNavigate();
   const token    = localStorage.getItem("token");
@@ -77,7 +75,7 @@ const Templates = () => {
   const loggedInUserId = payload?.id ?? null;
   const isAdmin        = payload?.is_admin ?? false;
 
-  // Fetch categories once on mount so tiles are always populated
+  // Fetch all categories once on mount — independent of pagination
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -85,8 +83,8 @@ const Templates = () => {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         setAllCategories(response.data.categories || []);
-      } catch {
-        // If no dedicated endpoint, categories will populate from first page fetch below
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
       }
     };
     fetchCategories();
@@ -95,35 +93,27 @@ const Templates = () => {
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
     try {
+      const params = { limit, page };
+      if (search.trim())              params.search   = search.trim();
+      if (activeCategories.size > 0)  params.category = [...activeCategories].join(",");
+      if (creatorFilter.trim())       params.creator  = creatorFilter.trim();
+      if (freeOnly)                   params.free     = true;
+
       const response = await axios.get(`${apiUrl}/templates`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-        params: {
-          limit,
-          page,
-          ...(search.trim()          && { search: search.trim() }),
-          ...(activeCategory         && { category: activeCategory }),
-          ...(freeOnly               && { free: true }),
-          ...(creatorFilter.trim()   && { creator: creatorFilter.trim() }),
-        },
+        params,
       });
       setTemplates(response.data.templates || []);
       setTotalTemplates(response.data.total || 0);
-
-      // Populate category tiles from response if no dedicated endpoint
-      if (allCategories.length === 0 && response.data.categories) {
-        setAllCategories(response.data.categories);
-      }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [apiUrl, token, limit, page, search, activeCategory, freeOnly, creatorFilter, allCategories.length]);
+  }, [apiUrl, token, limit, page, search, activeCategories, creatorFilter, freeOnly]);
 
   useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
-
-  // Reset to page 1 whenever filters or limit change
-  useEffect(() => { setPage(1); }, [search, activeCategory, freeOnly, creatorFilter, limit]);
+  useEffect(() => { setPage(1); }, [search, activeCategories, creatorFilter, freeOnly, limit]);
 
   const handleDelete = async (templateid) => {
     if (!window.confirm("Remove this template?")) return;
@@ -138,33 +128,31 @@ const Templates = () => {
     }
   };
 
-  // Derive category list from loaded templates if server doesn't provide them
-  const categories = useMemo(() => {
-    if (allCategories.length > 0) return allCategories;
-    const cats = new Set();
-    templates.forEach((t) => cats.add(t.templatecategory || "Uncategorized"));
-    return Array.from(cats).sort((a, b) => {
-      if (a === "Uncategorized") return 1;
-      if (b === "Uncategorized") return -1;
-      return a.localeCompare(b);
-    });
-  }, [templates, allCategories]);
-
   const commitSearch  = () => setSearch(searchInput);
   const commitCreator = () => setCreatorFilter(creatorInput);
 
-  const toggleCategory = (label) =>
-    setActiveCategory((prev) => (prev === label ? "" : label));
+  const toggleCategory = (label) => {
+    setActiveCategories((prev) => {
+      const next = new Set(prev);
+      next.has(label) ? next.delete(label) : next.add(label);
+      return next;
+    });
+  };
 
   const clearAll = () => {
     setSearchInput("");   setSearch("");
     setCreatorInput("");  setCreatorFilter("");
-    setActiveCategory("");
+    setActiveCategories(new Set());
     setFreeOnly(false);
   };
 
-  const isFiltering = search.trim() !== "" || activeCategory !== "" || freeOnly || creatorFilter.trim() !== "";
+  const isFiltering = search.trim() !== "" || activeCategories.size > 0 || creatorFilter.trim() !== "" || freeOnly;
   const totalPages  = Math.ceil(totalTemplates / limit);
+
+  const categories = useMemo(() => {
+    if (allCategories.length > 0) return allCategories;
+    return [];
+  }, [allCategories]);
 
   const PaginationBar = () => (
     <div className="pagination-controls">
@@ -197,10 +185,7 @@ const Templates = () => {
           </Link>
         )}
 
-        {/* ── Filter panel ── */}
         <div className="tl-filter-panel">
-
-          {/* Row 1: title search + creator search + free toggle */}
           <div className="tl-filter-row">
             <div className="tl-filter-field">
               <label className="tl-filter-label">Title / Description</label>
@@ -214,7 +199,6 @@ const Templates = () => {
                 onBlur={commitSearch}
               />
             </div>
-
             <div className="tl-filter-field">
               <label className="tl-filter-label">Creator</label>
               <input
@@ -227,7 +211,6 @@ const Templates = () => {
                 onBlur={commitCreator}
               />
             </div>
-
             <div className="tl-filter-field tl-filter-field--toggle">
               <label className="tl-filter-label">Free only</label>
               <button
@@ -239,14 +222,13 @@ const Templates = () => {
             </div>
           </div>
 
-          {/* Row 2: category tiles */}
           <div className="tl-filter-row tl-filter-row--cats">
-            <label className="tl-filter-label">Category</label>
+            <label className="tl-filter-label">Category — select one or more</label>
             <div className="tl-category-grid">
               {categories.map((label) => (
                 <button
                   key={label}
-                  className={`tl-category-tile${activeCategory === label ? " tl-category-tile--active" : ""}`}
+                  className={`tl-category-tile${activeCategories.has(label) ? " tl-category-tile--active" : ""}`}
                   onClick={() => toggleCategory(label)}
                 >
                   <span className="tl-category-emoji">{CATEGORY_EMOJI[label] || DEFAULT_EMOJI}</span>
@@ -256,15 +238,14 @@ const Templates = () => {
             </div>
           </div>
 
-          {/* Active filter summary + clear */}
           {isFiltering && (
             <div className="tl-active-filter">
-              {activeCategory && (
-                <span className="tl-filter-pill">
-                  Category: <strong>{activeCategory}</strong>
-                  <button className="tl-filter-pill-x" onClick={() => setActiveCategory("")}>✕</button>
+              {[...activeCategories].map((label) => (
+                <span key={label} className="tl-filter-pill">
+                  Category: <strong>{label}</strong>
+                  <button className="tl-filter-pill-x" onClick={() => toggleCategory(label)}>✕</button>
                 </span>
-              )}
+              ))}
               {search.trim() && (
                 <span className="tl-filter-pill">
                   Title: <strong>"{search.trim()}"</strong>
@@ -313,30 +294,23 @@ const Templates = () => {
                       {(template.username || "?")[0].toUpperCase()}
                     </div>
                   )}
-
                   {template.templateimage && (
                     <img src={template.templateimage} alt={template.templatetitle || "Template thumbnail"} className="tutorial-card-thumbnail" />
                   )}
-
                   {template.templatetitle && <h3>{template.templatetitle}</h3>}
-
                   {template.templatedescription && (
                     <p className="tutorial-card-description">{template.templatedescription}</p>
                   )}
-
                   {template.templateisfree != null && (
                     <span className={`template-price-badge ${template.templateisfree ? "template-price-badge--free" : "template-price-badge--paid"}`}>
                       {template.templateisfree ? "Free" : "Paid"}
                     </span>
                   )}
-
                   {template.username && (
                     <p className="tutorial-card-submitter">
-                      Shared by{" "}
-                      <Link to={`/public/${template.username}`}>{template.username}</Link>
+                      Shared by <Link to={`/public/${template.username}`}>{template.username}</Link>
                     </p>
                   )}
-
                   <span
                     className="tutorial-card-tag tl-category-badge"
                     title="Filter by this category"
@@ -344,11 +318,9 @@ const Templates = () => {
                   >
                     {template.templatecategory || "Uncategorized"}
                   </span>
-
                   <a href={template.templateurl} target="_blank" rel="noopener noreferrer">
                     <button className="button">View Template</button>
                   </a>
-
                   {(template.userid === loggedInUserId || isAdmin) && (
                     <>
                       <Link to={`/addtemplate/${template.templateid}`}>
