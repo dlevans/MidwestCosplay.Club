@@ -320,7 +320,7 @@ select:focus { border-color: var(--accent); }
 .user-card, .group-card, .event-card {
   background: var(--bg-surface); border: 1px solid var(--border);
   border-radius: var(--radius-md); padding: 1.25rem;
-  width: 200px; text-align: center;
+  width: 260px; text-align: center;
   transition: box-shadow var(--transition), transform var(--transition);
 }
 .user-card:hover, .group-card:hover, .event-card:hover {
@@ -330,7 +330,7 @@ select:focus { border-color: var(--accent); }
   width: 5rem; height: 5rem; border-radius: 50%;
   object-fit: cover; margin: 0 auto 0.75rem; border: 2px solid var(--border);
 }
-.user-card h3, .group-card h3, .event-card h3 { font-size: 1rem; margin-bottom: 0.25rem; }
+.user-card h3, .group-card h3, .event-card h3 { font-size: 1rem; margin-bottom: 0.25rem; overflow-wrap: break-word; word-break: break-word; }
 .user-card h4, .group-card h4, .event-card h4 { font-size: 0.8rem; margin-bottom: 0.75rem; color: var(--text-muted); }
 
 /* Search result cards */
