@@ -144,7 +144,7 @@ function Nav() {
         </li>
 
         <li className="nav-item">
-          <NavLink className="nav-link" to="/fabric-map">
+          <NavLink className="nav-link" to="/fabricmap">
             <FontAwesomeIcon icon={faMap} />
             <span className="link-text">Fabric Map</span>
           </NavLink>
