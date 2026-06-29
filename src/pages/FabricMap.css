@@ -137,6 +137,40 @@
   line-height: 1;
 }
 
+/* Button reset (for <button> tags that share .map-resource-btn) ------------- */
+button.map-resource-btn {
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+
+button.map-resource-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+  transform: none;
+}
+
+button.map-resource-btn:disabled:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: none;
+}
+
+/* Success state after location granted -------------------------------------- */
+.map-resource-btn--success {
+  border-color: rgba(100, 220, 130, 0.4);
+  background: rgba(100, 220, 130, 0.08);
+}
+
+/* Location denied error message --------------------------------------------- */
+.map-location-error {
+  margin: 0;
+  padding: 0.75rem 1.5rem 1rem;
+  font-size: 0.82rem;
+  color: rgba(255, 160, 130, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 /* Responsive ---------------------------------------------------------------- */
 @media (max-width: 600px) {
   /* Taller map on small screens */
