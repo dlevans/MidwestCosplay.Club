@@ -35,6 +35,7 @@ import AddTutorial from "./pages/Addtutorial";
 import AddTemplate from "./pages/Addtemplate";
 import Templates from "./pages/Template";
 import Admin from "./pages/Admin";
+import FabricMap from "./pages/FabricMap";
 
 function App() {
   const navigate = useNavigate();
@@ -92,6 +93,7 @@ function App() {
           <Route path="/users" element={<Users />} />
           <Route path="/groups" element={<Groups />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/fabricmap" element={<FabricMap />} />
           <Route path="/managegroup" element={<ManageGroup />} />
           <Route path="/managegroup/:groupid" element={<ManageGroup />} />
           <Route path="/manageevent" element={<ManageEvent />} />

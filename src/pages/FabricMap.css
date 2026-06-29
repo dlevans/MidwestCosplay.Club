@@ -1,0 +1,155 @@
+/* ─── FabricMap.css ──────────────────────────────────────────────────────────
+   Mirrors the naming and structure of Games.css.
+   Relies on shared classes already defined there:
+     .page-home, .home-content, .games-header, .games-eyebrow,
+     .games-headline, .games-subhead
+   Adds only what's new for the map page.
+──────────────────────────────────────────────────────────────────────────── */
+
+/* Layout hub ---------------------------------------------------------------- */
+.fabric-hub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+  padding-bottom: 4rem;
+}
+
+/* Map card ------------------------------------------------------------------ */
+.map-card {
+  width: 100%;
+  max-width: 900px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+/* Map embed ----------------------------------------------------------------- */
+.map-embed-wrapper {
+  position: relative;
+  width: 100%;
+  /* 16:9 on desktop, taller on mobile */
+  padding-top: 56.25%;
+}
+
+.map-embed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* Card footer with resource links ------------------------------------------ */
+.map-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.map-resource-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1 1 200px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+}
+
+.map-resource-btn:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.map-resource-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.map-resource-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.map-resource-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.map-resource-desc {
+  font-size: 0.78rem;
+  opacity: 0.65;
+  line-height: 1.3;
+}
+
+/* Legend -------------------------------------------------------------------- */
+.map-legend {
+  width: 100%;
+  max-width: 900px;
+}
+
+.map-legend-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin: 0 0 0.85rem;
+}
+
+.map-legend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.map-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.88rem;
+  opacity: 0.85;
+}
+
+.map-legend-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* Responsive ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+  /* Taller map on small screens */
+  .map-embed-wrapper {
+    padding-top: 80%;
+  }
+
+  .map-card-footer {
+    flex-direction: column;
+  }
+
+  .map-resource-btn {
+    flex: unset;
+    width: 100%;
+  }
+}
