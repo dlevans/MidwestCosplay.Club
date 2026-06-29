@@ -71,7 +71,7 @@ const Update = () => {
   const navigate = useNavigate();
   const { id: userID } = useParams();
 
-  const roles = [ "3D Printer", "3D Designer", "Actor", "Artist", "Author", "Content Creator", "Cosplayer", "Crafter", "Leatherworker", "Maker", "Model", "Performer", "Photographer", "Prop Builder", "Seamstress", "Streamer", "Tailor", "Vendor"];
+  const roles = [ "3D Printer", "3D Designer", "Actor", "Artist", "Author", "Content Creator", "Cosplayer", "Crafter", "Fan", "Leatherworker", "Maker", "Model", "Performer", "Photographer", "Prop Builder", "Seamstress", "Streamer", "Tailor", "Vendor"];
   
   const apiUrl = process.env.REACT_APP_API_URL;
 
