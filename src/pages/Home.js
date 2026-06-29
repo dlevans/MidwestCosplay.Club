@@ -428,8 +428,11 @@ const Home = () => {
                       type="text"
                       placeholder="MidwestCosplayer"
                       autoComplete="username"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      spellCheck="false"
                       value={loginUser}
-                      onChange={(e) => setLoginUser(e.target.value)}
+                      onChange={(e) => setLoginUser(e.target.value.replace(/\s/g, ""))}
                       onKeyDown={handleKeyDown}
                     />
                   </div>
