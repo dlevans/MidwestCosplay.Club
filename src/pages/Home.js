@@ -422,11 +422,11 @@ const Home = () => {
               {tab === "login" && (
                 <div className="home-auth-form">
                   <div>
-                    <label htmlFor="login-user">Username or Email</label>
+                    <label htmlFor="login-user">Username</label>
                     <input
                       id="login-user"
                       type="text"
-                      placeholder="your@email.com"
+                      placeholder="MidwestCosplayer"
                       autoComplete="username"
                       value={loginUser}
                       onChange={(e) => setLoginUser(e.target.value)}
