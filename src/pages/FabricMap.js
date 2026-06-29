@@ -12,12 +12,6 @@ const RESOURCE_LINKS = [
     icon: "🗺️",
     description: "View in Google Maps with directions",
   },
-  {
-    label: "Suggest a Store",
-    href: "mailto:?subject=Fabric%20Store%20Suggestion%20for%20KC%20Crafting%20Map",
-    icon: "📍",
-    description: "Know a spot we're missing? Let us know.",
-  },
 ];
 
 const MAP_EMBED_SRC =
@@ -82,28 +76,6 @@ const FabricMap = () => {
               </a>
             ))}
           </div>
-        </div>
-
-        <div className="map-legend">
-          <h2 className="map-legend-heading">What's on the map?</h2>
-          <ul className="map-legend-list">
-            <li className="map-legend-item">
-              <span className="map-legend-icon">🧵</span>
-              <span>Fabric &amp; textile stores</span>
-            </li>
-            <li className="map-legend-item">
-              <span className="map-legend-icon">📿</span>
-              <span>Bead &amp; jewelry supply shops</span>
-            </li>
-            <li className="map-legend-item">
-              <span className="map-legend-icon">✂️</span>
-              <span>Sewing class studios</span>
-            </li>
-            <li className="map-legend-item">
-              <span className="map-legend-icon">🎨</span>
-              <span>General craft &amp; art supply stores</span>
-            </li>
-          </ul>
         </div>
       </div>
 
