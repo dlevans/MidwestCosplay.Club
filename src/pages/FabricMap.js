@@ -37,9 +37,10 @@ const FabricMap = () => {
       (pos) => {
         const { latitude, longitude } = pos.coords;
         setLocationState("granted");
-        // Re-center the embed on the user, zoom in a bit
+        // Append a timestamp so React always sees a new src and forces an iframe reload,
+        // even if the coords haven't changed since the last click.
         setEmbedSrc(
-          `${BASE_EMBED_SRC}&ll=${latitude},${longitude}&z=12`
+          `${BASE_EMBED_SRC}&ll=${latitude},${longitude}&z=12&_t=${Date.now()}`
         );
       },
       () => {
@@ -49,40 +50,10 @@ const FabricMap = () => {
     );
   }, []);
 
-  const handleDirections = useCallback(() => {
-    if (!navigator.geolocation) {
-      // Fall back to just opening the map
-      window.open(
-        "https://www.google.com/maps/d/viewer?mid=1_WkygXJTNwi0z-wwOTPK7Dbsfs1dG-Q",
-        "_blank",
-        "noopener,noreferrer"
-      );
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords;
-        // Opens Google Maps from the user's location to the map area
-        const url = `https://www.google.com/maps/dir/${latitude},${longitude}/Kansas+City,+MO`;
-        window.open(url, "_blank", "noopener,noreferrer");
-      },
-      () => {
-        // Permission denied — open map without directions
-        window.open(
-          "https://www.google.com/maps/d/viewer?mid=1_WkygXJTNwi0z-wwOTPK7Dbsfs1dG-Q",
-          "_blank",
-          "noopener,noreferrer"
-        );
-      },
-      { timeout: 10000 }
-    );
-  }, []);
-
   const locationLabel = {
     idle: "📍 Center map on me",
     requesting: "Finding your location…",
-    granted: "✅ Map centered on you",
+    granted: "📍 Re-center on me",
     denied: "Location denied",
     unavailable: "Location unavailable",
   }[locationState];
@@ -122,12 +93,12 @@ const FabricMap = () => {
           <div className="map-card-footer">
             {/* Center map on user */}
             <button
-              className={`map-resource-btn ${locationState === "granted" ? "map-resource-btn--success" : ""}`}
+              className="map-resource-btn"
               onClick={handleLocateMe}
-              disabled={locationState === "requesting" || locationState === "granted"}
+              disabled={locationState === "requesting"}
             >
               <span className="map-resource-icon" aria-hidden="true">
-                {locationState === "requesting" ? "⏳" : locationState === "granted" ? "✅" : "📍"}
+                {locationState === "requesting" ? "⏳" : "📍"}
               </span>
               <span className="map-resource-text">
                 <span className="map-resource-label">{locationLabel}</span>
@@ -148,15 +119,6 @@ const FabricMap = () => {
                 <span className="map-resource-desc">View in Google Maps with directions</span>
               </span>
             </a>
-
-            {/* Directions from current location */}
-            <button className="map-resource-btn" onClick={handleDirections}>
-              <span className="map-resource-icon" aria-hidden="true">🧭</span>
-              <span className="map-resource-text">
-                <span className="map-resource-label">Get Directions</span>
-                <span className="map-resource-desc">Navigate from your location to KC</span>
-              </span>
-            </button>
           </div>
 
           {locationState === "denied" && (
