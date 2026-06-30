@@ -126,18 +126,17 @@
   margin: 0.25rem 0 0;
 }
 
-/* ── Main layout ─────────────────────────────────────────────────────────── */
-.sm-layout {
-  display: grid;
-  grid-template-columns: minmax(380px, 1fr) minmax(420px, 1.4fr);
+/* ── Top row: map + filter panel side-by-side ────────────────────────────── */
+.sm-top-row {
+  display: flex;
   gap: 1.5rem;
-  align-items: start;
+  align-items: flex-start;
 }
 
 /* ── Map panel ───────────────────────────────────────────────────────────── */
 .sm-map-panel {
-  position: sticky;
-  top: 1rem;
+  flex: 1 1 480px;
+  min-width: 380px;
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
@@ -232,16 +231,10 @@
   border: 1.5px solid rgba(255, 255, 255, 0.4);
 }
 
-/* ── Sidebar ─────────────────────────────────────────────────────────────── */
-.sm-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  min-width: 0;
-}
-
 /* ── Filter panel ────────────────────────────────────────────────────────── */
 .sm-filter-panel {
+  flex: 1 1 420px;
+  min-width: 320px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
@@ -398,16 +391,26 @@
 .sm-pagination button:disabled { opacity: 0.35; cursor: default; }
 .sm-pagination span { opacity: 0.65; }
 
+/* ── Stores section: full-width, sits below map + filters ───────────────── */
+.sm-stores-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 /* ── Store cards ─────────────────────────────────────────────────────────── */
+/* Matches the .user-container / .group-container flex-wrap pattern used
+   site-wide (see index.css) rather than a CSS grid, so cards wrap naturally
+   based on fixed width — same mechanism as the Members and Templates pages. */
 .sm-card-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 0.9rem;
-  align-items: start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
 }
 .sm-no-results { opacity: 0.55; font-size: 0.9rem; }
 
 .sm-card {
+  width: 340px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
@@ -536,17 +539,17 @@
 
 /* ── Responsive ──────────────────────────────────────────────────────────── */
 @media (max-width: 1050px) {
-  .sm-layout {
-    grid-template-columns: 1fr;
+  .sm-top-row {
+    flex-direction: column;
   }
-  .sm-map-panel {
-    position: static;
+  .sm-map-panel,
+  .sm-filter-panel {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
   }
   .sm-leaflet-map {
     height: 380px;
-  }
-  .sm-sidebar {
-    /* sidebar becomes full-width below map */
   }
 }
 
@@ -556,4 +559,5 @@
   .sm-card-actions { flex-direction: column; }
   .sm-dir-btn { width: 100%; justify-content: center; }
   .sm-send-menu { min-width: 200px; }
+  .sm-card { width: 100%; }
 }

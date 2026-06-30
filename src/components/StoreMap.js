@@ -6,7 +6,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Footer from "../Footer";
 import { Helmet } from "react-helmet-async";
-import EnchantedBackground from "../pages/Enchantedbackground";
+import EnchantedBackground from "./Enchantedbackground";
 import "./StoreMap.css";
 
 // ─── Fix Leaflet default marker icon paths broken by webpack ─────────────────
@@ -356,8 +356,8 @@ const StoreMap = () => {
           </p>
         )}
 
-        {/* ── Main layout: map + sidebar ──────────────────────────────────── */}
-        <div className="sm-layout">
+        {/* ── Top row: map + filter panel side-by-side ────────────────────── */}
+        <div className="sm-top-row">
 
           {/* Map panel */}
           <div className="sm-map-panel">
@@ -437,12 +437,8 @@ const StoreMap = () => {
             </ul>
           </div>
 
-          {/* Sidebar: filters + cards */}
-          <div className="sm-sidebar">
-
-            {/* ── Filter panel ──────────────────────────────────────────── */}
-            <div className="sm-filter-panel">
-
+          {/* ── Filter panel ──────────────────────────────────────────── */}
+          <div className="sm-filter-panel">
               {/* Text search */}
               <div className="sm-filter-field">
                 <label className="sm-filter-label">Search stores</label>
@@ -532,12 +528,14 @@ const StoreMap = () => {
                   <button className="sm-clear-btn" onClick={clearAll}>✕ Clear all</button>
                 </div>
               )}
-            </div>
+          </div>
+        </div>
 
-            {/* ── Cards ─────────────────────────────────────────────────── */}
-            <PaginationBar />
+        {/* ── Stores: full-width section below map + filters ──────────────── */}
+        <div className="sm-stores-section">
+          <PaginationBar />
 
-            <div className="sm-card-list">
+          <div className="sm-card-list">
               {loading ? (
                 <p className="sm-no-results">Loading stores…</p>
               ) : stores.length === 0 ? (
@@ -678,7 +676,6 @@ const StoreMap = () => {
 
             {total > limit && <PaginationBar />}
           </div>
-        </div>
 
       </div>
       <Footer />
