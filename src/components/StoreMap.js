@@ -6,7 +6,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Footer from "../Footer";
 import { Helmet } from "react-helmet-async";
-import EnchantedBackground from "./Enchantedbackground";
+import EnchantedBackground from "../pages/Enchantedbackground";
 import "./StoreMap.css";
 
 // ─── Fix Leaflet default marker icon paths broken by webpack ─────────────────
