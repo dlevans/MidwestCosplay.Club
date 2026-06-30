@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { Helmet } from "react-helmet-async";
-import EnchantedBackground from "./Enchantedbackground";
+import EnchantedBackground from "../pages/Enchantedbackground";
 import "./AddStore.css";
 import Footer from "../Footer";
 
