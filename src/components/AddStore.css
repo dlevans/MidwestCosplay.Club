@@ -1,0 +1,161 @@
+/* ─── AddStore.css ───────────────────────────────────────────────────────────
+   Form styles for AddStore.jsx. Uses shared .page-home, .home-content,
+   .home-headline, .button from global CSS.
+──────────────────────────────────────────────────────────────────────────── */
+
+.add-form-card {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+
+/* ── Sections ─────────────────────────────────────────────────────────────── */
+.add-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.5rem 1.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+.add-form-section:last-of-type {
+  border-bottom: none;
+}
+
+.add-form-heading {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  margin: 0 0 0.25rem;
+}
+
+.add-form-hint {
+  font-size: 0.8rem;
+  opacity: 0.5;
+  margin: 0;
+}
+
+/* ── Labels & inputs ─────────────────────────────────────────────────────── */
+.add-form-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  opacity: 0.7;
+  margin-top: 0.25rem;
+}
+.add-form-required {
+  color: #a855f7;
+  margin-left: 2px;
+}
+
+.add-form-input {
+  padding: 0.6rem 0.9rem;
+  border-radius: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+.add-form-input:focus {
+  border-color: rgba(168, 85, 247, 0.55);
+}
+.add-form-input option {
+  background: #1e1b2e;
+  color: #fff;
+}
+
+.add-form-textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* ── Row layout for side-by-side fields ──────────────────────────────────── */
+.add-form-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.add-form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 0;
+}
+.add-form-col--sm {
+  flex: 0 0 90px;
+}
+
+/* ── File upload ──────────────────────────────────────────────────────────── */
+.add-form-file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem;
+  border-radius: 0.65rem;
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  font-size: 0.88rem;
+  transition: background 0.15s, border-color 0.15s;
+  width: fit-content;
+}
+.add-form-file-label:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.add-form-preview {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ── Error / success messages ─────────────────────────────────────────────── */
+.add-form-error {
+  padding: 0.6rem 1.75rem;
+  font-size: 0.85rem;
+  color: rgba(255, 130, 110, 0.95);
+  background: rgba(255, 80, 60, 0.08);
+  border-top: 1px solid rgba(255, 80, 60, 0.15);
+  margin: 0;
+}
+.add-form-success {
+  padding: 0.6rem 1.75rem;
+  font-size: 0.85rem;
+  color: rgba(100, 220, 140, 0.95);
+  background: rgba(60, 200, 100, 0.08);
+  border-top: 1px solid rgba(60, 200, 100, 0.15);
+  margin: 0;
+}
+
+/* ── Action buttons ───────────────────────────────────────────────────────── */
+.add-form-actions {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1.25rem 1.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  flex-wrap: wrap;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 500px) {
+  .add-form-section { padding: 1.1rem 1rem; }
+  .add-form-actions { padding: 1rem; }
+  .add-form-row { flex-direction: column; }
+  .add-form-col--sm { flex: 1; }
+}

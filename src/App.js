@@ -35,7 +35,9 @@ import AddTutorial from "./pages/Addtutorial";
 import AddTemplate from "./pages/Addtemplate";
 import Templates from "./pages/Template";
 import Admin from "./pages/Admin";
-import FabricMap from "./pages/FabricMap";
+import StoreMap  from "./components/StoreMap";
+import AddStore  from "./components/AddStore";
+
 
 function App() {
   const navigate = useNavigate();
@@ -92,8 +94,10 @@ function App() {
           <Route path="/update/:id" element={<Update />} />
           <Route path="/users" element={<Users />} />
           <Route path="/groups" element={<Groups />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/fabricmap" element={<FabricMap />} />
+          <Route path="/events" element={<Events />} />          
+          <Route path="/storemap"         element={<StoreMap />} />
+          <Route path="/addstore"         element={<AddStore />} />
+          <Route path="/addstore/:storeid" element={<AddStore />} />
           <Route path="/managegroup" element={<ManageGroup />} />
           <Route path="/managegroup/:groupid" element={<ManageGroup />} />
           <Route path="/manageevent" element={<ManageEvent />} />
