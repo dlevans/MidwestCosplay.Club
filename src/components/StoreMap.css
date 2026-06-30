@@ -129,7 +129,7 @@
 /* ── Main layout ─────────────────────────────────────────────────────────── */
 .sm-layout {
   display: grid;
-  grid-template-columns: 1fr 420px;
+  grid-template-columns: minmax(380px, 1fr) minmax(420px, 1.4fr);
   gap: 1.5rem;
   align-items: start;
 }
@@ -400,9 +400,10 @@
 
 /* ── Store cards ─────────────────────────────────────────────────────────── */
 .sm-card-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 0.9rem;
+  align-items: start;
 }
 .sm-no-results { opacity: 0.55; font-size: 0.9rem; }
 
