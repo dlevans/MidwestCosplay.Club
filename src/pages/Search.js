@@ -152,14 +152,14 @@ function Search() {
   const searchRef = useRef(null);
 
   const [query,    setQuery]    = useState("");
-  const [results,  setResults]  = useState({ users: [], groups: [], tutorials: [], templates: [], events: [] });
-  const [meta,     setMeta]     = useState({ userIama: [], tutorialCats: [], templateCats: [], eventStates: [] });
+  const [results,  setResults]  = useState({ users: [], groups: [], tutorials: [], templates: [], events: [], stores: [] });
+  const [meta,     setMeta]     = useState({ userIama: [], tutorialCats: [], templateCats: [], eventStates: [], storeTypes: [] });
   const [searched, setSearched] = useState(false);
   const [shaking,  setShaking]  = useState(false);
 
   // Section-level show/hide filters
   const [filters, setFilters] = useState({
-    users: true, groups: true, tutorials: true, templates: true, events: true,
+    users: true, groups: true, tutorials: true, templates: true, events: true, stores: true,
   });
 
   // Category sub-filters (null = all, string = selected category)
@@ -167,6 +167,7 @@ function Search() {
   const [templateCatFilter, setTemplateCatFilter] = useState(null);
   const [iamaFilter,        setIamaFilter]        = useState(null);
   const [eventStateFilter,  setEventStateFilter]  = useState(null);
+  const [storeTypeFilter,   setStoreTypeFilter]   = useState(null);
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -198,6 +199,7 @@ function Search() {
         tutorials: Array.isArray(data.tutorials) ? data.tutorials : [],
         templates: Array.isArray(data.templates) ? data.templates : [],
         events:    Array.isArray(data.events)    ? data.events    : [],
+        stores:    Array.isArray(data.stores)    ? data.stores    : [],
       });
       if (data.meta) setMeta(data.meta);
       setSearched(true);
@@ -206,9 +208,10 @@ function Search() {
       setTemplateCatFilter(null);
       setIamaFilter(null);
       setEventStateFilter(null);
+      setStoreTypeFilter(null);
     } catch (err) {
       console.error("Search error:", err);
-      setResults({ users: [], groups: [], tutorials: [], templates: [], events: [] });
+      setResults({ users: [], groups: [], tutorials: [], templates: [], events: [], stores: [] });
       setSearched(true);
     }
   }, [apiUrl]);
@@ -220,13 +223,14 @@ function Search() {
 
   const clearAll = () => {
     setQuery("");
-    setResults({ users: [], groups: [], tutorials: [], templates: [], events: [] });
+    setResults({ users: [], groups: [], tutorials: [], templates: [], events: [], stores: [] });
     setSearched(false);
-    setFilters({ users: true, groups: true, tutorials: true, templates: true, events: true });
+    setFilters({ users: true, groups: true, tutorials: true, templates: true, events: true, stores: true });
     setTutorialCatFilter(null);
     setTemplateCatFilter(null);
     setIamaFilter(null);
     setEventStateFilter(null);
+    setStoreTypeFilter(null);
     navigate("/search", { replace: true });
     if (searchRef.current) searchRef.current.focus();
   };
@@ -240,7 +244,8 @@ function Search() {
     const hlTerms = highlightTerms(tokens);
     const total   =
       results.users.length + results.groups.length +
-      results.tutorials.length + results.templates.length + results.events.length;
+      results.tutorials.length + results.templates.length +
+      results.events.length + results.stores.length;
     if (searched && total === 0) {
       setShaking(true);
       const t = setTimeout(() => setShaking(false), 600);
@@ -280,9 +285,16 @@ function Search() {
         : results.events)
     : [];
 
+  const visibleStores = filters.stores
+    ? (storeTypeFilter
+        ? results.stores.filter((s) => (s.storetype || "Other") === storeTypeFilter)
+        : results.stores)
+    : [];
+
   const totalVisible =
     visibleUsers.length + visibleGroups.length +
-    visibleTutorials.length + visibleTemplates.length + visibleEvents.length;
+    visibleTutorials.length + visibleTemplates.length +
+    visibleEvents.length + visibleStores.length;
 
   const nothingFound = searched && totalVisible === 0;
 
@@ -300,6 +312,9 @@ function Search() {
 
   const eventStateCount = (abbr) =>
     results.events.filter((e) => (e.eventstate || "").toUpperCase() === abbr).length;
+
+  const storeTypeCount = (type) =>
+    results.stores.filter((s) => (s.storetype || "Other") === type).length;
 
   // Section-level count label
   const countLabel = (key, label) =>
@@ -360,6 +375,9 @@ function Search() {
           </button>
           <button type="button" className={`search-filter-toggle${filters.events ? " search-filter-toggle--active" : ""}`} onClick={() => toggleFilter("events")}>
             {countLabel("events", "Events")}
+          </button>
+          <button type="button" className={`search-filter-toggle${filters.stores ? " search-filter-toggle--active" : ""}`} onClick={() => toggleFilter("stores")}>
+            {countLabel("stores", "Stores")}
           </button>
         </div>
 
@@ -517,6 +535,61 @@ function Search() {
                   </Link>
                   {event.eventwebsite && (
                     <a href={event.eventwebsite} target="_blank" rel="noopener noreferrer">
+                      <button className="button">Visit Website</button>
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════
+            STORES — type buttons
+        ══════════════════════════════════════════════ */}
+        {filters.stores && searched && meta.storeTypes.length > 0 && (
+          <div className="srch-cat-section">
+            <p className="srch-cat-heading">Filter stores by type</p>
+            <div className="srch-cat-grid">
+              {meta.storeTypes.map((type) => (
+                <CatButton
+                  key={type}
+                  label={type}
+                  emoji="🏬"
+                  count={storeTypeCount(type)}
+                  active={storeTypeFilter === type}
+                  onClick={() => setStoreTypeFilter((p) => (p === type ? null : type))}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {filters.stores && visibleStores.length > 0 && (
+          <div className="search-section">
+            <h2 className="search-section-heading">
+              Stores {storeTypeFilter && <span className="srch-active-cat">· {storeTypeFilter}</span>}
+            </h2>
+            <div className="group-container">
+              {visibleStores.map((store) => (
+                <div className="group-card tutorial-card" key={store.storeid}>
+                  <Avatar src={store.useravatar} username={store.username} />
+                  {store.storeimage && (
+                    <img src={store.storeimage} alt={store.storename || "Store photo"} className="tutorial-card-thumbnail" />
+                  )}
+                  {store.storename && <h3>{hl(store.storename, hlTerms)}</h3>}
+                  {store.storedescription && (
+                    <p className="tutorial-card-description">{hl(store.storedescription, hlTerms)}</p>
+                  )}
+                  <h4>{hl(store.city, hlTerms)}{store.state ? `, ${store.state}` : ""}</h4>
+                  {store.storetype && <span className="tutorial-card-tag">{hl(store.storetype, hlTerms)}</span>}
+                  {store.username && (
+                    <p className="tutorial-card-submitter">
+                      Added by <Link to={`/public/${store.username}`}>{store.username}</Link>
+                    </p>
+                  )}
+                  {store.website && (
+                    <a href={store.website} target="_blank" rel="noopener noreferrer">
                       <button className="button">Visit Website</button>
                     </a>
                   )}
