@@ -63,6 +63,23 @@ const TUTORIAL_CAT_EMOJI = {
 };
 const DEFAULT_EMOJI = "🏷️";
 
+// ─── Midwest state list (abbr → full name), same set used on Events.js ───────
+const MIDWEST_STATES = [
+  ["IL", "Illinois"],
+  ["IN", "Indiana"],
+  ["IA", "Iowa"],
+  ["KS", "Kansas"],
+  ["MI", "Michigan"],
+  ["MN", "Minnesota"],
+  ["MO", "Missouri"],
+  ["NE", "Nebraska"],
+  ["ND", "North Dakota"],
+  ["OH", "Ohio"],
+  ["SD", "South Dakota"],
+  ["WI", "Wisconsin"],
+];
+const stateName = (abbr) => MIDWEST_STATES.find(([a]) => a === abbr)?.[1] || abbr;
+
 // ─── Parse Google-style query into token groups ───────────────────────────────
 // "exact phrase"  → exact match required
 // -word           → exclude this word
@@ -135,20 +152,21 @@ function Search() {
   const searchRef = useRef(null);
 
   const [query,    setQuery]    = useState("");
-  const [results,  setResults]  = useState({ users: [], groups: [], tutorials: [], templates: [] });
-  const [meta,     setMeta]     = useState({ userIama: [], tutorialCats: [], templateCats: [] });
+  const [results,  setResults]  = useState({ users: [], groups: [], tutorials: [], templates: [], events: [] });
+  const [meta,     setMeta]     = useState({ userIama: [], tutorialCats: [], templateCats: [], eventStates: [] });
   const [searched, setSearched] = useState(false);
   const [shaking,  setShaking]  = useState(false);
 
   // Section-level show/hide filters
   const [filters, setFilters] = useState({
-    users: true, groups: true, tutorials: true, templates: true,
+    users: true, groups: true, tutorials: true, templates: true, events: true,
   });
 
   // Category sub-filters (null = all, string = selected category)
   const [tutorialCatFilter, setTutorialCatFilter] = useState(null);
   const [templateCatFilter, setTemplateCatFilter] = useState(null);
   const [iamaFilter,        setIamaFilter]        = useState(null);
+  const [eventStateFilter,  setEventStateFilter]  = useState(null);
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -179,6 +197,7 @@ function Search() {
         groups:    Array.isArray(data.groups)    ? data.groups    : [],
         tutorials: Array.isArray(data.tutorials) ? data.tutorials : [],
         templates: Array.isArray(data.templates) ? data.templates : [],
+        events:    Array.isArray(data.events)    ? data.events    : [],
       });
       if (data.meta) setMeta(data.meta);
       setSearched(true);
@@ -186,9 +205,10 @@ function Search() {
       setTutorialCatFilter(null);
       setTemplateCatFilter(null);
       setIamaFilter(null);
+      setEventStateFilter(null);
     } catch (err) {
       console.error("Search error:", err);
-      setResults({ users: [], groups: [], tutorials: [], templates: [] });
+      setResults({ users: [], groups: [], tutorials: [], templates: [], events: [] });
       setSearched(true);
     }
   }, [apiUrl]);
@@ -200,12 +220,13 @@ function Search() {
 
   const clearAll = () => {
     setQuery("");
-    setResults({ users: [], groups: [], tutorials: [], templates: [] });
+    setResults({ users: [], groups: [], tutorials: [], templates: [], events: [] });
     setSearched(false);
-    setFilters({ users: true, groups: true, tutorials: true, templates: true });
+    setFilters({ users: true, groups: true, tutorials: true, templates: true, events: true });
     setTutorialCatFilter(null);
     setTemplateCatFilter(null);
     setIamaFilter(null);
+    setEventStateFilter(null);
     navigate("/search", { replace: true });
     if (searchRef.current) searchRef.current.focus();
   };
@@ -219,7 +240,7 @@ function Search() {
     const hlTerms = highlightTerms(tokens);
     const total   =
       results.users.length + results.groups.length +
-      results.tutorials.length + results.templates.length;
+      results.tutorials.length + results.templates.length + results.events.length;
     if (searched && total === 0) {
       setShaking(true);
       const t = setTimeout(() => setShaking(false), 600);
@@ -253,9 +274,15 @@ function Search() {
 
   const visibleGroups = filters.groups ? results.groups : [];
 
+  const visibleEvents = filters.events
+    ? (eventStateFilter
+        ? results.events.filter((e) => (e.eventstate || "").toUpperCase() === eventStateFilter)
+        : results.events)
+    : [];
+
   const totalVisible =
     visibleUsers.length + visibleGroups.length +
-    visibleTutorials.length + visibleTemplates.length;
+    visibleTutorials.length + visibleTemplates.length + visibleEvents.length;
 
   const nothingFound = searched && totalVisible === 0;
 
@@ -270,6 +297,9 @@ function Search() {
     results.users.filter((u) =>
       u.imawhat && u.imawhat.split(",").map((s) => s.trim()).includes(role)
     ).length;
+
+  const eventStateCount = (abbr) =>
+    results.events.filter((e) => (e.eventstate || "").toUpperCase() === abbr).length;
 
   // Section-level count label
   const countLabel = (key, label) =>
@@ -327,6 +357,9 @@ function Search() {
           </button>
           <button type="button" className={`search-filter-toggle${filters.templates ? " search-filter-toggle--active" : ""}`} onClick={() => toggleFilter("templates")}>
             {countLabel("templates", "Templates")}
+          </button>
+          <button type="button" className={`search-filter-toggle${filters.events ? " search-filter-toggle--active" : ""}`} onClick={() => toggleFilter("events")}>
+            {countLabel("events", "Events")}
           </button>
         </div>
 
@@ -436,6 +469,54 @@ function Search() {
                   </Link>
                   {group.groupwebsite && (
                     <a href={group.groupwebsite} target="_blank" rel="noopener noreferrer">
+                      <button className="button">Visit Website</button>
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ══════════════════════════════════════════════
+            EVENTS — state buttons
+        ══════════════════════════════════════════════ */}
+        {filters.events && searched && meta.eventStates.length > 0 && (
+          <div className="srch-cat-section">
+            <p className="srch-cat-heading">Filter events by state</p>
+            <div className="srch-cat-grid">
+              {meta.eventStates.map((abbr) => (
+                <CatButton
+                  key={abbr}
+                  label={stateName(abbr)}
+                  emoji="📍"
+                  count={eventStateCount(abbr)}
+                  active={eventStateFilter === abbr}
+                  onClick={() => setEventStateFilter((p) => (p === abbr ? null : abbr))}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {filters.events && visibleEvents.length > 0 && (
+          <div className="search-section">
+            <h2 className="search-section-heading">
+              Events {eventStateFilter && <span className="srch-active-cat">· {stateName(eventStateFilter)}</span>}
+            </h2>
+            <div className="event-container">
+              {visibleEvents.map((event) => (
+                <div className="event-card" key={event.eventid}>
+                  {event.eventimage && (
+                    <img src={event.eventimage} alt={`${event.eventname}'s photo`} />
+                  )}
+                  {event.eventname && <h3>{hl(event.eventname, hlTerms)}</h3>}
+                  <h4>{hl(event.eventcity, hlTerms)}, {event.eventstate}</h4>
+                  <Link to={`/public/event/${event.eventslug || event.eventid}`}>
+                    <button className="button">View Event</button>
+                  </Link>
+                  {event.eventwebsite && (
+                    <a href={event.eventwebsite} target="_blank" rel="noopener noreferrer">
                       <button className="button">Visit Website</button>
                     </a>
                   )}
