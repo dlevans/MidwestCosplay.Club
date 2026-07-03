@@ -80,7 +80,7 @@ const CreateUser = () => {
   };
 
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*()\-=+_%])[A-Za-z\d!@#$%^&*()\-=+_%]{8,}$/;
+    const passwordRegex = /^(?=.*\d)(?=.*[!@#$%^&*()_+\-=])[A-Za-z\d!@#$%^&*()_+\-=]{8,}$/;
     return passwordRegex.test(password);
   };
 
@@ -163,7 +163,7 @@ const CreateUser = () => {
     e.preventDefault();
 
     if (!validatePassword(user.password)) {
-      setError("Password must be at least 8 characters long, contain at least one number, and one special character (?=.*[!@#$%^&*()\-=+_%]).");
+      setError("Password must be at least 8 characters long, contain at least one number, and one special character (!@#$%^&*()_+-=).");
       return;
     }
 
