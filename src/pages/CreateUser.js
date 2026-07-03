@@ -84,6 +84,11 @@ const CreateUser = () => {
     return passwordRegex.test(password);
   };
 
+  const validateUsername = (username) => {
+    const usernameRegex = /^[A-Za-z0-9._]+$/;
+    return usernameRegex.test(username);
+  };
+
   const onCropChange = (newCrop) => {
     if (newCrop.width > 0 && newCrop.height > 0) {
       setCrop(newCrop);
@@ -161,6 +166,11 @@ const CreateUser = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!validateUsername(user.username)) {
+      setError("Username must only contain letters, numbers, periods, and underscores.");
+      return;
+    }
 
     if (!validatePassword(user.password)) {
       setError("Password must be at least 8 characters long, contain at least one number, and one special character (!@#$%^&*()_+-=).");
