@@ -186,6 +186,40 @@ const Update = () => {
     );
   };
 
+  // Fields people are allowed to reference in the About box with {tagname}.
+  // Social/payment fields get turned into their full profile URL (same
+  // builders used by the Check buttons above); plain fields are inserted
+  // as-is.
+  const ABOUT_TAGS = [
+    "website", "website1", "website2", "website3",
+    "twitter", "bluesky", "instagram", "facebook", "discord", "snapchat",
+    "tiktok", "threads", "reddit", "twitch", "youtube", "vimeo",
+    "patreon", "kofi", "onlyfans", "venmo", "cashapp", "paypal", "etsy",
+    "gofundme", "extralife", "calendar",
+    "firstname", "lastname", "location",
+  ];
+
+  // Turns a tag name into the value it should be replaced with, or null if
+  // that tag isn't recognized or the person hasn't filled that field in yet
+  // (in which case we leave the {tag} text alone rather than deleting it,
+  // so it's obvious something still needs to be filled out).
+  const resolveAboutTag = (tagName) => {
+    if (!ABOUT_TAGS.includes(tagName)) return null;
+    const value = (user[tagName] || "").trim();
+    if (!value) return null;
+    const builder = SOCIAL_URL_BUILDERS[tagName];
+    return builder ? builder(value) : value;
+  };
+
+  // Replaces every {tagname} in a block of text with the real value/link.
+  const fillAboutTags = (text) => {
+    if (!text) return "";
+    return text.replace(/\{([a-zA-Z0-9_]+)\}/g, (match, tagName) => {
+      const resolved = resolveAboutTag(tagName);
+      return resolved !== null ? resolved : match;
+    });
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -336,7 +370,11 @@ const Update = () => {
     const updateData = new FormData();
     for (let key in user) {
       if (key === "password" && !user[key]) continue; // Skip empty password updates
-      updateData.append(key, user[key]);
+      // Bake any {website}/{instagram}/etc placeholders in the About box
+      // into their real links right before saving, so the stored text is
+      // plain, readable, and doesn't depend on this page to render links.
+      const value = key === "about" ? fillAboutTags(user[key]) : user[key];
+      updateData.append(key, value);
     }
   
     if (image) {
@@ -423,7 +461,34 @@ const Update = () => {
         <input type="password" placeholder="Enter New Password" name="password" onChange={handleChange} autoComplete="new-password"/>
 
         <label htmlFor="about">About:</label>
-        <input name="about" placeholder="Tell us about yourself" value={user.about || ""} onChange={handleChange} />
+        <textarea
+          name="about"
+          placeholder={`Tell us about yourself. You can use {tags} like {website} or {instagram} and they'll be swapped for your real links automatically — e.g. "Follow my instagram at {instagram}!"`}
+          value={user.about || ""}
+          onChange={handleChange}
+          rows={5}
+          style={{ width: "100%", maxWidth: "462px", resize: "vertical", fontFamily: "inherit" }}
+        />
+        <small style={{ display: "block", marginBottom: "8px", color: "#666" }}>
+          Tip: type <code>{"{website}"}</code>, <code>{"{instagram}"}</code>, <code>{"{twitch}"}</code>, etc.
+          anywhere in your bio and they'll be replaced with your actual links when you save.
+        </small>
+        {user.about && user.about.includes("{") && (
+          <div
+            style={{
+              maxWidth: "462px",
+              margin: "0 0 12px",
+              padding: "8px 12px",
+              background: "#f5eefa",
+              border: "1px solid #d9c6ea",
+              borderRadius: "6px",
+              fontSize: "0.9rem",
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            <strong>Preview:</strong> {fillAboutTags(user.about)}
+          </div>
+        )}
 
         <label htmlFor="complete">What cosplays have you completed (comma-separated please)?:</label>
         <input type="text" placeholder="Complete Cosplays" name="complete" value={user.complete || ""} onChange={handleChange} />
