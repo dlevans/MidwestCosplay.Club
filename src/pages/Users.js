@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import axios from "axios";
 import Footer from "../Footer";
 import { Helmet } from 'react-helmet-async';
@@ -12,16 +12,33 @@ const getPayload = (token) => {
 
 const Users = () => {
   const [users, setUsers] = useState([]);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
   const [totalUsers, setTotalUsers] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem("token");
   const apiUrl = process.env.REACT_APP_API_URL;
   const payload = getPayload(token);
   const loggedInUserId = payload?.id ?? null;
   const isAdmin = payload?.is_admin ?? false;
-  
+
+  // ── URL is the source of truth for pagination ──────────────────────────
+  // ?page=2&perpage=20  → shareable link straight to that page/size
+  const params = new URLSearchParams(location.search);
+  const page = parseInt(params.get("page"), 10) || 1;
+  const limit = parseInt(params.get("perpage"), 10) || 10;
+
+  const updateParams = (updates, opts = {}) => {
+    const next = new URLSearchParams(location.search);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === null || value === undefined || value === "") next.delete(key);
+      else next.set(key, value);
+    });
+    const qs = next.toString();
+    navigate(`/users${qs ? `?${qs}` : ""}`, { replace: opts.replace ?? false });
+  };
+
+  const goToPage = (n) => updateParams({ page: n });
+  const changeLimit = (n) => updateParams({ perpage: n, page: 1 }, { replace: true });
 
   useEffect(() => {
     if (!token) { navigate("/login"); return; }
@@ -40,23 +57,23 @@ const Users = () => {
     };
 
     fetchAllUsers();
-  }, [navigate, token, limit, page]);
+  }, [navigate, token, limit, page, apiUrl]);
 
   const totalPages = Math.ceil(totalUsers / limit);
 
   const PaginationBar = () => (
     <div className="pagination-controls">
       <label>Per page:</label>
-      <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}>
+      <select value={limit} onChange={(e) => changeLimit(Number(e.target.value))}>
         {[5, 10, 20, 50].map((n) => (
           <option key={n} value={n}>{n}</option>
         ))}
       </select>
-      <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+      <button disabled={page === 1} onClick={() => goToPage(page - 1)}>
         ← Prev
       </button>
       <span>Page {page} of {totalPages || 1}</span>
-      <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+      <button disabled={page >= totalPages} onClick={() => goToPage(page + 1)}>
         Next →
       </button>
     </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import axios from "axios";
 import Footer from "../Footer";
 import { Helmet } from "react-helmet-async";
@@ -49,19 +49,14 @@ const DEFAULT_EMOJI = "🏷️";
 const Tutorials = () => {
   const [tutorials, setTutorials]         = useState([]);
   const [allCategories, setAllCategories] = useState([]);
-  const [page, setPage]                   = useState(1);
-  const [limit, setLimit]                 = useState(25);
-  const [totalTutorials, setTotalTutorials] = useState(0);
   const [loading, setLoading]             = useState(false);
 
-  // Multi-select category filter — stored as a Set of category strings
-  const [activeCategories, setActiveCategories] = useState(new Set());
-  const [search, setSearch]                     = useState("");
-  const [creatorFilter, setCreatorFilter]       = useState("");
-  const [searchInput, setSearchInput]           = useState("");
-  const [creatorInput, setCreatorInput]         = useState("");
+  // Uncommitted text-input state (committed to the URL on blur/Enter)
+  const [searchInput, setSearchInput]     = useState("");
+  const [creatorInput, setCreatorInput]   = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
   const token    = localStorage.getItem("token");
   const apiUrl   = process.env.REACT_APP_API_URL;
 
@@ -72,6 +67,39 @@ const Tutorials = () => {
   const payload        = getPayload(token);
   const loggedInUserId = payload?.id ?? null;
   const isAdmin        = payload?.is_admin ?? false;
+
+  // ── URL is the source of truth for pagination + filters ────────────────
+  // ?page=2&perpage=50&category=Armor,Foam+Crafting&search=iron+man&creator=sksprops
+  const urlParams = new URLSearchParams(location.search);
+  const page          = parseInt(urlParams.get("page"), 10) || 1;
+  const limit         = parseInt(urlParams.get("perpage"), 10) || 25;
+  const search        = urlParams.get("search") || "";
+  const creatorFilter = urlParams.get("creator") || "";
+  const activeCategories = useMemo(() => {
+    const c = urlParams.get("category");
+    return c ? new Set(c.split(",").filter(Boolean)) : new Set();
+  }, [location.search]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep the raw text inputs in sync whenever the committed URL value changes
+  // (covers direct links, browser back/forward, and "Clear all")
+  useEffect(() => { setSearchInput(search); }, [search]);
+  useEffect(() => { setCreatorInput(creatorFilter); }, [creatorFilter]);
+
+  const updateParams = (updates, opts = {}) => {
+    const next = new URLSearchParams(location.search);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value instanceof Set) {
+        if (value.size === 0) next.delete(key);
+        else next.set(key, [...value].join(","));
+      } else if (value === null || value === undefined || value === "") {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
+    });
+    const qs = next.toString();
+    navigate(`/tutorials${qs ? `?${qs}` : ""}`, { replace: opts.replace ?? true });
+  };
 
   // Fetch all categories once on mount — independent of pagination
   useEffect(() => {
@@ -87,6 +115,8 @@ const Tutorials = () => {
     };
     fetchCategories();
   }, [apiUrl, token]);
+
+  const [totalTutorials, setTotalTutorials] = useState(0);
 
   const fetchTutorials = useCallback(async () => {
     setLoading(true);
@@ -110,7 +140,6 @@ const Tutorials = () => {
   }, [apiUrl, token, limit, page, search, activeCategories, creatorFilter]);
 
   useEffect(() => { fetchTutorials(); }, [fetchTutorials]);
-  useEffect(() => { setPage(1); }, [search, activeCategories, creatorFilter, limit]);
 
   const handleDelete = async (tutorialid) => {
     if (!window.confirm("Remove this tutorial?")) return;
@@ -125,21 +154,22 @@ const Tutorials = () => {
     }
   };
 
-  const commitSearch  = () => setSearch(searchInput);
-  const commitCreator = () => setCreatorFilter(creatorInput);
+  const commitSearch  = () => updateParams({ search: searchInput.trim(), page: 1 });
+  const commitCreator = () => updateParams({ creator: creatorInput.trim(), page: 1 });
 
   const toggleCategory = (label) => {
-    setActiveCategories((prev) => {
-      const next = new Set(prev);
-      next.has(label) ? next.delete(label) : next.add(label);
-      return next;
-    });
+    const next = new Set(activeCategories);
+    next.has(label) ? next.delete(label) : next.add(label);
+    updateParams({ category: next, page: 1 });
   };
 
+  const goToPage    = (n) => updateParams({ page: n }, { replace: false });
+  const changeLimit = (n) => updateParams({ perpage: n, page: 1 });
+
   const clearAll = () => {
-    setSearchInput("");   setSearch("");
-    setCreatorInput("");  setCreatorFilter("");
-    setActiveCategories(new Set());
+    setSearchInput("");
+    setCreatorInput("");
+    navigate("/tutorials", { replace: true });
   };
 
   const isFiltering = search.trim() !== "" || activeCategories.size > 0 || creatorFilter.trim() !== "";
@@ -154,12 +184,12 @@ const Tutorials = () => {
   const PaginationBar = () => (
     <div className="pagination-controls">
       <label>Per page:</label>
-      <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}>
+      <select value={limit} onChange={(e) => changeLimit(Number(e.target.value))}>
         {[10, 25, 50, 100].map((n) => <option key={n} value={n}>{n}</option>)}
       </select>
-      <button disabled={page === 1} onClick={() => setPage(page - 1)}>← Prev</button>
+      <button disabled={page === 1} onClick={() => goToPage(page - 1)}>← Prev</button>
       <span>Page {page} of {totalPages || 1}</span>
-      <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Next →</button>
+      <button disabled={page >= totalPages} onClick={() => goToPage(page + 1)}>Next →</button>
     </div>
   );
 
@@ -237,13 +267,13 @@ const Tutorials = () => {
               {search.trim() && (
                 <span className="tl-filter-pill">
                   Title: <strong>"{search.trim()}"</strong>
-                  <button className="tl-filter-pill-x" onClick={() => { setSearch(""); setSearchInput(""); }}>✕</button>
+                  <button className="tl-filter-pill-x" onClick={() => updateParams({ search: null, page: 1 })}>✕</button>
                 </span>
               )}
               {creatorFilter.trim() && (
                 <span className="tl-filter-pill">
                   Creator: <strong>"{creatorFilter.trim()}"</strong>
-                  <button className="tl-filter-pill-x" onClick={() => { setCreatorFilter(""); setCreatorInput(""); }}>✕</button>
+                  <button className="tl-filter-pill-x" onClick={() => updateParams({ creator: null, page: 1 })}>✕</button>
                 </span>
               )}
               <span className="tl-filter-count">
