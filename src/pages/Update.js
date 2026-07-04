@@ -410,11 +410,11 @@ const Update = () => {
             </button>
           ))}
         </div>
-
+        <label htmlFor="phonenumber">All info on this page will be public. Do not add anything you do not want people to see.</label>
         <label htmlFor="email">Email:</label>
         <input type="email" placeholder="Enter Email" name="email" value={user.email || ""} onChange={handleChange} autoComplete="email"/>
 
-        <label htmlFor="phonenumber">Phone number:</label>
+        <label htmlFor="phonenumber">Phone number (**THIS WILL BE PUBLIC**):</label>
         <input type="text" placeholder="Enter Phone Number" name="phonenumber" value={user.phonenumber || ""} onChange={handleChange} />
 
         <label htmlFor="password">Updated password:</label>
