@@ -108,6 +108,84 @@ const Update = () => {
     return value.replace(/^@+/, "").replace(disallowed, "");
   };
 
+  // How to turn each stored value into a real URL to preview. Fields not
+  // listed here either aren't links (firstname, about, etc.) or already
+  // store a full URL (website, website1-3) and don't need a builder.
+  const SOCIAL_URL_BUILDERS = {
+    twitter: (v) => `https://twitter.com/${v}`,
+    bluesky: (v) => `https://bsky.app/profile/${v}`,
+    instagram: (v) => `https://instagram.com/${v}`,
+    facebook: (v) => `https://facebook.com/${v}`,
+    discord: (v) => `https://discord.gg/${v}`,
+    snapchat: (v) => `https://snapchat.com/add/${v}`,
+    tiktok: (v) => `https://tiktok.com/@${v}`,
+    threads: (v) => `https://threads.net/@${v}`,
+    reddit: (v) => `https://reddit.com/user/${v}`,
+    twitch: (v) => `https://twitch.tv/${v}`,
+    youtube: (v) => `https://youtube.com/@${v}`,
+    vimeo: (v) => `https://vimeo.com/${v}`,
+    patreon: (v) => `https://patreon.com/${v}`,
+    kofi: (v) => `https://ko-fi.com/${v}`,
+    onlyfans: (v) => `https://onlyfans.com/${v}`,
+    venmo: (v) => `https://venmo.com/${v}`,
+    cashapp: (v) => `https://cash.app/$${v}`,
+    paypal: (v) => `https://paypal.me/${v}`,
+    etsy: (v) => `https://etsy.com/shop/${v}`,
+    // These fields already store a full URL/page rather than a bare
+    // username, so "checking" them just means opening the value as-is.
+    calendar: (v) => v,
+    gofundme: (v) => v,
+    extralife: (v) => v,
+  };
+
+  // Opens a new tab pointed at the profile/page for a given field, built
+  // from whatever the user currently has typed (no save/reload needed).
+  const handleCheckClick = (field) => {
+    const raw = (user[field] || "").trim();
+    if (!raw) return;
+
+    const build = SOCIAL_URL_BUILDERS[field];
+    let url = build ? build(raw) : raw;
+
+    // For fields that store a raw URL (calendar/gofundme/extralife), add a
+    // protocol if the user didn't type one, so the browser doesn't treat
+    // it as a relative path on this site.
+    if (!build || field === "calendar" || field === "gofundme" || field === "extralife") {
+      if (!/^https?:\/\//i.test(url)) {
+        url = `https://${url}`;
+      }
+    }
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  // Small "Check" button rendered next to a field's input. Disabled until
+  // there's something to check.
+  const renderCheckLink = (field) => {
+    const hasValue = !!(user[field] && user[field].trim());
+    return (
+      <button
+        type="button"
+        onClick={() => handleCheckClick(field)}
+        disabled={!hasValue}
+        title={hasValue ? "Open this link in a new tab to check it" : "Enter a value first"}
+        style={{
+          marginLeft: "8px",
+          padding: "4px 12px",
+          fontSize: "0.85rem",
+          borderRadius: "6px",
+          border: "1px solid #7b4fa6",
+          background: hasValue ? "#7b4fa6" : "#e0d5ea",
+          color: hasValue ? "#fff" : "#9b8aad",
+          cursor: hasValue ? "pointer" : "not-allowed",
+          whiteSpace: "nowrap",
+        }}
+      >
+        Check ↗
+      </button>
+    );
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -399,40 +477,76 @@ const Update = () => {
         <canvas ref={canvasRef} style={{ display: "none" }} />
 
         <label htmlFor="twitter">Twitter username:</label>
-        <input type="text" placeholder="Twitter" name="twitter" value={user.twitter || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Twitter" name="twitter" value={user.twitter || ""} onChange={handleChange} />
+          {renderCheckLink("twitter")}
+        </div>
 
         <label htmlFor="bluesky">Blue Sky username (don't forget the ".bsky.social" at the end):</label>
-        <input type="text" placeholder="Blue Sky test.bsky.social" name="bluesky" value={user.bluesky || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Blue Sky test.bsky.social" name="bluesky" value={user.bluesky || ""} onChange={handleChange} />
+          {renderCheckLink("bluesky")}
+        </div>
 
         <label htmlFor="instagram">Instagram username:</label>
-        <input type="text" placeholder="Instagram" name="instagram" value={user.instagram || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Instagram" name="instagram" value={user.instagram || ""} onChange={handleChange} />
+          {renderCheckLink("instagram")}
+        </div>
 
         <label htmlFor="facebook">Facebook username:</label>
-        <input type="text" placeholder="Facebook" name="facebook" value={user.facebook || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Facebook" name="facebook" value={user.facebook || ""} onChange={handleChange} />
+          {renderCheckLink("facebook")}
+        </div>
 
         <label htmlFor="discord">Discord server (https://discord.gg/7BH7Hthuz6 part only):</label>
-        <input type="text" placeholder="Discord" name="discord" value={user.discord || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Discord" name="discord" value={user.discord || ""} onChange={handleChange} />
+          {renderCheckLink("discord")}
+        </div>
 
         <label htmlFor="snapchat">Snapchat username:</label>
-        <input type="text" placeholder="Snapchat" name="snapchat" value={user.snapchat || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Snapchat" name="snapchat" value={user.snapchat || ""} onChange={handleChange} />
+          {renderCheckLink("snapchat")}
+        </div>
 
         <label htmlFor="tiktok">TikTok username:</label>
-        <input type="text" placeholder="TikTok" name="tiktok" value={user.tiktok || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="TikTok" name="tiktok" value={user.tiktok || ""} onChange={handleChange} />
+          {renderCheckLink("tiktok")}
+        </div>
 
         <label htmlFor="threads">Threads username:</label>
-        <input type="text" placeholder="Threads" name="threads" value={user.threads || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Threads" name="threads" value={user.threads || ""} onChange={handleChange} />
+          {renderCheckLink("threads")}
+        </div>
 
         <label htmlFor="reddit">Reddit username:</label>
-        <input type="text" placeholder="Reddit" name="reddit" value={user.reddit || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Reddit" name="reddit" value={user.reddit || ""} onChange={handleChange} />
+          {renderCheckLink("reddit")}
+        </div>
 
         <label htmlFor="twitch">Twitch username:</label>
-        <input type="text" placeholder="Twitch" name="twitch" value={user.twitch || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Twitch" name="twitch" value={user.twitch || ""} onChange={handleChange} />
+          {renderCheckLink("twitch")}
+        </div>
 
         <label htmlFor="youtube">YouTube username:</label>
-        <input type="text" placeholder="YouTube" name="youtube" value={user.youtube || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="YouTube" name="youtube" value={user.youtube || ""} onChange={handleChange} />
+          {renderCheckLink("youtube")}
+        </div>
 
         <label htmlFor="vimeo">Vimeo username:</label>
-        <input type="text" placeholder="Vimeo" name="vimeo" value={user.vimeo || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Vimeo" name="vimeo" value={user.vimeo || ""} onChange={handleChange} />
+          {renderCheckLink("vimeo")}
+        </div>
 
         <label htmlFor="website">Website:</label>
         <input type="url" placeholder="https://yoursite.com" name="website" value={user.website || ""} onChange={handleChange} />
@@ -448,34 +562,64 @@ const Update = () => {
 
 
         <label htmlFor="patreon">Patreon page:</label>
-        <input type="text" placeholder="Patreon" name="patreon" value={user.patreon || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Patreon" name="patreon" value={user.patreon || ""} onChange={handleChange} />
+          {renderCheckLink("patreon")}
+        </div>
 
         <label htmlFor="kofi">Kofi username:</label>
-        <input type="text" placeholder="Kofi" name="kofi" value={user.kofi || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Kofi" name="kofi" value={user.kofi || ""} onChange={handleChange} />
+          {renderCheckLink("kofi")}
+        </div>
 
         <label htmlFor="onlyfans">OnlyFans username:</label>
-        <input type="text" placeholder="OnlyFans" name="onlyfans" value={user.onlyfans || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="OnlyFans" name="onlyfans" value={user.onlyfans || ""} onChange={handleChange} />
+          {renderCheckLink("onlyfans")}
+        </div>
 
         <label htmlFor="venmo">Venmo username:</label>
-        <input type="text" placeholder="Venmo" name="venmo" value={user.venmo || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Venmo" name="venmo" value={user.venmo || ""} onChange={handleChange} />
+          {renderCheckLink("venmo")}
+        </div>
 
         <label htmlFor="cashapp">CashApp username (without the $):</label>
-        <input type="text" placeholder="CashApp" name="cashapp" value={user.cashapp || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="CashApp" name="cashapp" value={user.cashapp || ""} onChange={handleChange} />
+          {renderCheckLink("cashapp")}
+        </div>
 
         <label htmlFor="paypal">PayPal username:</label>
-        <input type="text" placeholder="PayPal" name="paypal" value={user.paypal || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="PayPal" name="paypal" value={user.paypal || ""} onChange={handleChange} />
+          {renderCheckLink("paypal")}
+        </div>
 
         <label htmlFor="gofundme">Go Fund Me Page:</label>
-        <input type="text" placeholder="Go Fund Me" name="gofundme" value={user.gofundme || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Go Fund Me" name="gofundme" value={user.gofundme || ""} onChange={handleChange} />
+          {renderCheckLink("gofundme")}
+        </div>
 
         <label htmlFor="extralife">Extra-Life page:</label>
-        <input type="text" placeholder="Extra Life" name="extralife" value={user.extralife || ""} onChange={handleChange} /> 
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Extra Life" name="extralife" value={user.extralife || ""} onChange={handleChange} />
+          {renderCheckLink("extralife")}
+        </div> 
 
         <label htmlFor="etsy">Etsy shop name (just the name not the URL):</label>
-        <input type="text" placeholder="Etsy" name="etsy" value={user.etsy || ""} onChange={handleChange} />        
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Etsy" name="etsy" value={user.etsy || ""} onChange={handleChange} />
+          {renderCheckLink("etsy")}
+        </div>        
 
         <label htmlFor="calendar">Public Google Calendar URL:</label>
-        <input type="text" placeholder="Calendar URL" name="calendar" value={user.calendar || ""} onChange={handleChange} />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <input type="text" placeholder="Calendar URL" name="calendar" value={user.calendar || ""} onChange={handleChange} />
+          {renderCheckLink("calendar")}
+        </div>
         <br />
         
         <button type="submit">Update</button>
