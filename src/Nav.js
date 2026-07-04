@@ -123,6 +123,13 @@ function Nav() {
                     <span className="link-text">Log Out</span>
                   </button>
                 </li>
+                {payload?.is_admin && (
+                <li className="nav-item">
+                  <NavLink className="nav-link" to="/admin">
+                    <FontAwesomeIcon icon={faPersonCircleCheck} /> {/* pick whichever icon fits */}
+                    <span className="link-text">Admin</span>
+                  </NavLink>
+                </li>)}
               </ul>
             )}
           </li>
@@ -255,14 +262,6 @@ function Nav() {
             <span className="link-text">Reddit</span>
           </NavLink>
         </li>
-
-        {payload?.is_admin && (
-        <li className="nav-item">
-          <NavLink className="nav-link" to="/admin">
-            <FontAwesomeIcon icon={faPersonCircleCheck} /> {/* pick whichever icon fits */}
-            <span className="link-text">Admin</span>
-          </NavLink>
-        </li>)}
 
       </ul>
     </nav>
