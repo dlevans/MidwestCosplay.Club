@@ -179,6 +179,11 @@ function Search() {
   const location  = useLocation();
   const navigate  = useNavigate();
   const searchRef = useRef(null);
+  const lastFetchedQueryRef = useRef("");
+
+  // Section filter keys, and the URL param name each one maps to
+  const SECTION_KEYS = ["users", "groups", "tutorials", "templates", "events", "stores"];
+  const ALL_SECTIONS_ON = { users: true, groups: true, tutorials: true, templates: true, events: true, stores: true };
 
   const [query,    setQuery]    = useState("");
   const [results,  setResults]  = useState({ users: [], groups: [], tutorials: [], templates: [], events: [], stores: [] });
@@ -187,9 +192,7 @@ function Search() {
   const [shaking,  setShaking]  = useState(false);
 
   // Section-level show/hide filters
-  const [filters, setFilters] = useState({
-    users: true, groups: true, tutorials: true, templates: true, events: true, stores: true,
-  });
+  const [filters, setFilters] = useState(ALL_SECTIONS_ON);
 
   // Category sub-filters (null = all, string = selected category)
   const [tutorialCatFilter, setTutorialCatFilter] = useState(null);
@@ -217,12 +220,29 @@ function Search() {
     }).catch(() => {});
   }, [apiUrl]);
 
-  // ── URL-driven search ────────────────────────────────────────────────────
+  // ── URL-driven search + section filters ───────────────────────────────────
+  // ?query=planet&events=1&tutorials=1  → search "planet", show only Events + Tutorials
+  // ?query=planet                       → search "planet", show everyone (default)
   useEffect(() => {
     const params      = new URLSearchParams(location.search);
     const searchQuery = params.get("query") || "";
     setQuery(searchQuery);
-    if (searchQuery) fetchResults(searchQuery);
+
+    const activeSections = SECTION_KEYS.filter((k) => params.get(k) === "1");
+    if (activeSections.length > 0) {
+      const next = {};
+      SECTION_KEYS.forEach((k) => { next[k] = activeSections.includes(k); });
+      setFilters(next);
+    } else {
+      setFilters(ALL_SECTIONS_ON);
+    }
+
+    // Only refetch when the query itself changed — toggling a section filter
+    // just re-syncs `filters` above without hitting the API again.
+    if (searchQuery && searchQuery !== lastFetchedQueryRef.current) {
+      lastFetchedQueryRef.current = searchQuery;
+      fetchResults(searchQuery);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]);
 
@@ -257,14 +277,19 @@ function Search() {
 
   const doSearch = () => {
     if (!query.trim()) return;
-    navigate(`/search?query=${encodeURIComponent(query.trim())}`);
+    const params = new URLSearchParams();
+    params.set("query", query.trim());
+    if (!SECTION_KEYS.every((k) => filters[k])) {
+      SECTION_KEYS.forEach((k) => { if (filters[k]) params.set(k, "1"); });
+    }
+    navigate(`/search?${params.toString()}`);
   };
 
   const clearAll = () => {
     setQuery("");
     setResults({ users: [], groups: [], tutorials: [], templates: [], events: [], stores: [] });
     setSearched(false);
-    setFilters({ users: true, groups: true, tutorials: true, templates: true, events: true, stores: true });
+    setFilters(ALL_SECTIONS_ON);
     setTutorialCatFilter(null);
     setTemplateCatFilter(null);
     setIamaFilter(null);
@@ -287,7 +312,21 @@ function Search() {
   };
 
   const handleKeyDown = (e) => { if (e.key === "Enter") doSearch(); };
-  const toggleFilter  = (key) => setFilters((p) => ({ ...p, [key]: !p[key] }));
+  const toggleFilter = (key) => {
+    const next = { ...filters, [key]: !filters[key] };
+    const params = new URLSearchParams(location.search);
+
+    if (SECTION_KEYS.every((k) => next[k])) {
+      // Back to the "everyone" default — keep the URL clean, no section params
+      SECTION_KEYS.forEach((k) => params.delete(k));
+    } else {
+      SECTION_KEYS.forEach((k) => {
+        if (next[k]) params.set(k, "1");
+        else params.delete(k);
+      });
+    }
+    navigate(`/search?${params.toString()}`, { replace: true });
+  };
 
   // ── Shake on empty ───────────────────────────────────────────────────────
   useEffect(() => {
