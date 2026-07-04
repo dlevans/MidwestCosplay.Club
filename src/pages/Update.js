@@ -461,15 +461,34 @@ const Update = () => {
         <input type="password" placeholder="Enter New Password" name="password" onChange={handleChange} autoComplete="new-password"/>
 
         <label htmlFor="about">About:</label>
+        <style>{`
+          .about-textarea::placeholder {
+            color: #8a7f95;
+            opacity: 1;
+          }
+        `}</style>
         <textarea
+          className="about-textarea"
           name="about"
           placeholder={`Tell us about yourself. You can use {tags} like {website} or {instagram} and they'll be swapped for your real links automatically — e.g. "Follow my instagram at {instagram}!"`}
           value={user.about || ""}
           onChange={handleChange}
           rows={5}
-          style={{ width: "100%", maxWidth: "462px", resize: "vertical", fontFamily: "inherit" }}
+          style={{
+            width: "100%",
+            maxWidth: "462px",
+            resize: "vertical",
+            fontFamily: "inherit",
+            fontSize: "1rem",
+            padding: "10px 12px",
+            background: "#362845",
+            color: "#f0ecf5",
+            border: "1px solid rgba(123, 79, 166, 0.5)",
+            borderRadius: "8px",
+            outline: "none",
+          }}
         />
-        <small style={{ display: "block", marginBottom: "8px", color: "#666" }}>
+        <small style={{ display: "block", margin: "6px 0 8px", color: "#b7abc2" }}>
           Tip: type <code>{"{website}"}</code>, <code>{"{instagram}"}</code>, <code>{"{twitch}"}</code>, etc.
           anywhere in your bio and they'll be replaced with your actual links when you save.
         </small>
@@ -479,16 +498,18 @@ const Update = () => {
               maxWidth: "462px",
               margin: "0 0 12px",
               padding: "8px 12px",
-              background: "#f5eefa",
-              border: "1px solid #d9c6ea",
+              background: "rgba(123, 79, 166, 0.18)",
+              border: "1px solid rgba(123, 79, 166, 0.5)",
               borderRadius: "6px",
               fontSize: "0.9rem",
+              color: "#f0ecf5",
               whiteSpace: "pre-wrap",
             }}
           >
             <strong>Preview:</strong> {fillAboutTags(user.about)}
           </div>
         )}
+
 
         <label htmlFor="complete">What cosplays have you completed (comma-separated please)?:</label>
         <input type="text" placeholder="Complete Cosplays" name="complete" value={user.complete || ""} onChange={handleChange} />
