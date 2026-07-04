@@ -75,6 +75,39 @@ const Update = () => {
   
   const apiUrl = process.env.REACT_APP_API_URL;
 
+  // Characters allowed for each social/username field. Anything not matching
+  // gets stripped as the user types (this also removes spaces and "@").
+  // Keep this in sync with the ALLOWED_CHARS map in usersRoute.js.
+  const ALLOWED_CHARS = {
+    twitter: /[^A-Za-z0-9_]/g,
+    bluesky: /[^A-Za-z0-9._-]/g,      // e.g. "name.bsky.social"
+    instagram: /[^A-Za-z0-9._]/g,
+    facebook: /[^A-Za-z0-9.]/g,
+    discord: /[^A-Za-z0-9-]/g,        // invite code only, e.g. "7BH7Hthuz6"
+    snapchat: /[^A-Za-z0-9_.-]/g,
+    tiktok: /[^A-Za-z0-9_.]/g,
+    threads: /[^A-Za-z0-9._]/g,
+    reddit: /[^A-Za-z0-9_-]/g,
+    twitch: /[^A-Za-z0-9_]/g,
+    youtube: /[^A-Za-z0-9_.-]/g,
+    vimeo: /[^A-Za-z0-9_-]/g,
+    patreon: /[^A-Za-z0-9_-]/g,
+    kofi: /[^A-Za-z0-9_-]/g,
+    onlyfans: /[^A-Za-z0-9_.-]/g,
+    venmo: /[^A-Za-z0-9_-]/g,
+    cashapp: /[^A-Za-z0-9_-]/g,       // don't store the leading "$"
+    paypal: /[^A-Za-z0-9.-]/g,
+    etsy: /[^A-Za-z0-9]/g,
+  };
+
+  // Strip a leading "@" (people often paste "@username") and any characters
+  // that field's platform doesn't allow in a username (including spaces).
+  const sanitizeSocialInput = (name, value) => {
+    const disallowed = ALLOWED_CHARS[name];
+    if (!disallowed) return value; // not a social field, leave untouched
+    return value.replace(/^@+/, "").replace(disallowed, "");
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -130,7 +163,8 @@ const Update = () => {
       setError("");
     }
 
-    setUser((prev) => ({ ...prev, [name]: value }));
+    const cleanedValue = sanitizeSocialInput(name, value);
+    setUser((prev) => ({ ...prev, [name]: cleanedValue }));
   };
 
   const handleRoleToggle = (role) => {
