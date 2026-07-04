@@ -313,18 +313,22 @@ function Search() {
 
   const handleKeyDown = (e) => { if (e.key === "Enter") doSearch(); };
   const toggleFilter = (key) => {
-    const next = { ...filters, [key]: !filters[key] };
     const params = new URLSearchParams(location.search);
+    const isRestricted = SECTION_KEYS.some((k) => params.get(k) === "1");
 
-    if (SECTION_KEYS.every((k) => next[k])) {
-      // Back to the "everyone" default — keep the URL clean, no section params
+    if (!isRestricted) {
+      // Coming from "everyone" (no section params) — clicking one isolates
+      // to just that section instead of turning off/leaving the other five.
       SECTION_KEYS.forEach((k) => params.delete(k));
+      params.set(key, "1");
+    } else if (params.get(key) === "1") {
+      // Already active — remove it (may leave the set empty → back to everyone)
+      params.delete(key);
     } else {
-      SECTION_KEYS.forEach((k) => {
-        if (next[k]) params.set(k, "1");
-        else params.delete(k);
-      });
+      // Not active yet — stack it onto the current restricted set
+      params.set(key, "1");
     }
+
     navigate(`/search?${params.toString()}`, { replace: true });
   };
 
