@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import axios from "axios";
 import Footer from "../Footer";
 import { Helmet } from 'react-helmet-async';
@@ -30,20 +30,48 @@ const MIDWEST_STATES = [
 
 const Events = () => {
   const [events, setEvents] = useState([]);
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(25);
   const [totalEvents, setTotalEvents] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  // Multi-select state filter — stored as a Set of abbreviations
-  const [activeStates, setActiveStates] = useState(new Set());
-  const [search, setSearch] = useState("");
+  // Uncommitted text-input state (committed to the URL on blur/Enter)
   const [searchInput, setSearchInput] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem("token");
   const apiUrl = process.env.REACT_APP_API_URL;
   const loggedInUserId = getUserId(token);
+
+  // ── URL is the source of truth for pagination + filters ────────────────
+  // ?page=2&perpage=50&state=KS,MO&search=anime
+  const urlParams = new URLSearchParams(location.search);
+  const page   = parseInt(urlParams.get("page"), 10) || 1;
+  const limit  = parseInt(urlParams.get("perpage"), 10) || 25;
+  const search = urlParams.get("search") || "";
+  const activeStates = useMemo(() => {
+    const s = urlParams.get("state");
+    return s ? new Set(s.split(",").filter(Boolean)) : new Set();
+  }, [location.search]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Keep the raw search input in sync whenever the committed URL value changes
+  // (covers direct links, browser back/forward, and "Clear all")
+  useEffect(() => { setSearchInput(search); }, [search]);
+
+  const updateParams = (updates, opts = {}) => {
+    const next = new URLSearchParams(location.search);
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value instanceof Set) {
+        if (value.size === 0) next.delete(key);
+        else next.set(key, [...value].join(","));
+      } else if (value === null || value === undefined || value === "") {
+        next.delete(key);
+      } else {
+        next.set(key, value);
+      }
+    });
+    const qs = next.toString();
+    navigate(`/events${qs ? `?${qs}` : ""}`, { replace: opts.replace ?? true });
+  };
 
   const fetchEvents = useCallback(async () => {
     if (!token) { navigate("/login"); return; }
@@ -67,7 +95,6 @@ const Events = () => {
   }, [navigate, token, apiUrl, limit, page, search, activeStates]);
 
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
-  useEffect(() => { setPage(1); }, [search, activeStates, limit]);
 
   const handleDelete = async (eventid) => {
     if (!window.confirm("Remove this event from your site?")) return;
@@ -82,20 +109,20 @@ const Events = () => {
     }
   };
 
-  const commitSearch = () => setSearch(searchInput);
+  const commitSearch = () => updateParams({ search: searchInput.trim(), page: 1 });
 
   const toggleState = (abbr) => {
-    setActiveStates((prev) => {
-      const next = new Set(prev);
-      next.has(abbr) ? next.delete(abbr) : next.add(abbr);
-      return next;
-    });
+    const next = new Set(activeStates);
+    next.has(abbr) ? next.delete(abbr) : next.add(abbr);
+    updateParams({ state: next, page: 1 });
   };
+
+  const goToPage    = (n) => updateParams({ page: n }, { replace: false });
+  const changeLimit = (n) => updateParams({ perpage: n, page: 1 });
 
   const clearAll = () => {
     setSearchInput("");
-    setSearch("");
-    setActiveStates(new Set());
+    navigate("/events", { replace: true });
   };
 
   const isFiltering = search.trim() !== "" || activeStates.size > 0;
@@ -104,14 +131,14 @@ const Events = () => {
   const PaginationBar = () => (
     <div className="pagination-controls">
       <label>Per page:</label>
-      <select value={limit} onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}>
+      <select value={limit} onChange={(e) => changeLimit(Number(e.target.value))}>
         {[10, 25, 50, 100].map((n) => (
           <option key={n} value={n}>{n}</option>
         ))}
       </select>
-      <button disabled={page === 1} onClick={() => setPage(page - 1)}>← Prev</button>
+      <button disabled={page === 1} onClick={() => goToPage(page - 1)}>← Prev</button>
       <span>Page {page} of {totalPages || 1}</span>
-      <button disabled={page >= totalPages} onClick={() => setPage(page + 1)}>Next →</button>
+      <button disabled={page >= totalPages} onClick={() => goToPage(page + 1)}>Next →</button>
     </div>
   );
 
@@ -177,7 +204,7 @@ const Events = () => {
               {search.trim() && (
                 <span className="tl-filter-pill">
                   Search: <strong>"{search.trim()}"</strong>
-                  <button className="tl-filter-pill-x" onClick={() => { setSearch(""); setSearchInput(""); }}>✕</button>
+                  <button className="tl-filter-pill-x" onClick={() => updateParams({ search: null, page: 1 })}>✕</button>
                 </span>
               )}
               <span className="tl-filter-count">
