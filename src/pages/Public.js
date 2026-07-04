@@ -14,6 +14,30 @@ const getUserId = (token) => {
   }
 };
 
+// Splits free text (like the About box) on any http(s) URL and turns those
+// pieces into real clickable <a> tags. Plain text stays as plain text.
+// Used because "about" is stored as plain text that may contain links
+// (e.g. from the {website}/{instagram} tag-fill feature on the Update page).
+const linkifyText = (text) => {
+  if (!text) return null;
+  const parts = text.split(/(https?:\/\/[^\s]+)/g);
+  return parts.map((part, i) =>
+    /^https?:\/\//.test(part) ? (
+      <a
+        key={i}
+        href={part}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ color: "var(--color-text-info)" }}
+      >
+        {part}
+      </a>
+    ) : (
+      <React.Fragment key={i}>{part}</React.Fragment>
+    )
+  );
+};
+
 const SOCIAL_LINKS = [
   { key: "twitter",   label: "Twitter",   icon: "ti-brand-twitter",  url: (v) => `https://twitter.com/${v}` },
   { key: "bluesky",   label: "Bluesky",   icon: "ti-brand-bluesky",  url: (v) => `https://bsky.app/profile/${v}` },
@@ -106,6 +130,7 @@ const s = {
     color: "var(--color-text-secondary)",
     lineHeight: 1.6,
     margin: "0 0 1.5rem",
+    whiteSpace: "pre-wrap",
   },
   divider: {
     height: "0.5px",
@@ -415,7 +440,7 @@ const Public = () => {
           </div>
 
           {/* ── About ── */}
-          {user.about && <p style={s.aboutText}>{user.about}</p>}
+          {user.about && <p style={s.aboutText}>{linkifyText(user.about)}</p>}
 
           {/* ── Cosplays ── */}
           {hasCosplays && (
