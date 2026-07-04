@@ -377,6 +377,8 @@ const Update = () => {
       <div className="home-content">
         <div className="home-headline-section">
           <h1 className="home-headline">Update: {user.username || ""}</h1>
+          <br/>
+          <label htmlFor="phonenumber">All info on this page will be public. Do not add anything you do not want people to see.</label>
         </div>
       <form onSubmit={handleSubmit}>
         <label htmlFor="firstname">Firstname:</label>
@@ -410,7 +412,7 @@ const Update = () => {
             </button>
           ))}
         </div>
-        <label htmlFor="phonenumber">All info on this page will be public. Do not add anything you do not want people to see.</label>
+        
         <label htmlFor="email">Email:</label>
         <input type="email" placeholder="Enter Email" name="email" value={user.email || ""} onChange={handleChange} autoComplete="email"/>
 
