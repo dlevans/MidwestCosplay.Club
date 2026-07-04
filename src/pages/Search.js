@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import Footer from "../Footer";
 import { Helmet } from "react-helmet-async";
 import EnchantedBackground from "./Enchantedbackground.js";
+import "../components/StoreMap.css";
 
 // ─── Platform helpers ─────────────────────────────────────────────────────────
 const getPlatformInfo = (url, type = "tutorial") => {
@@ -62,6 +63,34 @@ const TUTORIAL_CAT_EMOJI = {
   "3D Print":              "🖨️",
 };
 const DEFAULT_EMOJI = "🏷️";
+
+// ─── Store type colors/emoji (mirrors StoreMap.js) ────────────────────────────
+const CATEGORY_COLOR = {
+  "Fabric Store":    "#a855f7",
+  "Art Supply":      "#f97316",
+  "Bead & Jewelry":  "#ec4899",
+  "Sewing Classes":  "#22c55e",
+  "Craft Supply":    "#3b82f6",
+  "Yarn & Fiber":    "#f59e0b",
+  "Thrift / Reuse":  "#6b7280",
+  "Other":           "#94a3b8",
+};
+const TYPE_EMOJI = {
+  "Fabric Store":   "🧵",
+  "Art Supply":     "🎨",
+  "Bead & Jewelry": "💎",
+  "Sewing Classes": "📐",
+  "Craft Supply":   "✂️",
+  "Yarn & Fiber":   "🧶",
+  "Thrift / Reuse": "♻️",
+  "Other":          "📍",
+};
+
+// Single-store Google/Apple Maps deep links (mirrors StoreMap.js)
+const buildGoogleMapsUrl = (store) =>
+  `https://maps.google.com/?daddr=${encodeURIComponent(store.address)}`;
+const buildAppleMapsUrl = (store) =>
+  `https://maps.apple.com/?daddr=${encodeURIComponent(store.address)}&dirflg=d`;
 
 // ─── Midwest state list (abbr → full name), same set used on Events.js ───────
 const MIDWEST_STATES = [
@@ -171,6 +200,16 @@ function Search() {
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
+  // ── Auth (only needed here for store card ownership — Edit/Delete) ────────
+  const token = localStorage.getItem("token");
+  const getPayload = (t) => {
+    try { return t ? JSON.parse(atob(t.split(".")[1])) : null; }
+    catch { return null; }
+  };
+  const payload        = getPayload(token);
+  const loggedInUserId = payload?.id ?? null;
+  const isAdmin         = payload?.is_admin ?? false;
+
   // ── Load meta on mount (for filter buttons before any search) ────────────
   useEffect(() => {
     axios.get(`${apiUrl}/search`).then(({ data }) => {
@@ -233,6 +272,18 @@ function Search() {
     setStoreTypeFilter(null);
     navigate("/search", { replace: true });
     if (searchRef.current) searchRef.current.focus();
+  };
+
+  const handleDeleteStore = async (storeid) => {
+    if (!window.confirm("Remove this store listing?")) return;
+    try {
+      await axios.delete(`${apiUrl}/stores/${storeid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setResults((prev) => ({ ...prev, stores: prev.stores.filter((s) => s.storeid !== storeid) }));
+    } catch (err) {
+      console.error("Delete store error:", err);
+    }
   };
 
   const handleKeyDown = (e) => { if (e.key === "Enter") doSearch(); };
@@ -570,28 +621,114 @@ function Search() {
             <h2 className="search-section-heading">
               Stores {storeTypeFilter && <span className="srch-active-cat">· {storeTypeFilter}</span>}
             </h2>
-            <div className="group-container">
+            <div className="sm-card-list">
               {visibleStores.map((store) => (
-                <div className="group-card tutorial-card" key={store.storeid}>
-                  <Avatar src={store.useravatar} username={store.username} />
+                <div className="sm-card" key={store.storeid}>
                   {store.storeimage && (
-                    <img src={store.storeimage} alt={store.storename || "Store photo"} className="tutorial-card-thumbnail" />
+                    <img
+                      src={store.storeimage}
+                      alt={store.storename || "Store photo"}
+                      className="sm-card-img"
+                    />
                   )}
-                  {store.storename && <h3>{hl(store.storename, hlTerms)}</h3>}
+
+                  <div className="sm-card-header">
+                    <h3 className="sm-card-name">{hl(store.storename, hlTerms)}</h3>
+                    <span
+                      className="sm-type-badge"
+                      style={{
+                        background:  `${CATEGORY_COLOR[store.storetype] || "#888"}33`,
+                        borderColor: CATEGORY_COLOR[store.storetype] || "#888",
+                      }}
+                    >
+                      {TYPE_EMOJI[store.storetype] || "📍"} {hl(store.storetype || "Other", hlTerms)}
+                    </span>
+                  </div>
+
                   {store.storedescription && (
-                    <p className="tutorial-card-description">{hl(store.storedescription, hlTerms)}</p>
+                    <p className="sm-card-desc">{hl(store.storedescription, hlTerms)}</p>
                   )}
-                  <h4>{hl(store.city, hlTerms)}{store.state ? `, ${store.state}` : ""}</h4>
-                  {store.storetype && <span className="tutorial-card-tag">{hl(store.storetype, hlTerms)}</span>}
+
+                  <ul className="sm-card-details">
+                    {store.address && (
+                      <li>
+                        <span className="sm-detail-icon">📌</span>
+                        {hl(store.address, hlTerms)}
+                        {store.city  && `, ${store.city}`}
+                        {store.state && `, ${store.state}`}
+                        {store.zip   && ` ${store.zip}`}
+                      </li>
+                    )}
+                    {store.phone && (
+                      <li>
+                        <span className="sm-detail-icon">📞</span>
+                        <a href={`tel:${store.phone}`}>{store.phone}</a>
+                      </li>
+                    )}
+                    {store.hours && (
+                      <li>
+                        <span className="sm-detail-icon">🕐</span>
+                        {store.hours}
+                      </li>
+                    )}
+                    {store.website && (
+                      <li>
+                        <span className="sm-detail-icon">🌐</span>
+                        <a href={store.website} target="_blank" rel="noopener noreferrer">
+                          {store.website.replace(/^https?:\/\/(www\.)?/, "").split("/")[0]}
+                        </a>
+                      </li>
+                    )}
+                  </ul>
+
                   {store.username && (
-                    <p className="tutorial-card-submitter">
+                    <p className="sm-card-submitter">
                       Added by <Link to={`/public/${store.username}`}>{store.username}</Link>
                     </p>
                   )}
-                  {store.website && (
-                    <a href={store.website} target="_blank" rel="noopener noreferrer">
-                      <button className="button">Visit Website</button>
-                    </a>
+
+                  <div className="sm-card-actions">
+                    {store.address && (
+                      <>
+                        <a
+                          href={buildGoogleMapsUrl(store)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="sm-dir-btn sm-dir-btn--google"
+                        >
+                          🗺️ Google Maps
+                        </a>
+                        <a
+                          href={buildAppleMapsUrl(store)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="sm-dir-btn sm-dir-btn--apple"
+                        >
+                          🍎 Apple Maps
+                        </a>
+                      </>
+                    )}
+                    {store.website && (
+                      <a
+                        href={store.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="sm-dir-btn"
+                      >
+                        🌐 Website
+                      </a>
+                    )}
+                  </div>
+
+                  {(store.userid === loggedInUserId || isAdmin) && (
+                    <div className="sm-card-admin">
+                      <Link to={`/addstore/${store.storeid}`}>
+                        <button className="button">Edit</button>
+                      </Link>
+                      <button className="button" onClick={() => handleDeleteStore(store.storeid)}>
+                        Delete
+                      </button>
+                    </div>
                   )}
                 </div>
               ))}
