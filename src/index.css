@@ -659,6 +659,57 @@ select:focus { border-color: var(--accent); }
 }
 
 /* ============================================================
+   NAV — DROPDOWN GROUPS (User Settings / Things To Do / Learn)
+   ============================================================ */
+.has-dropdown { position: relative; }
+
+/* Highlight the toggle itself while its group is open */
+.dropdown-toggle[aria-expanded="true"] {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+/* Caret: exclude it from the generic ".nav-link svg" icon sizing */
+.nav-link svg.dropdown-caret {
+  width: 0.7rem;
+  min-width: 0.7rem;
+  margin: 0 1.25rem 0 auto;
+  opacity: 0.55;
+  display: none;
+  transition: transform var(--transition), opacity var(--transition);
+}
+.dropdown-toggle:hover svg.dropdown-caret { opacity: 0.9; }
+.dropdown-caret.rotated { transform: rotate(180deg); }
+
+/* Sub-menu list */
+.dropdown-menu {
+  list-style: none;
+  background: var(--bg-elevated);
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.dropdown-menu .nav-link { padding-left: 0; }
+.dropdown-menu .nav-link svg:not(.dropdown-caret) { margin-left: 2.5rem; }
+
+@media (min-width: 769px) {
+  /* Caret only makes sense once the rail is expanded and labels are visible */
+  .navbar:hover svg.dropdown-caret { display: inline-block; }
+
+  /* Prevent the (previously fixed-height, no-scroll) rail from clipping
+     items now that groups can expand — scrolls only if content overflows */
+  .navbar { overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
+  .navbar::-webkit-scrollbar { width: 6px; }
+  .navbar::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 3px; }
+}
+
+@media (max-width: 768px) {
+  svg.dropdown-caret { display: inline-block; }
+
+  /* Same overflow safety net for the mobile dropdown panel */
+  .navbar-nav { max-height: calc(100vh - 4rem); overflow-y: auto; }
+}
+
+/* ============================================================
    REDUCED MOTION
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
