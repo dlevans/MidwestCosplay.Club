@@ -37,6 +37,7 @@ import Templates from "./pages/Template";
 import Admin from "./pages/Admin";
 import StoreMap  from "./components/StoreMap";
 import AddStore  from "./components/AddStore";
+import HackingGame from "./games/HackingGame";
 
 
 function App() {
@@ -85,6 +86,7 @@ function App() {
           <Route path="/snake" element={<Snake />} />
           <Route path="/brickbreaker" element={<BrickBreaker />} />
           <Route path="/memory" element={<MemoryGame />} />
+          <Route path="/hackinggame" element = {<HackingGame />} />
           <Route path="/protected" element={<Protected />} />
           <Route path="/motd" element={<MOTD />} />
           <Route path="/public/event/:eventid" element={<PublicEvent />} />
