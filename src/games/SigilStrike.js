@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Footer from "../Footer";
 import { Helmet } from "react-helmet-async";
+import EnchantedBackground from "../pages/Enchantedbackground";
 import "./SigilStrike.css";
 
-
-const GAME_KEY = "sigilstrike"; 
+const GAME_KEY = "sigilstrike";
 const API_BASE = "https://midwestcosplayclubapi-1.onrender.com/api";
 
 const INITIAL_LIVES = 3;
@@ -219,6 +219,7 @@ const SigilStrike = () => {
           content="Strike the sigils before they fade. Avoid the cursed ones. How high can your score climb?"
         />
       </Helmet>
+      <EnchantedBackground />
 
       <div className="home-content sigil-page">
         <header className="sigil-header">
