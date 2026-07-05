@@ -41,6 +41,7 @@ import HackingGame from "./games/HackingGame";
 import SigilStrike from "./games/SigilStrike";
 
 
+
 function App() {
   const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
