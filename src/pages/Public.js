@@ -484,37 +484,6 @@ const Public = () => {
           {/* ── About ── */}
           {user.about && <p style={s.aboutText}>{linkifyText(user.about)}</p>}
 
-          {/* ── Arcade achievements ── */}
-          {hasAchievements && (
-            <>
-              <div style={s.divider} />
-              <div style={s.section}>
-                <p style={s.sectionLabel}>Arcade achievements</p>
-                <div style={s.achievementsGrid}>
-                  {user.achievements.map((ach) => {
-                    const meta = GAME_META[ach.game] || { label: ach.game, path: "/games", image: null };
-                    return (
-                      <div key={ach.game} style={s.achievementCard}>
-                        {meta.image ? (
-                          <img src={meta.image} alt={`${meta.label} leaderboard badge`} style={s.achievementImg} />
-                        ) : (
-                          <div style={s.achievementImgPlaceholder} aria-hidden="true">🏆</div>
-                        )}
-                        <div style={s.achievementBody}>
-                          <p style={s.achievementGame}>{meta.label}</p>
-                          <p style={s.achievementScore}>
-                            #{ach.rank} on the leaderboard · {Number(ach.score).toLocaleString()} pts
-                          </p>
-                          <Link to={meta.path} style={s.challengeBtn}>Challenge me →</Link>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </>
-          )}
-
           {/* ── Cosplays ── */}
           {hasCosplays && (
             <>
@@ -663,6 +632,37 @@ const Public = () => {
                       <span style={{ fontSize: 14, color: "var(--color-text-primary)" }}>{user.phonenumber}</span>
                     </div>
                   )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ── Arcade achievements ── */}
+          {hasAchievements && (
+            <>
+              <div style={s.divider} />
+              <div style={s.section}>
+                <p style={s.sectionLabel}>Arcade achievements</p>
+                <div style={s.achievementsGrid}>
+                  {user.achievements.map((ach) => {
+                    const meta = GAME_META[ach.game] || { label: ach.game, path: "/games", image: null };
+                    return (
+                      <div key={ach.game} style={s.achievementCard}>
+                        {meta.image ? (
+                          <img src={meta.image} alt={`${meta.label} leaderboard badge`} style={s.achievementImg} />
+                        ) : (
+                          <div style={s.achievementImgPlaceholder} aria-hidden="true">🏆</div>
+                        )}
+                        <div style={s.achievementBody}>
+                          <p style={s.achievementGame}>{meta.label}</p>
+                          <p style={s.achievementScore}>
+                            #{ach.rank} on the leaderboard · {Number(ach.score).toLocaleString()} pts
+                          </p>
+                          <Link to={meta.path} style={s.challengeBtn}>Challenge me →</Link>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </>
