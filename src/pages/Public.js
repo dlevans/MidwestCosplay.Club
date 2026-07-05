@@ -59,9 +59,9 @@ const SOCIAL_LINKS = [
 
 // Game metadata for the arcade achievements section below 
 const GAME_META = {
-  snake:        { label: "Snake",        path: "/snake",        image: "./images/games/snake-badge.png" },
-  brickbreaker: { label: "Brick Breaker", path: "/brickbreaker", image: "./images/games/brickbreaker-badge.png" },
-  memory:       { label: "Memory Match",  path: "/memory",       image: "./images/games/memory-badge.png" },
+  snake:        { label: "Snake",        path: "/snake",        image: "../images/games/snake-badge.png" },
+  brickbreaker: { label: "Brick Breaker", path: "/brickbreaker", image: "../images/games/brickbreaker-badge.png" },
+  memory:       { label: "Memory Match",  path: "/memory",       image: "../images/games/memory-badge.png" },
 };
 
 const SUPPORT_LINKS = [
