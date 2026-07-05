@@ -49,6 +49,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 1rem;
   padding: 0.85rem 1.25rem;
   border-radius: 12px;
@@ -101,6 +103,8 @@
 
 .sigil-arena {
   position: relative;
+  width: 100%;
+  box-sizing: border-box;
   height: min(62vh, 520px);
   min-height: 360px;
   border-radius: 20px;
