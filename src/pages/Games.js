@@ -32,6 +32,13 @@ const GAMES = [
     description: "Hack the terminal.", 
     icon: "💻" 
   },
+  {
+    key: "sigilstrike",
+    label: "Sigil Strike",
+    path: "/sigilstrike",
+    description: "Strike the sigils before they fade. Avoid the cursed ones.",
+    icon: "🔮",
+  },
 ];
 
 const LeaderboardTable = ({ game, scores, loading, error }) => {
@@ -74,9 +81,15 @@ const LeaderboardTable = ({ game, scores, loading, error }) => {
 
 const Games = () => {
   const navigate = useNavigate();
-  const [leaderboards, setLeaderboards] = useState({ snake: [], brickbreaker: [] });
-  const [loading, setLoading] = useState({ snake: true, brickbreaker: true });
-  const [errors, setErrors] = useState({ snake: null, brickbreaker: null });
+  const [leaderboards, setLeaderboards] = useState(() =>
+    GAMES.reduce((acc, { key }) => ({ ...acc, [key]: [] }), {})
+  );
+  const [loading, setLoading] = useState(() =>
+    GAMES.reduce((acc, { key }) => ({ ...acc, [key]: true }), {})
+  );
+  const [errors, setErrors] = useState(() =>
+    GAMES.reduce((acc, { key }) => ({ ...acc, [key]: null }), {})
+  );
 
   useEffect(() => {
     const token = localStorage.getItem("token");

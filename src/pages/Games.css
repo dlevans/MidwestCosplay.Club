@@ -51,6 +51,11 @@
   gap: 1.5rem;
 }
 
+/* If the final card is odd-numbered, it's alone in the last row — let it span both columns */
+.games-grid > .game-card:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 .game-card {
   background: rgba(15, 10, 30, 0.75);
   border: 1px solid rgba(139, 92, 246, 0.3);   /* violet border */
