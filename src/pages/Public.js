@@ -57,6 +57,15 @@ const SOCIAL_LINKS = [
   { key: "website3", label: "Website 4", icon: "ti-world", url: (v) => v },
 ];
 
+// Game metadata for the arcade achievements section below — mirrors the
+// GAMES list in Games.js. Drop your 1000x1000 badge images in place of the
+// placeholders once they're ready; no other code needs to change.
+const GAME_META = {
+  snake:        { label: "Snake",        path: "/snake",        image: "/images/games/snake-badge.png" },
+  brickbreaker: { label: "Brick Breaker", path: "/brickbreaker", image: "/images/games/brickbreaker-badge.png" },
+  memory:       { label: "Memory Match",  path: "/memory",       image: "/images/games/memory-badge.png" },
+};
+
 const SUPPORT_LINKS = [
   { key: "patreon",   label: "Patreon",    icon: "ti-heart",           url: (v) => `https://www.patreon.com/${v}` },
   { key: "kofi",      label: "Ko-fi",      icon: "ti-coffee",          url: (v) => `https://ko-fi.com/${v}` },
@@ -301,6 +310,37 @@ const s = {
   guestbookCount: { fontSize: 11, color: "var(--text-muted)" },
   guestbookError: { fontSize: 12, color: "#e8a0a0" },
   guestbookLoginPrompt: { fontSize: 13, color: "var(--text-muted)", marginTop: 12 },
+
+  achievementsGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 },
+  achievementCard: {
+    display: "flex", alignItems: "center", gap: 12,
+    background: "var(--color-background-primary)",
+    border: "0.5px solid var(--color-border-tertiary)",
+    borderRadius: "var(--border-radius-lg, 12px)",
+    padding: "0.75rem 1rem",
+  },
+  achievementImg: {
+    width: 56, height: 56, borderRadius: "var(--border-radius-md, 8px)",
+    objectFit: "cover", flexShrink: 0,
+    border: "0.5px solid var(--color-border-tertiary)",
+  },
+  achievementImgPlaceholder: {
+    width: 56, height: 56, borderRadius: "var(--border-radius-md, 8px)",
+    background: "var(--color-background-secondary)",
+    border: "0.5px solid var(--color-border-tertiary)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    fontSize: 24, flexShrink: 0,
+  },
+  achievementBody: { flex: 1, minWidth: 0 },
+  achievementGame: { fontSize: 14, fontWeight: 600, color: "var(--color-text-primary)", margin: "0 0 2px" },
+  achievementScore: { fontSize: 13, color: "var(--color-text-secondary)", margin: "0 0 6px" },
+  challengeBtn: {
+    display: "inline-block", fontSize: 12, fontWeight: 500,
+    padding: "4px 12px", borderRadius: 99,
+    background: "var(--color-background-secondary)",
+    border: "0.5px solid var(--color-border-tertiary)",
+    color: "var(--color-text-info)", textDecoration: "none",
+  },
 };
 
 const Public = () => {
@@ -341,6 +381,7 @@ const Public = () => {
   const hasSocial  = SOCIAL_LINKS.some(({ key }) => user[key]);
   const hasSupport = SUPPORT_LINKS.some(({ key }) => user[key]);
   const hasCosplays = user.complete || user.inprogress;
+  const hasAchievements = user.achievements && user.achievements.length > 0;
   const hasContact  = user.phonenumber || user.email;
   const hasCalendar = user.calendar && user.calendar !== "null";
   const hasGroups   = user.groups && user.groups.length > 0;
@@ -441,6 +482,37 @@ const Public = () => {
 
           {/* ── About ── */}
           {user.about && <p style={s.aboutText}>{linkifyText(user.about)}</p>}
+
+          {/* ── Arcade achievements ── */}
+          {hasAchievements && (
+            <>
+              <div style={s.divider} />
+              <div style={s.section}>
+                <p style={s.sectionLabel}>Arcade achievements</p>
+                <div style={s.achievementsGrid}>
+                  {user.achievements.map((ach) => {
+                    const meta = GAME_META[ach.game] || { label: ach.game, path: "/games", image: null };
+                    return (
+                      <div key={ach.game} style={s.achievementCard}>
+                        {meta.image ? (
+                          <img src={meta.image} alt={`${meta.label} leaderboard badge`} style={s.achievementImg} />
+                        ) : (
+                          <div style={s.achievementImgPlaceholder} aria-hidden="true">🏆</div>
+                        )}
+                        <div style={s.achievementBody}>
+                          <p style={s.achievementGame}>{meta.label}</p>
+                          <p style={s.achievementScore}>
+                            #{ach.rank} on the leaderboard · {Number(ach.score).toLocaleString()} pts
+                          </p>
+                          <Link to={meta.path} style={s.challengeBtn}>Challenge me →</Link>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
 
           {/* ── Cosplays ── */}
           {hasCosplays && (
