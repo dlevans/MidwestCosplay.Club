@@ -47,7 +47,7 @@
 
 .games-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 
@@ -187,6 +187,12 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-decoration: none;
+}
+
+.lb-username:hover {
+  color: #ede9fe;          /* violet-100 */
+  text-decoration: underline;
 }
 
 .lb-score {
@@ -220,10 +226,13 @@
 
 /* ---------- Responsive ---------- */
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .games-grid {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 480px) {
   .games-headline {
     font-size: 2.25rem;
   }

@@ -62,7 +62,9 @@ const LeaderboardTable = ({ game, scores, loading, error }) => {
       {scores.map((entry, i) => (
         <li key={entry.id || i} className={`lb-row ${i === 0 ? "lb-row--gold" : i === 1 ? "lb-row--silver" : i === 2 ? "lb-row--bronze" : ""}`}>
           <span className="lb-rank">{i + 1}</span>
-          <span className="lb-username">{entry.username}</span>
+          <Link to={`/public/${encodeURIComponent(entry.username)}`} className="lb-username">
+            {entry.username}
+          </Link>
           <span className="lb-score">{entry.score.toLocaleString()}</span>
         </li>
       ))}
