@@ -38,7 +38,7 @@ import Admin from "./pages/Admin";
 import StoreMap  from "./components/StoreMap";
 import AddStore  from "./components/AddStore";
 import HackingGame from "./games/HackingGame";
-import SigilStrike from "./games/Sigilstrike";
+import SigilStrike from "./games/SigilStrike";
 
 
 function App() {

@@ -4,7 +4,7 @@ import Footer from "../Footer";
 import { Helmet } from "react-helmet-async";
 import "./SigilStrike.css";
 
-const GAME_KEY = "sigilstrike";
+const GAME_KEY = "sigilstrike"; 
 const API_BASE = "https://midwestcosplayclubapi-1.onrender.com/api";
 
 const INITIAL_LIVES = 3;
