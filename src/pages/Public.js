@@ -57,13 +57,11 @@ const SOCIAL_LINKS = [
   { key: "website3", label: "Website 4", icon: "ti-world", url: (v) => v },
 ];
 
-// Game metadata for the arcade achievements section below — mirrors the
-// GAMES list in Games.js. Drop your 1000x1000 badge images in place of the
-// placeholders once they're ready; no other code needs to change.
+// Game metadata for the arcade achievements section below 
 const GAME_META = {
-  snake:        { label: "Snake",        path: "/snake",        image: "/images/games/snake-badge.png" },
-  brickbreaker: { label: "Brick Breaker", path: "/brickbreaker", image: "/images/games/brickbreaker-badge.png" },
-  memory:       { label: "Memory Match",  path: "/memory",       image: "/images/games/memory-badge.png" },
+  snake:        { label: "Snake",        path: "/snake",        image: "./images/games/snake-badge.png" },
+  brickbreaker: { label: "Brick Breaker", path: "/brickbreaker", image: "./images/games/brickbreaker-badge.png" },
+  memory:       { label: "Memory Match",  path: "/memory",       image: "./images/games/memory-badge.png" },
 };
 
 const SUPPORT_LINKS = [
