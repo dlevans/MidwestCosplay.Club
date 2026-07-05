@@ -9,6 +9,7 @@ import snakeBadge from "../images/games/snake-badge.png";
 import brickbreakerBadge from "../images/games/brickbreaker-badge.png";
 import memoryBadge from "../images/games/memory-badge.png";
 import hackingBadge from "../images/games/hackinggame-badge.png";
+import sigilstrikeBadge from "../images/games/sigilstrike-badge.png";
 
 const getUserId = (token) => {
   try {
@@ -63,10 +64,11 @@ const SOCIAL_LINKS = [
 
 // Game metadata for the arcade achievements section below 
 const GAME_META = {
-  snake:        { label: "Snake",        path: "/snake",        image: snakeBadge },
-  brickbreaker: { label: "Brick Breaker", path: "/brickbreaker", image: brickbreakerBadge },
-  memory:       { label: "Memory Match",  path: "/memory",       image: memoryBadge },
-  hacking:       { label: "Hacking Game",  path: "/hackinggame",       image: hackingBadge },
+  snake:        { label: "Snake",             path: "/snake",        image: snakeBadge },
+  brickbreaker: { label: "Brick Breaker",     path: "/brickbreaker", image: brickbreakerBadge },
+  memory:       { label: "Memory Match",      path: "/memory",       image: memoryBadge },
+  hacking:      { label: "Hacking Game",      path: "/hackinggame",  image: hackingBadge },
+  sigilstrike:  { label: "Sigil Strike Game", path: "/sigilstrike",  image: sigilstrikeBadge },
 };
 
 const SUPPORT_LINKS = [
