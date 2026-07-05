@@ -1,0 +1,356 @@
+/* =====================================================
+   Sigil Strike — Dark Fantasy Arcade Theme
+   MidwestCosplay Club
+   ===================================================== */
+
+.sigil-page { 
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+
+/* ---------- Header ---------- */
+
+.sigil-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.sigil-eyebrow {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #a78bfa;
+  margin: 0 0 0.5rem;
+}
+
+.sigil-headline {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.25rem, 5.5vw, 3.5rem);
+  font-weight: 700;
+  color: #f0e6ff;
+  margin: 0 0 0.5rem;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.sigil-subhead {
+  font-size: 1rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+/* ---------- HUD ---------- */
+
+.sigil-hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.85rem 1.25rem;
+  border-radius: 12px;
+  background: rgba(15, 10, 30, 0.75);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.sigil-hud--shake {
+  animation: sigil-shake 0.25s ease;
+}
+
+.sigil-hud-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sigil-hud-label {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #7c3aed;
+}
+
+.sigil-hud-value {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ede9fe;
+}
+
+.sigil-hud-lives {
+  flex-direction: row;
+  gap: 0.35rem;
+  font-size: 1.1rem;
+}
+
+.sigil-life {
+  color: #a78bfa;
+  transition: color 0.2s, opacity 0.2s;
+}
+
+.sigil-life--lost {
+  color: #4b3a6b;
+  opacity: 0.5;
+}
+
+/* ---------- Arena ---------- */
+
+.sigil-arena {
+  position: relative;
+  height: min(62vh, 520px);
+  min-height: 360px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, rgba(76, 29, 149, 0.25), rgba(10, 6, 20, 0.9) 70%);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  touch-action: none;
+  cursor: crosshair;
+  user-select: none;
+}
+
+.sigil-arena--shake {
+  animation: sigil-shake 0.25s ease;
+}
+
+@keyframes sigil-shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
+/* ---------- Sigils ---------- */
+
+.sigil {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sigil-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.sigil-ring-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 4;
+}
+
+.sigil-ring-progress {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.1s linear;
+}
+
+.sigil-glyph {
+  position: relative;
+  font-size: 1.4rem;
+  line-height: 1;
+  z-index: 1;
+}
+
+/* Normal sigil */
+.sigil--normal {
+  filter: drop-shadow(0 0 10px rgba(167, 139, 250, 0.55));
+}
+.sigil--normal .sigil-ring-progress { stroke: #a78bfa; }
+.sigil--normal .sigil-glyph { color: #ede9fe; }
+.sigil--normal::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.35), transparent 70%);
+}
+
+/* Cursed sigil */
+.sigil--cursed {
+  filter: drop-shadow(0 0 12px rgba(220, 38, 38, 0.6));
+}
+.sigil--cursed .sigil-ring-progress { stroke: #ef4444; }
+.sigil--cursed .sigil-glyph { color: #fca5a5; }
+.sigil--cursed::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220, 38, 38, 0.35), transparent 70%);
+}
+
+/* Gold sigil */
+.sigil--gold {
+  filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.7));
+  animation: sigil-pulse 0.9s ease-in-out infinite;
+}
+.sigil--gold .sigil-ring-progress { stroke: #fbbf24; }
+.sigil--gold .sigil-glyph { color: #fde68a; }
+.sigil--gold::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.4), transparent 70%);
+}
+
+@keyframes sigil-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.08); }
+}
+
+/* ---------- Score popups ---------- */
+
+.sigil-popup {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 700;
+  font-size: 0.95rem;
+  pointer-events: none;
+  animation: sigil-popup-float 0.7s ease-out forwards;
+}
+
+.sigil-popup--good { color: #ede9fe; }
+.sigil-popup--gold { color: #fbbf24; }
+.sigil-popup--bad { color: #f87171; }
+
+@keyframes sigil-popup-float {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.9); }
+  100% { opacity: 0; transform: translate(-50%, -140%) scale(1.05); }
+}
+
+/* ---------- Overlays (start / game over) ---------- */
+
+.sigil-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  background: rgba(10, 6, 20, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.sigil-overlay-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #f0e6ff;
+  margin: 0;
+}
+
+.sigil-overlay-score {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fbbf24;
+  margin: 0;
+}
+
+.sigil-overlay-text {
+  max-width: 420px;
+  font-size: 0.9rem;
+  color: #9ca3af;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.sigil-overlay-status {
+  font-size: 0.8rem;
+  color: #6b7280;
+  min-height: 1.2em;
+  margin: 0;
+}
+
+.sigil-overlay-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.sigil-btn {
+  display: inline-block;
+  padding: 0.75rem 1.75rem;
+  border-radius: 8px;
+  background: rgba(124, 58, 237, 0.85);
+  color: #f5f3ff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(167, 139, 250, 0.4);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.sigil-btn:hover {
+  background: rgba(109, 40, 217, 0.95);
+  color: #fff;
+}
+
+.sigil-btn--ghost {
+  background: transparent;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  color: #d1d5db;
+}
+
+.sigil-btn--ghost:hover {
+  background: rgba(139, 92, 246, 0.12);
+  color: #ede9fe;
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .sigil--gold {
+    animation: none;
+  }
+  .sigil-popup {
+    animation: none;
+    opacity: 0;
+  }
+  .sigil-hud--shake,
+  .sigil-arena--shake {
+    animation: none;
+  }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 480px) {
+  .sigil-headline {
+    font-size: 2rem;
+  }
+  .sigil-hud {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .sigil-arena {
+    height: min(58vh, 460px);
+  }
+}

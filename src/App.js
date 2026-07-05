@@ -38,6 +38,8 @@ import Admin from "./pages/Admin";
 import StoreMap  from "./components/StoreMap";
 import AddStore  from "./components/AddStore";
 import HackingGame from "./games/HackingGame";
+import SigilStrike from "./games/SigilStrike";
+
 
 function App() {
   const navigate = useNavigate();
@@ -86,6 +88,7 @@ function App() {
           <Route path="/brickbreaker" element={<BrickBreaker />} />
           <Route path="/memory" element={<MemoryGame />} />
           <Route path="/hackinggame" element = {<HackingGame />} />
+          <Route path="/sigilstrike" element = {<SigilStrike />} />
           <Route path="/protected" element={<Protected />} />
           <Route path="/motd" element={<MOTD />} />
           <Route path="/public/event/:eventid" element={<PublicEvent />} />
