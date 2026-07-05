@@ -26,6 +26,12 @@ const GAMES = [
     description: "Find every pair. How few moves can you take?", 
     icon: "🃏" 
   },
+  { key: "hacking", 
+    label: "Hacking Game", 
+    path: "/hackinggame", 
+    description: "Hack the terminal.", 
+    icon: "💻" 
+  },
 ];
 
 const LeaderboardTable = ({ game, scores, loading, error }) => {
