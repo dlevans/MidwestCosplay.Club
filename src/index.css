@@ -634,7 +634,7 @@ select:focus { border-color: var(--accent); }
   }
   .navbar.open .navbar-nav { display: flex; background-color: #2a2440; }
 
-  .nav-link { height: auto; padding: 0.9rem 1.25rem; flex-direction: row; width: 100%; }
+  .navbar-nav .nav-link { height: auto; padding: 0.9rem 1.25rem; flex-direction: row; width: 100%; }
   .link-text { display: inline-block; }
   .nav-link::before { display: none; }
   .nav-item-social { display: none; }
