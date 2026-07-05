@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Footer from "../Footer";
 import { Helmet } from "react-helmet-async";
-import EnchantedBackground from "./Enchantedbackground";
+import EnchantedBackground from "../Enchantedbackground";
 import "./SigilStrike.css";
 
 const GAME_KEY = "sigilstrike";
