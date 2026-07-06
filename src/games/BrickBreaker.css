@@ -45,6 +45,8 @@
 
 .bb-btn {
   display: inline-block;
+  text-decoration: none;
+  text-align: center;
   margin-top: 12px;
   background: rgba(109, 40, 217, 0.85);
   color: #f5f3ff;

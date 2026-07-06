@@ -134,6 +134,18 @@
   }
 }
 
+.snake-btn--secondary {
+  background: rgba(60, 60, 60, 0.85);
+  border-color: rgba(180, 180, 180, 0.3);
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+}
+
+.snake-btn--secondary:hover {
+  background: rgba(80, 80, 80, 0.95);
+}
+
 .snake-btn--submit {
   background: rgba(16, 100, 60, 0.85);
   border-color: rgba(52, 211, 153, 0.4);

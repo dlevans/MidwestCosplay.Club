@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Link } from "react-router-dom";
 import "./MemoryGame.css";
 
 const API = "https://midwestcosplayclubapi-1.onrender.com";
@@ -374,6 +375,9 @@ const MemoryGame = () => {
             >
               Play again
             </button>
+            <Link to="/games" className="memory-btn memory-btn--secondary">
+              Back to Arcade
+            </Link>
           </div>
         </div>
       )}

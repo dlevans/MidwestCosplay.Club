@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import "./HackingGame.css";
 
 const API = "https://midwestcosplayclubapi-1.onrender.com";
@@ -436,6 +437,9 @@ const HackingGame = () => {
             <button className="hack-btn hack-btn--secondary" onClick={() => newGame(difficulty)}>
               Hack another terminal
             </button>
+            <Link to="/games" className="hack-btn hack-btn--secondary">
+              Back to Arcade
+            </Link>
           </div>
         </div>
       )}
@@ -448,6 +452,9 @@ const HackingGame = () => {
             <button className="hack-btn hack-btn--secondary" onClick={() => newGame(difficulty)}>
               Try another terminal
             </button>
+            <Link to="/games" className="hack-btn hack-btn--secondary">
+              Back to Arcade
+            </Link>
           </div>
         </div>
       )}

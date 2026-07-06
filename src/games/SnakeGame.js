@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { Link } from "react-router-dom";
 import "./SnakeGame.css";
 
 const GRID_SIZE = 20;
@@ -182,6 +183,7 @@ const SnakeGame = () => {
             {submitLabel}
           </button>
           <button className="snake-btn" onClick={resetGame}>Play again</button>
+          <Link to="/games" className="snake-btn snake-btn--secondary">Back to Arcade</Link>
         </div>
       ) : isPaused ? (
         <div className="game-paused">

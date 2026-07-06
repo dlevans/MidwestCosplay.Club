@@ -51,7 +51,7 @@ const SigilStrike = () => {
   const [sigils, setSigils] = useState([]);
   const [popups, setPopups] = useState([]);
   const [shake, setShake] = useState(false);
-  const [submitState, setSubmitState] = useState("idle"); // idle | saving | saved | error
+  const [submitState, setSubmitState] = useState("idle"); // idle | submitting | submitted | error
 
   const scoreRef = useRef(0);
   const spawnTimerRef = useRef(SPAWN_START);
@@ -181,10 +181,10 @@ const SigilStrike = () => {
     setCombo(0);
   };
 
-  const submitScore = useCallback(async (finalScore) => {
+  const submitScore = useCallback(async () => {
     const token = localStorage.getItem("token");
-    if (!token || finalScore <= 0) return;
-    setSubmitState("saving");
+    if (!token) { setSubmitState("error"); return; }
+    setSubmitState("submitting");
     try {
       const res = await fetch(`${API_BASE}/scores`, {
         method: "POST",
@@ -192,20 +192,20 @@ const SigilStrike = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ game: GAME_KEY, score: finalScore }),
+        body: JSON.stringify({ game: GAME_KEY, score: scoreRef.current }),
       });
-      if (!res.ok) throw new Error("Failed to save score");
-      setSubmitState("saved");
-    } catch (err) {
+      setSubmitState(res.ok ? "submitted" : "error");
+    } catch {
       setSubmitState("error");
     }
   }, []);
 
-  useEffect(() => {
-    if (status === "gameover") {
-      submitScore(scoreRef.current);
-    }
-  }, [status, submitScore]);
+  const submitLabel = {
+    idle: "Submit score",
+    submitting: "Submitting…",
+    submitted: "Score submitted!",
+    error: "Submission failed — try again",
+  }[submitState];
 
   const multiplier = Math.min(3, 1 + Math.floor(combo / 5) * 0.5);
   const bestMultiplier = Math.min(3, 1 + Math.floor(bestCombo / 5) * 0.5);
@@ -274,12 +274,14 @@ const SigilStrike = () => {
               <p className="sigil-overlay-title">The Circle Fades</p>
               <p className="sigil-overlay-score">{score.toLocaleString()}</p>
               <p className="sigil-overlay-text">Best combo x{bestMultiplier.toFixed(1)}</p>
-              <p className="sigil-overlay-status" role="status">
-                {submitState === "saving" && "Saving your score…"}
-                {submitState === "saved" && "Score saved to the leaderboard."}
-                {submitState === "error" && "Couldn't save your score."}
-              </p>
               <div className="sigil-overlay-actions">
+                <button
+                  className="sigil-btn"
+                  onClick={submitScore}
+                  disabled={submitState === "submitting" || submitState === "submitted"}
+                >
+                  {submitLabel}
+                </button>
                 <button className="sigil-btn" onClick={startGame}>
                   Try Again
                 </button>

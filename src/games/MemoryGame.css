@@ -269,6 +269,8 @@
 }
 
 .memory-btn {
+  display: inline-block;
+  box-sizing: border-box;
   background: rgba(109, 40, 217, 0.85);
   color: #f5f3ff;
   border: 1px solid rgba(167, 139, 250, 0.4);
@@ -278,6 +280,8 @@
   font-weight: 600;
   cursor: pointer;
   width: 100%;
+  text-decoration: none;
+  text-align: center;
   transition: background 0.15s;
 }
 

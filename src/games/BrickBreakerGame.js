@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import './BrickBreaker.css';
 
 // ── Layout constants (canvas is always 600×600) ──────────────────────────────
@@ -415,6 +416,7 @@ const BrickBreaker = () => {
             {submitLabel}
           </button>
           <button className="bb-btn bb-btn--secondary" onClick={resetGame}>Play again</button>
+          <Link to="/games" className="bb-btn bb-btn--secondary">Back to Arcade</Link>
         </div>
       )}
 
@@ -432,6 +434,7 @@ const BrickBreaker = () => {
             {submitLabel}
           </button>
           <button className="bb-btn bb-btn--secondary" onClick={resetGame}>Play again</button>
+          <Link to="/games" className="bb-btn bb-btn--secondary">Back to Arcade</Link>
         </div>
       )}
 
