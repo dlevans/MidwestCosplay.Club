@@ -5,6 +5,8 @@ import Footer from "../Footer";
 import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 import EventAttendance from "./EventAttendance";
+import EventInfo from "./EventInfo";
+import EventCosplanCard from "./EventCosplanCard";
 
 const s = {
   page: {
@@ -130,6 +132,21 @@ const PublicEvent = () => {
                 Visit Website
               </a>
             </div>
+          </div>
+
+          {/* ── Event details (dates, venue, address, about) ── */}
+          <div style={s.divider} />
+          <EventInfo event={event} />
+
+          {/* ── Shareable "cosplan" graphic ── */}
+          <div style={s.divider} />
+          <div style={s.section}>
+            <p style={s.sectionLabel}>Share your cosplan!</p>
+            <EventCosplanCard
+              eventid={event.eventid}
+              eventname={event.eventname}
+              templateImageUrl={event.eventcosplanimage || null}
+            />
           </div>
 
           {/* ── Attendance ── */}
