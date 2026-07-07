@@ -45,7 +45,7 @@ const loadImage = (src) =>
     img.onerror = reject;
     img.src = src;
   });
-
+ 
 /*
  * EventCosplanCard — the shareable "cosplan" graphic.
  *
