@@ -20,6 +20,7 @@
     "json-server": "^1.0.0-beta.3",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
+    "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",
     "react": "^19.0.0",
     "react-adsense": "^0.1.0",

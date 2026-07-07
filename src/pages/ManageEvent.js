@@ -6,6 +6,8 @@ import "react-image-crop/dist/ReactCrop.css";
 import Footer from "../Footer";
 import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
+import EventInfo from "./EventInfo";
+import EventCosplanCard from "./EventCosplanCard";
 
 const US_STATES = [
   ["IL", "Illinois"],
@@ -27,6 +29,14 @@ const EMPTY_FORM = {
   eventcity: "",
   eventstate: "",
   eventwebsite: "",
+  eventstartdate: "",
+  eventenddate: "",
+  eventstarttime: "",
+  eventendtime: "",
+  eventvenue: "",
+  eventaddress: "",
+  eventzip: "",
+  eventdescription: "",
 };
 
 const ManageEvent = () => {
@@ -40,6 +50,12 @@ const ManageEvent = () => {
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(isEditing);
+
+  // Optional custom background for the shareable "cosplan" graphic.
+  // If left blank, the public page falls back to the default club template.
+  const [currentCosplanImage, setCurrentCosplanImage] = useState("");
+  const [cosplanImage, setCosplanImage] = useState(null);
+  const [cosplanImagePreview, setCosplanImagePreview] = useState(null);
 
   const [members, setMembers] = useState([]);
   const [memberSearch, setMemberSearch] = useState("");
@@ -92,8 +108,17 @@ const ManageEvent = () => {
           eventcity: event.eventcity || "",
           eventstate: event.eventstate || "",
           eventwebsite: event.eventwebsite || "",
+          eventstartdate: event.eventstartdate ? event.eventstartdate.slice(0, 10) : "",
+          eventenddate: event.eventenddate ? event.eventenddate.slice(0, 10) : "",
+          eventstarttime: event.eventstarttime || "",
+          eventendtime: event.eventendtime || "",
+          eventvenue: event.eventvenue || "",
+          eventaddress: event.eventaddress || "",
+          eventzip: event.eventzip || "",
+          eventdescription: event.eventdescription || "",
         });
         setCurrentImage(event.eventimage || "");
+        setCurrentCosplanImage(event.eventcosplanimage || "");
       } catch (err) {
         console.error("Error fetching event: ", err);
         setError(err.response?.data?.message || err.message || "Could not load this event.");
@@ -223,6 +248,15 @@ const ManageEvent = () => {
     }
   };
 
+  const handleCosplanImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setCosplanImage(file);
+    const reader = new FileReader();
+    reader.onload = (event) => setCosplanImagePreview(event.target.result);
+    reader.readAsDataURL(file);
+  };
+
   const onCropChange = (newCrop) => {
     if (newCrop.width > 0 && newCrop.height > 0) {
       setCrop(newCrop);
@@ -312,9 +346,20 @@ const ManageEvent = () => {
     eventData.append("eventcity", form.eventcity);
     eventData.append("eventstate", form.eventstate);
     eventData.append("eventwebsite", form.eventwebsite);
+    eventData.append("eventstartdate", form.eventstartdate);
+    eventData.append("eventenddate", form.eventenddate);
+    eventData.append("eventstarttime", form.eventstarttime);
+    eventData.append("eventendtime", form.eventendtime);
+    eventData.append("eventvenue", form.eventvenue);
+    eventData.append("eventaddress", form.eventaddress);
+    eventData.append("eventzip", form.eventzip);
+    eventData.append("eventdescription", form.eventdescription);
 
     if (image) {
       eventData.append("eventimage", image);
+    }
+    if (cosplanImage) {
+      eventData.append("eventcosplanimage", cosplanImage);
     }
 
     try {
@@ -390,6 +435,36 @@ const ManageEvent = () => {
           <label htmlFor="eventwebsite">Event website:</label>
           <input type="url" placeholder="https://example.com" name="eventwebsite" value={form.eventwebsite} onChange={handleChange} required />
 
+          <label htmlFor="eventstartdate">Start date:</label>
+          <input type="date" name="eventstartdate" value={form.eventstartdate} onChange={handleChange} />
+
+          <label htmlFor="eventenddate">End date (leave blank for a single-day event):</label>
+          <input type="date" name="eventenddate" value={form.eventenddate} onChange={handleChange} />
+
+          <label htmlFor="eventstarttime">Start time:</label>
+          <input type="time" name="eventstarttime" value={form.eventstarttime} onChange={handleChange} />
+
+          <label htmlFor="eventendtime">End time:</label>
+          <input type="time" name="eventendtime" value={form.eventendtime} onChange={handleChange} />
+
+          <label htmlFor="eventvenue">Venue name:</label>
+          <input type="text" placeholder="e.g. Overland Park Convention Center" name="eventvenue" value={form.eventvenue} onChange={handleChange} />
+
+          <label htmlFor="eventaddress">Street address:</label>
+          <input type="text" placeholder="e.g. 6000 College Blvd" name="eventaddress" value={form.eventaddress} onChange={handleChange} />
+
+          <label htmlFor="eventzip">ZIP code:</label>
+          <input type="text" placeholder="e.g. 66211" name="eventzip" value={form.eventzip} onChange={handleChange} />
+
+          <label htmlFor="eventdescription">About this event (shown as the write-up on the event page):</label>
+          <textarea
+            name="eventdescription"
+            placeholder="Tell attendees what this event is about, what to expect, guests of honor, etc. Separate paragraphs with a blank line."
+            value={form.eventdescription}
+            onChange={handleChange}
+            rows={8}
+          />
+
           <label htmlFor="eventimage">Event Photo:</label>
           <input type="file" name="eventimage" onChange={handleImageChange} />
 
@@ -449,8 +524,64 @@ const ManageEvent = () => {
           <canvas ref={canvasRef} style={{ display: "none" }} />
           <br />
 
+          <label htmlFor="eventcosplanimage">
+            Custom "Cosplans" graphic background (optional — leave blank to use the default MidwestCosplay Club template):
+          </label>
+          <input type="file" name="eventcosplanimage" accept="image/*" onChange={handleCosplanImageChange} />
+
+          {currentCosplanImage && !cosplanImagePreview && (
+            <div>
+              <h3>Current custom background:</h3>
+              <img
+                src={currentCosplanImage}
+                alt="Current cosplan template background"
+                style={{ width: "220px", borderRadius: "10px" }}
+              />
+            </div>
+          )}
+          {cosplanImagePreview && (
+            <div>
+              <h3>New background preview:</h3>
+              <img
+                src={cosplanImagePreview}
+                alt="New cosplan template background preview"
+                style={{ width: "220px", borderRadius: "10px" }}
+              />
+            </div>
+          )}
+
           <button type="submit">{isEditing ? "Save Changes" : "Add Event"}</button>
         </form>
+
+        {isEditing && (
+          <div className="event-preview-section" style={{ marginTop: "2rem" }}>
+            <h2>Preview — this is what attendees see on the public event page</h2>
+
+            <EventInfo
+              event={{
+                eventname: form.eventname,
+                eventcity: form.eventcity,
+                eventstate: form.eventstate,
+                eventvenue: form.eventvenue,
+                eventaddress: form.eventaddress,
+                eventzip: form.eventzip,
+                eventstartdate: form.eventstartdate,
+                eventenddate: form.eventenddate,
+                eventstarttime: form.eventstarttime,
+                eventendtime: form.eventendtime,
+                eventwebsite: form.eventwebsite,
+                eventdescription: form.eventdescription,
+              }}
+            />
+
+            <h3 style={{ marginTop: "1.5rem" }}>Shareable "Cosplans" graphic</h3>
+            <EventCosplanCard
+              eventid={eventid}
+              eventname={form.eventname}
+              templateImageUrl={cosplanImagePreview || currentCosplanImage || null}
+            />
+          </div>
+        )}
 
         {isEditing && (
           <div className="event-members-section">
