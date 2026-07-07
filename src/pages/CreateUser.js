@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Footer from "../Footer";
@@ -365,6 +365,12 @@ const CreateUser = () => {
         <br></br>
         <button type="submit">Add</button>
       </form>      
+      <p style={{ marginTop: "1rem", fontSize: "0.9rem" }}>
+        Already have an account?{" "}
+        <Link to={eventId ? `/login?eventid=${eventId}` : "/login"}>
+          Log in
+        </Link>
+      </p>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <canvas ref={canvasRef} style={{ display: "none" }} />
