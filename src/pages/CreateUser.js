@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState, useRef, useCallback, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Footer from "../Footer";
@@ -37,7 +37,17 @@ const CreateUser = () => {
   const imageRef = useRef(null);
   const canvasRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const apiUrl = process.env.REACT_APP_API_URL;
+
+  // If this page was reached via an NFC tag / QR code like
+  // /createuser?eventid=858, remember the event so we can automatically
+  // mark the new account as having attended it once signup completes.
+  const eventId = (() => {
+    const raw = new URLSearchParams(location.search).get("eventid");
+    const parsed = parseInt(raw, 10);
+    return Number.isInteger(parsed) ? parsed : null;
+  })();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -208,6 +218,21 @@ const CreateUser = () => {
 
       localStorage.setItem("token", token);
 
+      // If they scanned an NFC tag with an eventid on it, mark them as
+      // having attended that event. This should never block account
+      // creation from succeeding, so failures here are just logged.
+      if (eventId) {
+        try {
+          await axios.post(
+            `${apiUrl}/events/${eventId}/members`,
+            { userid: newUserID },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+        } catch (attendanceErr) {
+          console.error("Could not auto-mark event attendance:", attendanceErr);
+        }
+      }
+
       navigate(`/update/${newUserID}`);
     } catch (err) {
       console.error("API Error:", err);
@@ -286,6 +311,12 @@ const CreateUser = () => {
           onChange={handleChange}
         />
         <input type="file" accept="image/*" onChange={handleImageChange} />
+
+        {eventId && (
+          <p style={{ fontSize: "0.9rem", opacity: 0.8 }}>
+            You'll automatically be added as an attendee for this event once your account is created.
+          </p>
+        )}
 
         {imageSrc && showCrop && (
           <div className="crop-popup">
