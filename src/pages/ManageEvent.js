@@ -463,6 +463,20 @@ const ManageEvent = () => {
             value={form.eventdescription}
             onChange={handleChange}
             rows={8}
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              minHeight: "180px",
+              padding: "0.75rem 1rem",
+              borderRadius: "10px",
+              border: "1px solid var(--color-border-tertiary, rgba(255,255,255,0.2))",
+              background: "var(--color-background-secondary, rgba(255,255,255,0.06))",
+              color: "var(--color-text-primary, #ffffff)",
+              fontFamily: "inherit",
+              fontSize: "1rem",
+              lineHeight: 1.5,
+              resize: "vertical",
+            }}
           />
 
           <label htmlFor="eventimage">Event Photo:</label>
