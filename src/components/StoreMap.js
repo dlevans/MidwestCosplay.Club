@@ -259,7 +259,7 @@ const StoreMap = () => {
     </div>
   );
 
-  // ── Send-to-phone helpers ──────────────────────────────────────────────────
+  // ── Open in Maps helpers ──────────────────────────────────────────────────
   const routeStores = roadTripMode && selectedList.length > 0
     ? selectedList
     : allFilteredWithAddress;
@@ -306,7 +306,7 @@ const StoreMap = () => {
             {roadTripMode ? "🗺️ Picking stops…" : "🗺️ Plan a Road Trip"}
           </button>
 
-          {/* Send-to-phone dropdown */}
+          {/* Open in Maps dropdown */}
           <div className="sm-send-wrapper" ref={sendMenuRef}>
             <button
               className="sm-send-btn"
