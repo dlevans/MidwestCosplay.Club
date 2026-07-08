@@ -351,7 +351,7 @@ const StoreMap = () => {
         {roadTripMode && (
           <p className="sm-trip-hint">
             {selectedList.length === 0
-              ? "Check the boxes on store cards to build your route, then tap Send to Phone."
+              ? "Check the boxes on store cards to build your route, then tap Open in Maps."
               : `${selectedList.length} stop${selectedList.length !== 1 ? "s" : ""} selected: ${selectedList.map((s) => s.storename).join(" → ")}`}
           </p>
         )}
