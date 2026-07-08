@@ -419,7 +419,7 @@ const StoreMap = () => {
               disabled={locState === "requesting"}
               title="Center map on your location"
             >
-              {locState === "requesting" ? "⏳" : "📍"}
+              {locState === "requesting" ? "⏳ Requesting..." : "📍 Center map on your location."}
             </button>
 
             {locState === "denied" && (
