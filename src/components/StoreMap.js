@@ -313,7 +313,7 @@ const StoreMap = () => {
               onClick={() => setSendMenuOpen((v) => !v)}
               disabled={routeStores.length === 0}
             >
-              📲 Send to Phone
+              💻 Open in Maps
               {roadTripMode && selectedList.length > 0 && (
                 <span className="sm-badge">{selectedList.length}</span>
               )}
