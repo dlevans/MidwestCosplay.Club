@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  faBars,  faTimes,  faGamepad,  faSearch,  faUsers,  faPeopleGroup,  faUserPlus,
   faPersonCircleCheck,  faTicketSimple,  faPersonDotsFromLine,  faPersonChalkboard,  faRightFromBracket,
-  faRuler,  faScroll,  faMap,  faChevronDown,  faGear,  faGraduationCap,
+  faRuler,  faScroll,  faMap,  faChevronDown,  faGear,  faGraduationCap,  faListCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import { faReddit, faDiscord, faFortAwesomeAlt } from "@fortawesome/free-brands-svg-icons";
 
@@ -196,6 +196,12 @@ function Nav() {
                 <NavLink className="nav-link" to="/calendar" onClick={closeMenu}>
                   <FontAwesomeIcon icon={faPersonChalkboard} />
                   <span className="link-text">Calendar</span>
+                </NavLink>
+              </li>
+              <li>
+                <NavLink className="nav-link" to="/scavengerhunt" onClick={closeMenu}>
+                  <FontAwesomeIcon icon={faListCheck} />
+                  <span className="link-text">Scavenger Hunt</span>
                 </NavLink>
               </li>
             </ul>
