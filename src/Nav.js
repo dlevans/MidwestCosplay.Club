@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  faBars,  faTimes,  faGamepad,  faSearch,  faUsers,  faPeopleGroup,  faUserPlus,
   faPersonCircleCheck,  faTicketSimple,  faPersonDotsFromLine,  faPersonChalkboard,  faRightFromBracket,
   faRuler,  faScroll,  faMap,  faChevronDown,  faGear,  faGraduationCap,  faListCheck,
+  faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
 import { faReddit, faDiscord, faFortAwesomeAlt } from "@fortawesome/free-brands-svg-icons";
 
@@ -200,7 +201,7 @@ function Nav() {
               </li>
               <li>
                 <NavLink className="nav-link" to="/MOTD" onClick={closeMenu}>
-                  <FontAwesomeIcon icon={faListCheck} />
+                  <FontAwesomeIcon icon={faEnvelope} />
                   <span className="link-text">Today's Message</span>
                 </NavLink>
               </li>
