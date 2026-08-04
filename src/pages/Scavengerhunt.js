@@ -377,11 +377,42 @@ const ScavengerHunt = () => {
           )}
         </div>
 
-        {/* Crop modal — same pattern as CreateUser.js / Update.js */}
+        {/* Crop modal — same pattern as CreateUser.js / Update.js, but sized
+            with explicit inline styles so it stays bounded regardless of
+            how large the source photo is (phone camera photos can be huge). */}
         {imageSrc && cropTargetId && (
           <div className="crop-popup">
-            <div className="popup-overlay" onClick={closeCropModal} />
-            <div className="crop-container">
+            <div
+              className="popup-overlay"
+              onClick={closeCropModal}
+              style={{
+                position: "fixed",
+                inset: 0,
+                background: "rgba(0, 0, 0, 0.75)",
+                zIndex: 1000,
+              }}
+            />
+            <div
+              className="crop-container"
+              style={{
+                position: "fixed",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                zIndex: 1001,
+                background: "#1a1030",
+                border: "1px solid #7b4fa6",
+                borderRadius: "12px",
+                padding: "1rem",
+                maxWidth: "90vw",
+                maxHeight: "90vh",
+                overflow: "auto",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                boxSizing: "border-box",
+              }}
+            >
               <ReactCrop
                 src={imageSrc}
                 crop={crop}
@@ -394,7 +425,7 @@ const ScavengerHunt = () => {
                   ref={imageRef}
                   src={imageSrc}
                   alt="Crop preview"
-                  style={{ maxWidth: "100%", maxHeight: "80vh" }}
+                  style={{ maxWidth: "min(80vw, 500px)", maxHeight: "50vh", display: "block" }}
                 />
               </ReactCrop>
 
@@ -403,7 +434,7 @@ const ScavengerHunt = () => {
                   <img
                     src={croppedPreviewUrl}
                     alt="Cropped preview"
-                    style={{ width: "120px", height: "120px", borderRadius: "10px", objectFit: "cover" }}
+                    style={{ width: "100px", height: "100px", borderRadius: "10px", objectFit: "cover" }}
                   />
                 </div>
               )}
