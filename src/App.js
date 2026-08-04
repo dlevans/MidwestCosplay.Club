@@ -39,7 +39,7 @@ import StoreMap  from "./components/StoreMap";
 import AddStore  from "./components/AddStore";
 import HackingGame from "./games/HackingGame";
 import SigilStrike from "./games/SigilStrike";
-
+import ScavengerHunt from "./pages/Scavengerhunt";
 
 function App() {
   const navigate = useNavigate();
@@ -91,6 +91,7 @@ function App() {
           <Route path="/sigilstrike" element = {<SigilStrike />} />
           <Route path="/protected" element={<Protected />} />
           <Route path="/motd" element={<MOTD />} />
+          <Route path="/scavengerhunt" element={<ScavengerHunt />} />
           <Route path="/public/event/:eventid" element={<PublicEvent />} />
           <Route path="/public/group/:groupid" element={<PublicGroup />} />
           <Route path="/public/:username" element={<Public />} />
