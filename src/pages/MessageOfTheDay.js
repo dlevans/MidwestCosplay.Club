@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Footer from "../Footer";
 import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
@@ -40,6 +40,27 @@ const MOTD = () => {
             Tell me what you'd like added or updated.
           </p>
         </div>
+
+        <div
+          style={{
+            border: "1px solid #7b4fa6",
+            borderRadius: "10px",
+            padding: "1rem",
+            margin: "1.5rem 0",
+            maxWidth: "500px",
+          }}
+        >
+          <h3 style={{ marginTop: 0 }}>🎯 Planet Anime Scavenger Hunt</h3>
+          <p style={{ fontSize: "0.92rem" }}>
+            Complete tasks around Planet Anime in Kansas City for a chance to
+            win. Your progress saves as you go, so you can pick up right
+            where you left off on any device.
+          </p>
+          <Link to="/scavengerhunt">
+            <button type="button">Start the hunt</button>
+          </Link>
+        </div>
+
         <Footer />
       </div>
     </div>
