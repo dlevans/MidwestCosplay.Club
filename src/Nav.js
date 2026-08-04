@@ -199,9 +199,9 @@ function Nav() {
                 </NavLink>
               </li>
               <li>
-                <NavLink className="nav-link" to="/scavengerhunt" onClick={closeMenu}>
+                <NavLink className="nav-link" to="/MOTD" onClick={closeMenu}>
                   <FontAwesomeIcon icon={faListCheck} />
-                  <span className="link-text">Scavenger Hunt</span>
+                  <span className="link-text">Today's Message</span>
                 </NavLink>
               </li>
             </ul>
