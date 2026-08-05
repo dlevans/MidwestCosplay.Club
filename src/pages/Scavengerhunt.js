@@ -231,6 +231,7 @@ const ScavengerHunt = () => {
 
   const completedCount = items.filter((i) => i.completed).length;
   const totalCount = items.length;
+  const earnedPoints = items.reduce((sum, i) => sum + (i.completed ? (i.points || 0) : 0), 0);
 
   return (
     <div className="page-home">
@@ -264,7 +265,7 @@ const ScavengerHunt = () => {
                 />
               </div>
               <p style={{ fontSize: "0.85rem", marginTop: "0.4rem", opacity: 0.85, textAlign: "center" }}>
-                {completedCount} / {totalCount} complete
+                {completedCount} / {totalCount} complete &middot; {earnedPoints} pts
                 {completedCount === totalCount ? " — you finished the hunt! \uD83C\uDF89" : ""}
               </p>
             </div>
@@ -309,6 +310,22 @@ const ScavengerHunt = () => {
                         </span>
                       )}
                       <strong style={{ fontSize: "1.05rem" }}>{item.title}</strong>
+                      {typeof item.points === "number" && (
+                        <span
+                          style={{
+                            marginLeft: "auto",
+                            fontSize: "0.78rem",
+                            fontWeight: 600,
+                            color: "#7b4fa6",
+                            background: "rgba(123, 79, 166, 0.15)",
+                            borderRadius: "999px",
+                            padding: "0.15rem 0.6rem",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {item.points} pts
+                        </span>
+                      )}
                     </div>
 
                     <p style={{ margin: "0.4rem 0 0.75rem", fontSize: "0.92rem", opacity: 0.9 }}>

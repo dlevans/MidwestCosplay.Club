@@ -92,6 +92,13 @@ const Games = () => {
     GAMES.reduce((acc, { key }) => ({ ...acc, [key]: null }), {})
   );
 
+  // Scavenger hunt leaderboard is fetched separately — it comes from
+  // huntprogress via /api/hunt/leaderboard, not from game_scores like the
+  // arcade games above.
+  const [huntLeaderboard, setHuntLeaderboard] = useState([]);
+  const [huntLoading, setHuntLoading] = useState(true);
+  const [huntError, setHuntError] = useState(null);
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -115,6 +122,23 @@ const Games = () => {
     };
 
     GAMES.forEach(({ key }) => fetchLeaderboard(key));
+
+    const fetchHuntLeaderboard = async () => {
+      try {
+        const res = await fetch(`https://midwestcosplayclubapi-1.onrender.com/api/hunt/leaderboard`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        setHuntLeaderboard(data);
+      } catch (err) {
+        setHuntError(err.message);
+      } finally {
+        setHuntLoading(false);
+      }
+    };
+
+    fetchHuntLeaderboard();
   }, [navigate]);
 
   return (
@@ -158,6 +182,30 @@ const Games = () => {
               </div>
             </div>
           ))}
+
+          <div className="game-card">
+            <div className="game-card-top">
+              <span className="game-icon" aria-hidden="true">🗺️</span>
+              <div>
+                <h2 className="game-title">Scavenger Hunt</h2>
+                <p className="game-desc">Explore Planet Anime, complete the tasks, rack up points.</p>
+              </div>
+            </div>
+
+            <Link to="/scavengerhunt" className="game-play-btn">
+              Join the Fun
+            </Link>
+
+            <div className="leaderboard">
+              <h3 className="lb-heading">Top 10</h3>
+              <LeaderboardTable
+                game="scavengerhunt"
+                scores={huntLeaderboard}
+                loading={huntLoading}
+                error={huntError}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
