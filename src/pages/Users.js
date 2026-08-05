@@ -59,6 +59,24 @@ const Users = () => {
     fetchAllUsers();
   }, [navigate, token, limit, page, apiUrl]);
 
+  const handleDelete = async (userId, username) => {
+    const confirmed = window.confirm(
+      `Delete "${username}"? This permanently removes their account and all of their tutorials, stores, templates, groups, and other content. This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`${apiUrl}/users/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+      setTotalUsers((prev) => prev - 1);
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to delete user.");
+    }
+  };
+
   const totalPages = Math.ceil(totalUsers / limit);
 
   const PaginationBar = () => (
@@ -117,6 +135,14 @@ const Users = () => {
             <Link to={`/public/${user.username}`}>
               <button className="button">View profile</button>
             </Link>
+            {isAdmin && user.id !== loggedInUserId && (
+              <button
+                className="button button-danger"
+                onClick={() => handleDelete(user.id, user.username)}
+              >
+                Delete
+              </button>
+            )}
           </div>
         ))}
         
