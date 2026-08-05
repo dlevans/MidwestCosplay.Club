@@ -93,8 +93,9 @@ const Games = () => {
   );
 
   // Scavenger hunt leaderboard is fetched separately — it comes from
-  // huntprogress via /api/hunt/leaderboard, not from game_scores like the
-  // arcade games above.
+  // huntprogress via /hunt/leaderboard (the hunt router is mounted at
+  // /hunt in index.js, not under /api like the scores router), not from
+  // game_scores like the arcade games above.
   const [huntLeaderboard, setHuntLeaderboard] = useState([]);
   const [huntLoading, setHuntLoading] = useState(true);
   const [huntError, setHuntError] = useState(null);
@@ -125,7 +126,7 @@ const Games = () => {
 
     const fetchHuntLeaderboard = async () => {
       try {
-        const res = await fetch(`https://midwestcosplayclubapi-1.onrender.com/api/hunt/leaderboard`, {
+        const res = await fetch(`https://midwestcosplayclubapi-1.onrender.com/hunt/leaderboard`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch");
