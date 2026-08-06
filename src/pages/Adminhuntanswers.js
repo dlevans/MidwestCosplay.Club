@@ -165,6 +165,12 @@ const AdminHuntAnswers = () => {
                             </span>
                           </div>
 
+                          {entry.description && (
+                            <p style={{ margin: "0.35rem 0 0", fontSize: "0.85rem", opacity: 0.8 }}>
+                              {entry.description}
+                            </p>
+                          )}
+
                           {entry.requirestext && (
                             <p style={{ margin: "0.5rem 0 0", fontSize: "0.88rem" }}>
                               <span style={{ opacity: 0.75 }}>
