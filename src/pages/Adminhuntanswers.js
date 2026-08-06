@@ -19,6 +19,7 @@ const AdminHuntAnswers = () => {
   const apiUrl = process.env.REACT_APP_API_URL;
 
   const [users, setUsers] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
@@ -37,7 +38,10 @@ const AdminHuntAnswers = () => {
       .get(`${apiUrl}/hunt/admin/all`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => setUsers(res.data.users || []))
+      .then((res) => {
+        setUsers(res.data.users || []);
+        setTotalCount(res.data.totalCount || 0);
+      })
       .catch((err) => {
         console.error("Error fetching hunt admin data:", err);
         setError("Could not load scavenger hunt answers.");
@@ -128,7 +132,7 @@ const AdminHuntAnswers = () => {
                     </span>
                     <span style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                       <span style={{ fontSize: "0.85rem", opacity: 0.85 }}>
-                        {completedEntries.length}/{user.entries.length} done · {totalPoints} pts
+                        {completedEntries.length}/{totalCount} done · {totalPoints} pts
                       </span>
                       <span aria-hidden="true">{isOpen ? "▲" : "▼"}</span>
                     </span>
