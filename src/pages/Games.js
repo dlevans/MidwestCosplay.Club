@@ -42,6 +42,12 @@ const GAMES = [
   },
 ];
 
+const getPayload = (token) => {
+  try {
+    return token ? JSON.parse(atob(token.split(".")[1])) : null;
+  } catch { return null; }
+};
+
 const LeaderboardTable = ({ game, scores, loading, error }) => {
   if (loading) {
     return (
@@ -99,6 +105,8 @@ const Games = () => {
   const [huntLeaderboard, setHuntLeaderboard] = useState([]);
   const [huntLoading, setHuntLoading] = useState(true);
   const [huntError, setHuntError] = useState(null);
+
+  const isAdmin = !!getPayload(localStorage.getItem("token"))?.is_admin;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -198,7 +206,14 @@ const Games = () => {
             </Link>
 
             <div className="leaderboard">
-              <h3 className="lb-heading">Top 10</h3>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
+                <h3 className="lb-heading">Top 10</h3>
+                {isAdmin && (
+                  <Link to="/admin/hunt-answers" className="admin-hunt-link" style={{ fontSize: "0.8rem" }}>
+                    View all answers →
+                  </Link>
+                )}
+              </div>
               <LeaderboardTable
                 game="scavengerhunt"
                 scores={huntLeaderboard}
