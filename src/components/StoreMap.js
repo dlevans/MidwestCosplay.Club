@@ -271,7 +271,7 @@ const StoreMap = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club — Fabric &amp; Craft Stores</title>
+        <title data-rh="true">Fabric &amp; Craft Store Map — Midwest Cosplay Club</title>
         <meta
           name="description"
           content="Community-sourced fabric, art supply, bead, and craft stores across the Midwest."

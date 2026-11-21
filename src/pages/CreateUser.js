@@ -258,8 +258,8 @@ const CreateUser = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Create new</title>
-        <meta name="description" content="Page to create new MidwestCosplay Club members." />
+        <title data-rh="true">Join Midwest Cosplay Club</title>
+        <meta name="description" content="Create a free Midwest Cosplay Club account to connect with cosplayers, join groups, and share your events." />
       </Helmet>      
       <EnchantedBackground />
 

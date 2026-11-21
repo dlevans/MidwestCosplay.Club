@@ -9,8 +9,8 @@ function ElectricalMeasurements() {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Electrical Measurements</title>
-        <meta name="description" content="Electrical measuring tool." />
+        <title data-rh="true">Cosplay Electronics Calculators — Midwest Cosplay Club</title>
+        <meta name="description" content="Resistor color code and resistance calculators for wiring LEDs and electronics in cosplay props and armor." />
       </Helmet>
       <EnchantedBackground />
 

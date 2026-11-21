@@ -16,8 +16,8 @@ const Snake = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Snake — MidwestCosplay Club</title>
-        <meta name="description" content="Snake game for MidwestCosplay Club members." />
+        <title data-rh="true">Snake — Midwest Cosplay Club</title>
+        <meta name="description" content="Play Snake in your browser on Midwest Cosplay Club." />
       </Helmet>
       <EnchantedBackground />
       <div className="home-content">

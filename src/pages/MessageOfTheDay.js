@@ -19,8 +19,8 @@ const MOTD = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Message Of The Day</title>
-        <meta name="description" content="Message of the day." />
+        <title data-rh="true">Message of the Day — Midwest Cosplay Club</title>
+        <meta name="description" content="Today's message for the Midwest Cosplay Club community." />
       </Helmet>
       <EnchantedBackground />
 

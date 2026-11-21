@@ -63,7 +63,7 @@ function ResistanceCalculator() {
   return (
     <div className="theme-card calculator-card">
       <Helmet>
-        <title data-rh="true">Resistance Calculator</title>
+        <title data-rh="true">Resistance Calculator — Midwest Cosplay Club</title>
         <meta name="description" content="Electronic measuring page for calculating resistance." />
       </Helmet>
       <h2>

@@ -31,6 +31,7 @@ import BodyMeasurements from "./pages/BodyMeasurements";
 import ShapeMeasurements from "./pages/ShapeMeasurements";
 import ElectricalMeasurements from "./pages/ElectricalMeasurements";
 import AnalyticsTracker from './components/AnalyticsTracker';
+import SeoTags from './components/SeoTags';
 import AddTutorial from "./pages/Addtutorial";
 import AddTemplate from "./pages/Addtemplate";
 import Templates from "./pages/Template";
@@ -78,6 +79,7 @@ function App() {
       <ErrorBoundary>
         {/* The tracker must live inside the BrowserRouter context */}
       <AnalyticsTracker />
+      <SeoTags />
         <Routes>          
           <Route path="/createuser" element={<CreateUser />} />
           <Route path="/login" element={<Login />} />

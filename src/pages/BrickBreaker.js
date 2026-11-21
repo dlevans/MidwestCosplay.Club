@@ -16,8 +16,8 @@ const BrickBreaker = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Brick Breaker — MidwestCosplay Club</title>
-        <meta name="description" content="Brick Breaker game for MidwestCosplay Club members." />
+        <title data-rh="true">Brick Breaker — Midwest Cosplay Club</title>
+        <meta name="description" content="Play Brick Breaker in your browser on Midwest Cosplay Club." />
       </Helmet>
       <EnchantedBackground />
       <div className="home-content">

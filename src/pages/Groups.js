@@ -97,8 +97,8 @@ const Groups = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club Groups</title>
-        <meta name="description" content="Group landing page for MidwestCosplay Club members." />
+        <title data-rh="true">Cosplay Groups — Midwest Cosplay Club</title>
+        <meta name="description" content="Find and join cosplay groups across the Midwest." />
       </Helmet>      
       <EnchantedBackground />
 

@@ -57,8 +57,8 @@ const Login = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club Login</title>
-        <meta name="description" content="Login page for MidwestCosplay Club members." />
+        <title data-rh="true">Log In — Midwest Cosplay Club</title>
+        <meta name="description" content="Log in to your Midwest Cosplay Club account." />
       </Helmet>
       <EnchantedBackground />
 

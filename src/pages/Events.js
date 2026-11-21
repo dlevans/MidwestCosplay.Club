@@ -145,8 +145,8 @@ const Events = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club Events</title>
-        <meta name="description" content="Event landing page for MidwestCosplay Club members." />
+        <title data-rh="true">Cosplay Events — Midwest Cosplay Club</title>
+        <meta name="description" content="Cosplay conventions, meetups, and photoshoots across the Midwest." />
       </Helmet>
       <EnchantedBackground />
 

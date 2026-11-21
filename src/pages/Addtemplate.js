@@ -238,9 +238,7 @@ const AddTemplate = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">
-          {isEditing ? "Edit Template" : "Add a Template"} — MidwestCosplay Club
-        </title>
+        <title data-rh="true">{`${isEditing ? "Edit Template" : "Add a Template"} — Midwest Cosplay Club`}</title>
         <meta name="description" content="Share a cosplay pattern or template link with the MidwestCosplay Club community." />
       </Helmet>
       <EnchantedBackground />

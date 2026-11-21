@@ -362,7 +362,7 @@ const ManageGroup = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club Manage Groups</title>
+        <title data-rh="true">Manage Group — Midwest Cosplay Club</title>
         <meta name="description" content="Group management page for MidwestCosplay Club members." />
       </Helmet>
       <EnchantedBackground />

@@ -7,8 +7,9 @@ const PageNotFound = () => {
   return (
   <div className="page">
       <Helmet>
-        <title data-rh="true">PageNotFound</title>
-        <meta name="description" content="404 Error page." />
+        <title data-rh="true">Page Not Found — Midwest Cosplay Club</title>
+        <meta name="description" content="The page you were looking for could not be found." />
+        <meta name="robots" content="noindex" />
       </Helmet>
     <br />
     <br />

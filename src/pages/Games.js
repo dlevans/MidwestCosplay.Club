@@ -153,7 +153,7 @@ const Games = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club — Games</title>
+        <title data-rh="true">Games — Midwest Cosplay Club</title>
         <meta name="description" content="Arcade games and leaderboards for MidwestCosplay Club members." />
       </Helmet>
       <EnchantedBackground />

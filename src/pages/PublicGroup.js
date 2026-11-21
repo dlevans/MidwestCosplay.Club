@@ -138,8 +138,8 @@ const PublicGroup = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Public Groups</title>
-        <meta name="description" content="Public group listing page." />
+        <title data-rh="true">{`${group.groupname} — Midwest Cosplay Club`}</title>
+        <meta name="description" content={`${group.groupname}, a cosplay group in ${group.groupcity}, ${group.groupstate}. See members and links on Midwest Cosplay Club.`} />
       </Helmet>
       <EnchantedBackground />
 

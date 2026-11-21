@@ -108,7 +108,7 @@ const PublicEvent = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">{event.eventname} — MidwestCosplay</title>
+        <title data-rh="true">{`${event.eventname} — Midwest Cosplay Club`}</title>
         <meta name="description" content={`${event.eventname} in ${event.eventcity}, ${event.eventstate}`} />
       </Helmet>
       <EnchantedBackground />

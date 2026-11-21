@@ -234,9 +234,7 @@ const AddTutorial = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">
-          {isEditing ? "Edit Tutorial" : "Add a Tutorial"} — MidwestCosplay Club
-        </title>
+        <title data-rh="true">{`${isEditing ? "Edit Tutorial" : "Add a Tutorial"} — Midwest Cosplay Club`}</title>
         <meta name="description" content="Share a cosplay tutorial link with the MidwestCosplay Club community." />
       </Helmet>
       <EnchantedBackground />

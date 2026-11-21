@@ -180,7 +180,7 @@ const AddStore = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">{isEditing ? "Edit Store" : "Add a Store"} — MidwestCosplay Club</title>
+        <title data-rh="true">{isEditing ? "Edit Store" : "Add a Store"} — Midwest Cosplay Club</title>
       </Helmet>
       <EnchantedBackground />
 

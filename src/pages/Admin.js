@@ -80,7 +80,7 @@ const Admin = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Admin Panel</title>
+        <title data-rh="true">Admin Panel — Midwest Cosplay Club</title>
         <meta name="description" content="Admin management for MidwestCosplay Club." />
       </Helmet>
       <EnchantedBackground />

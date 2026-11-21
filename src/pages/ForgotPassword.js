@@ -37,8 +37,8 @@ const ForgotPassword = () => {
   return (
     <div className="page">
       <Helmet>
-        <title data-rh="true">Forgot password</title>
-        <meta name="description" content="Reset password for MidwestCosplay Members." />
+        <title data-rh="true">Forgot Password — Midwest Cosplay Club</title>
+        <meta name="description" content="Reset the password for your Midwest Cosplay Club account." />
       </Helmet>
       <form onSubmit={handleSubmit}>
         <div>

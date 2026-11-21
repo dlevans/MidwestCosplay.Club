@@ -100,8 +100,8 @@ const Users = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Users Page</title>
-        <meta name="description" content="List users page for MidwestCosplay Club." />
+        <title data-rh="true">Cosplayers — Midwest Cosplay Club</title>
+        <meta name="description" content="Browse cosplayers in the Midwest Cosplay Club community." />
       </Helmet>
       <EnchantedBackground />
 

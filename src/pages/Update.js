@@ -407,7 +407,7 @@ const Update = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Update user</title>
+        <title data-rh="true">Edit Profile — Midwest Cosplay Club</title>
         <meta name="description" content="Update and add user details." />
       </Helmet>
       <EnchantedBackground />

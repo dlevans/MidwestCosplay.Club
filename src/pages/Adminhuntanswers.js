@@ -60,7 +60,7 @@ const AdminHuntAnswers = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Scavenger Hunt Answers — Admin</title>
+        <title data-rh="true">Scavenger Hunt Answers — Admin — Midwest Cosplay Club</title>
         <meta name="description" content="Admin review of scavenger hunt submissions." />
       </Helmet>
       <EnchantedBackground />

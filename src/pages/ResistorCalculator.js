@@ -81,7 +81,7 @@ export default function ResistorCalculator() {
   return (
     <div className="theme-card calculator-card">
       <Helmet>
-        <title data-rh="true">Resistor Calculator</title>
+        <title data-rh="true">Resistor Color Code Calculator — Midwest Cosplay Club</title>
         <meta name="description" content="Electronic measuring page for calculating resistor values by color." />
       </Helmet>
       <h2>

@@ -426,7 +426,7 @@ function Search() {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Search — MidwestCosplay Club</title>
+        <title data-rh="true">Search — Midwest Cosplay Club</title>
         <meta name="description" content="Search members, groups, tutorials, and templates on MidwestCosplay Club." />
       </Helmet>
       <EnchantedBackground />

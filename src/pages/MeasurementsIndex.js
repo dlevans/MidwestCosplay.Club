@@ -34,8 +34,8 @@ function MeasurementsIndex() {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Measurments</title>
-        <meta name="description" content="Measurements landing page for Midwest Cosplay Club members." />
+        <title data-rh="true">Cosplay Measurement Tools — Midwest Cosplay Club</title>
+        <meta name="description" content="Free cosplay measurement tools: body measurement and sizing chart, shape and area calculator, and electronics calculators for props." />
       </Helmet>
       <EnchantedBackground />
 

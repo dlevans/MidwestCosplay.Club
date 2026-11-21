@@ -10,8 +10,8 @@ function ShapeMeasurements() {
 
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Shape Measurements</title>
-        <meta name="description" content="Shape measuring page for finding area and other calculations." />
+        <title data-rh="true">Shape &amp; Area Calculator for Cosplay — Midwest Cosplay Club</title>
+        <meta name="description" content="Calculate area, perimeter, and material needs for circles, rectangles, and other shapes when planning cosplay builds." />
       </Helmet>
       <EnchantedBackground />
 

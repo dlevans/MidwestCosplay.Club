@@ -20,8 +20,8 @@ const Calendar = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Midwest Cosplay Public Calendar</title>
-        <meta name="description" content="Event calendar for Midwest Cosplay Club" />
+        <title data-rh="true">Cosplay Events Calendar — Midwest Cosplay Club</title>
+        <meta name="description" content="Calendar of cosplay conventions, meetups, and events across the Midwest." />
       </Helmet>
       <EnchantedBackground />
 

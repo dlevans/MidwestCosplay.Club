@@ -199,8 +199,8 @@ const Templates = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club Templates</title>
-        <meta name="description" content="Cosplay pattern and template links shared by MidwestCosplay Club members." />
+        <title data-rh="true">Cosplay Patterns &amp; Templates — Midwest Cosplay Club</title>
+        <meta name="description" content="Free and paid cosplay sewing patterns, armor templates, and prop templates shared by the Midwest Cosplay Club community." />
       </Helmet>
       <EnchantedBackground />
 

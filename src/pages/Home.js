@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import Footer from "../Footer";
 import { Helmet } from 'react-helmet-async';
 import styles from "../styles";
@@ -307,8 +307,8 @@ const Home = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club Home</title>
-        <meta name="description" content="Home page for MidwestCosplay Club members." />
+        <title data-rh="true">Midwest Cosplay Club – Cosplay Community, Events &amp; Tutorials</title>
+        <meta name="description" content="Midwest Cosplay Club connects cosplayers across the Midwest. Find local cosplay events and meetups, groups, tutorials, patterns, measurement tools, and fabric stores." />
       </Helmet>
       <div className="home-bg-gradient" />
       <Starfield />
@@ -508,11 +508,11 @@ const Home = () => {
         {/* ── Feature cards ── */}
         <div className="home-features">
           {FEATURES.map(({ icon, title, desc, href }) => (
-            <div key={title} className="home-feature-card" onClick={() => navigate(href)} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && navigate(href)}>
+            <Link key={title} to={href} className="home-feature-card">
               <span className="home-feature-icon">{icon}</span>
               <div className="home-feature-title">{title}</div>
               <p className="home-feature-desc">{desc}</p>
-            </div>
+            </Link>
           ))}
         </div>
 

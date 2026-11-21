@@ -72,7 +72,7 @@ const Profile = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club Profile</title>
+        <title data-rh="true">Profile — Midwest Cosplay Club</title>
         <meta name="description" content="View profile page for members." />
       </Helmet>
       <EnchantedBackground />

@@ -200,7 +200,7 @@ function Nav() {
                 </NavLink>
               </li>
               <li>
-                <NavLink className="nav-link" to="/MOTD" onClick={closeMenu}>
+                <NavLink className="nav-link" to="/motd" onClick={closeMenu}>
                   <FontAwesomeIcon icon={faEnvelope} />
                   <span className="link-text">Today's Message</span>
                 </NavLink>

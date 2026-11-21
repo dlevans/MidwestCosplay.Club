@@ -407,7 +407,7 @@ const ManageEvent = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club Manage Events</title>
+        <title data-rh="true">Manage Event — Midwest Cosplay Club</title>
         <meta name="description" content="Event management page for MidwestCosplay Club members." />
       </Helmet>
       <EnchantedBackground />

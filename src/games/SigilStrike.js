@@ -213,7 +213,7 @@ const SigilStrike = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Sigil Strike — MidwestCosplay Club</title>
+        <title data-rh="true">Sigil Strike — Midwest Cosplay Club</title>
         <meta
           name="description"
           content="Strike the sigils before they fade. Avoid the cursed ones. How high can your score climb?"

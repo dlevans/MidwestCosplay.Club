@@ -97,8 +97,8 @@ function BodyMeasurements() {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Body Measurements</title>
-        <meta name="description" content="Cosplay Sizing & Body Measurement Tool" />
+        <title data-rh="true">Cosplay Body Measurement Chart &amp; Sizing Tool — Midwest Cosplay Club</title>
+        <meta name="description" content="Record and convert your body measurements for cosplay sewing and pattern sizing with this free measurement tool." />
       </Helmet>
       <EnchantedBackground />
 

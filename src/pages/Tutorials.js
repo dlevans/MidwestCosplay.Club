@@ -196,8 +196,8 @@ const Tutorials = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club Tutorials</title>
-        <meta name="MidwestCosplay Tutorials" content="Tutorial links shared by MidwestCosplay Club members." />
+        <title data-rh="true">Cosplay Tutorials — Midwest Cosplay Club</title>
+        <meta name="description" content="Cosplay tutorials for sewing, armor, foam, props, wigs, and makeup, shared by the Midwest Cosplay Club community." />
       </Helmet>
       <EnchantedBackground />
 

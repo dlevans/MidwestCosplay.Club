@@ -61,7 +61,7 @@ const FabricMap = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">MidwestCosplay Club — Fabric &amp; Craft Stores</title>
+        <title data-rh="true">Fabric &amp; Craft Store Map — Midwest Cosplay Club</title>
         <meta
           name="description"
           content="Find fabric, beads, sewing supplies, and crafting stores across Kansas City and the surrounding region."

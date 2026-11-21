@@ -236,8 +236,8 @@ const ScavengerHunt = () => {
   return (
     <div className="page-home">
       <Helmet>
-        <title data-rh="true">Planet Anime Scavenger Hunt</title>
-        <meta name="description" content="Planet Anime Kansas City scavenger hunt." />
+        <title data-rh="true">Planet Anime Scavenger Hunt — Midwest Cosplay Club</title>
+        <meta name="description" content="Join the Midwest Cosplay Club scavenger hunt at Planet Anime Kansas City." />
       </Helmet>
       <EnchantedBackground />
 
