@@ -6,18 +6,7 @@ RewriteCond %{REQUEST_URI} ^/static/ [OR]
 RewriteCond %{REQUEST_URI} \.(js|css|png|jpg|jpeg|gif|ico|svg|ttf|woff|woff2|eot|otf|mp4|webm|ogg|mp3|wav|json|txt|xml|webp|avif|map)$ [NC]
 RewriteRule ^ - [L]
 
-# Public pages with their text already in the HTML (made by scripts/prerender.js),
-# e.g. /tutorials -> pages/tutorials.html
-RewriteCond %{DOCUMENT_ROOT}/pages/$1.html -f
-RewriteRule ^([a-z]+)/?$ pages/$1.html [L]
-
-# Everything else goes to the React app (app.html is the plain build/index.html;
-# fall back to index.html if it's missing)
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{DOCUMENT_ROOT}/app.html -f
-RewriteRule ^ app.html [L]
-
+# Redirect everything else to index.html (React app entry point)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [L]
