@@ -1197,3 +1197,30 @@ a.home-feature-card { display: block; color: inherit; text-decoration: none; }
   color: #f87171;
   background: rgba(248, 113, 113, 0.08);
 }
+/* ── Privacy policy ── */
+.footer-link { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.privacy-content {
+  max-width: 760px; width: 100%; margin: 0 auto 2rem; padding: 0 1.25rem;
+  font-family: var(--font-elegant); font-size: 16px; line-height: 1.75; color: var(--home-cream-dim);
+  text-align: left; position: relative; z-index: 1;
+}
+.privacy-content h2 { font-family: var(--font-enchant); color: var(--home-gold-light); font-size: 1.25rem; letter-spacing: 1px; margin: 2rem 0 0.5rem; }
+.privacy-content strong { color: var(--home-cream); font-weight: 600; }
+.privacy-content a { color: var(--home-gold-light); text-decoration: underline; text-underline-offset: 3px; }
+.privacy-content ul { padding-left: 1.25rem; }
+.privacy-content li { margin-bottom: 0.5rem; }
+.privacy-date { opacity: 0.7; font-size: 14px; }
+
+/* ── Home: about the club ── */
+.home-about {
+  max-width: 860px; width: 100%; margin: 48px auto 0; padding: 0 1.25rem; position: relative; z-index: 1;
+  font-family: var(--font-elegant); font-size: 16px; font-weight: 300; line-height: 1.8; color: var(--home-cream-dim);
+  text-align: center;
+}
+.home-about-title { font-family: var(--font-enchant); color: var(--home-gold-light); font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 12px; }
+.home-about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin: 28px 0; text-align: left; }
+.home-about-item h3 { font-family: var(--font-enchant); font-size: 1.05rem; letter-spacing: 1px; margin: 0 0 6px; }
+.home-about-item h3 a { color: var(--home-cream); text-decoration: none; }
+.home-about-item h3 a:hover { color: var(--home-gold-light); }
+.home-about-item p { margin: 0; font-size: 15px; }
+.home-about a { color: var(--home-gold-light); }

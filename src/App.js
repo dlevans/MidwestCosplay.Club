@@ -42,6 +42,7 @@ import HackingGame from "./games/HackingGame";
 import SigilStrike from "./games/SigilStrike";
 import ScavengerHunt from "./pages/Scavengerhunt";
 import AdminHuntAnswers from "./pages/Adminhuntanswers";
+import Privacy from "./pages/Privacy";
 
 function App() {
   const navigate = useNavigate();
@@ -122,6 +123,7 @@ function App() {
           <Route path="/addtemplate"            element={<AddTemplate />} />
           <Route path="/addtemplate/:templateid" element={<AddTemplate />} />
           <Route path="/admin"            element={<Admin />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="/" element={<Home />} />
           <Route path="/*" element={<PageNotFound />} />
         </Routes>

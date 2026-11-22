@@ -155,6 +155,16 @@ const FEATURES = [
   { icon: "❋", title: "The Events",       desc: "From regional cons to local meetups — never miss a gathering near you.",               href: "/calendar" },
 ];
 
+/* ── What the site offers (shown to everyone, signed in or not) ── */
+const ABOUT = [
+  { title: "Tutorials",          href: "/tutorials",    text: "Step-by-step guides from the community on sewing, armor, foam, props, wigs, and makeup." },
+  { title: "Patterns & Templates", href: "/templates",  text: "Free and paid sewing patterns, armor templates, and prop templates, sorted by category." },
+  { title: "Measurement Tools",  href: "/measurements", text: "Save body measurements for pattern sizing, scale templates and props up or down, and work out resistor values for LED builds." },
+  { title: "Fabric & Craft Stores", href: "/storemap",  text: "A community-built map of fabric, bead, art supply, and craft stores across the Midwest." },
+  { title: "Events Calendar",    href: "/calendar",     text: "Conventions, meetups, and photoshoots around the region, all in one calendar." },
+  { title: "Groups",             href: "/groups",       text: "Find cosplay groups near you, or start one for your fandom or crew." },
+];
+
 /* ═══════════════════════════════════════════
    Main Home component
 ═══════════════════════════════════════════ */
@@ -162,10 +172,6 @@ const Home = () => {
   const { username } = useParams();
   const navigate     = useNavigate();
   const apiUrl       = process.env.REACT_APP_API_URL;
-
-  /* ── Existing data state (preserved) ── */
-  const [user,  setUser]  = useState(null);
-  const [error, setError] = useState(false);
 
   /* ── Session ── */
   const isLoggedIn       = Boolean(localStorage.getItem("token"));
@@ -187,18 +193,10 @@ const Home = () => {
   const loginBtnRef  = useRef(null);
   const signupBtnRef = useRef(null);
 
-  /* ── Fetch site data (existing logic preserved) ── */
+  /* ── Wake the API up early so sign-in is quick. The page doesn't wait for it,
+     so visitors and search engines always see the content right away. ── */
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await axios.get(`${apiUrl}/copyright`);
-        setUser(response.data || null);
-      } catch (err) {
-        console.error("Error fetching data: ", err);
-        setError(true);
-      }
-    };
-    fetchUser();
+    axios.get(`${apiUrl}/copyright`).catch(() => {});
   }, [username, apiUrl]);
 
   /* ── Auth handlers ──
@@ -283,25 +281,6 @@ const Home = () => {
   };
 
   const switchTab = (t) => { setTab(t); setAuthError(""); };
-
-  /* ── Loading / error states (existing patterns preserved) ── */
-  if (error) {
-    return (
-      <div className="page">
-        <p className="text-accent">
-          Something went wrong loading the page. Please try again later.
-        </p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="page">
-        <p className="text-muted">Loading…</p>
-      </div>
-    );
-  }
 
   /* ── Render ── */
   return (
@@ -515,6 +494,29 @@ const Home = () => {
             </Link>
           ))}
         </div>
+
+        {/* ── About the club ── */}
+        <section className="home-about">
+          <h2 className="home-about-title">What you'll find here</h2>
+          <p>
+            Midwest Cosplay Club is a free community for cosplayers in Kansas, Missouri, and across the
+            Midwest. Whether you sew, build armor, sculpt foam, style wigs, or wire up LEDs, it's a place to
+            meet other makers, find local events, and pick up new skills.
+          </p>
+          <div className="home-about-grid">
+            {ABOUT.map(({ title, text, href }) => (
+              <div key={title} className="home-about-item">
+                <h3><Link to={href}>{title}</Link></h3>
+                <p>{text}</p>
+              </div>
+            ))}
+          </div>
+          <p>
+            Members can build a cosplay profile to show off finished and in-progress costumes, link their
+            socials and shops, start or join groups, and post events. Come say hi on our{" "}
+            <a href="https://discord.gg/7BH7Hthuz6" target="_blank" rel="noopener noreferrer">Discord</a>.
+          </p>
+        </section>
 
       </div>{/* /home-content */}
 
