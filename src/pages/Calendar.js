@@ -1,22 +1,10 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import Footer from "../Footer";
 import { Helmet } from 'react-helmet-async';
 import EnchantedBackground from "./Enchantedbackground";
 
+// Public page: anyone can view the calendar without logging in.
 const Calendar = () => {
-  console.log("Calendar.js");
-    const navigate = useNavigate();
-    useEffect(() => {
-      const token = localStorage.getItem("token"); // Check if token exists in localStorage
-  
-      if (!token) {
-        // If no token, redirect to the login page
-        navigate("/login");
-        return;
-      }
-    }, [navigate]);  
-  
   return (
     <div className="page-home">
       <Helmet>

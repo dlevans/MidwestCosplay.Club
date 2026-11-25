@@ -74,15 +74,15 @@ const Events = () => {
   };
 
   const fetchEvents = useCallback(async () => {
-    if (!token) { navigate("/login"); return; }
     setLoading(true);
     try {
       const params = { limit, page };
       if (search.trim())         params.search = search.trim();
       if (activeStates.size > 0) params.state  = [...activeStates].join(",");
 
+      // The event list is public; send the token only when logged in.
       const response = await axios.get(`${apiUrl}/events`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
         params,
       });
       setEvents(response.data.events || []);
@@ -92,7 +92,7 @@ const Events = () => {
     } finally {
       setLoading(false);
     }
-  }, [navigate, token, apiUrl, limit, page, search, activeStates]);
+  }, [token, apiUrl, limit, page, search, activeStates]);
 
   useEffect(() => { fetchEvents(); }, [fetchEvents]);
 

@@ -42,12 +42,11 @@ const Groups = () => {
   const changeLimit = (n) => updateParams({ perpage: n, page: 1 }, { replace: true });
 
   useEffect(() => {
-    if (!token) { navigate("/login"); return; }
-
+    // The group list is public; send the token only when logged in.
     const fetchAllGroups = async () => {
       try {
         const response = await axios.get(`${apiUrl}/groups`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
           params: { limit, page },
         });
         setGroups(response.data.groups || []);
@@ -58,7 +57,7 @@ const Groups = () => {
     };
 
     fetchAllGroups();
-  }, [navigate, token, limit, page, apiUrl]);
+  }, [token, limit, page, apiUrl]);
 
   const handleDelete = async (groupid) => {
     if (!window.confirm("Remove this group from your site?")) return;

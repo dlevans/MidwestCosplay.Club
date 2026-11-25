@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -109,7 +109,6 @@ const FitBounds = ({ stores }) => {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 const StoreMap = () => {
-  const navigate = useNavigate();
   const token    = localStorage.getItem("token");
   const apiUrl   = process.env.REACT_APP_API_URL;
 
@@ -142,11 +141,6 @@ const StoreMap = () => {
   const [sendMenuOpen, setSendMenuOpen] = useState(false);
 
   const sendMenuRef = useRef(null);
-
-  // ── Auth guard ─────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (!token) navigate("/login");
-  }, [navigate, token]);
 
   // ── Close send-menu on outside click ──────────────────────────────────────
   useEffect(() => {
