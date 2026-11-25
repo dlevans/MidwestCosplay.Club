@@ -1,27 +1,10 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import AdSense from 'react-adsense';
+import { Link } from "react-router-dom";
 
-// AdSense only allows ads on pages with real content. Keep them off sign-in and
-// account forms, admin and edit pages, games, user profiles, and the 404 page.
-const AD_PAGES = [
-  "/tutorials",
-  "/templates",
-  "/measurements",
-  "/bodymeasurements",
-  "/shapemeasurements",
-  "/electricalmeasurements",
-  "/calendar",
-  "/events",
-  "/groups",
-  "/storemap",
-];
+// Ads come from AdSense Auto ads (the script in public/index.html), the same
+// setup as dustinevans.net. There are no hand-placed ad units on the site.
 
 function Footer() {
-  const { pathname } = useLocation();
-  const path = pathname.replace(/\/+$/, "").toLowerCase();
-  const showAd = AD_PAGES.includes(path);
-
   const today = new Date();
 
   return (
@@ -33,17 +16,6 @@ function Footer() {
         <br />
         <Link to="/privacy" className="footer-link">Privacy Policy</Link>
       </p>
-
-      {/* Ad banner */}
-      {showAd && (
-        <AdSense.Google
-          client="ca-pub-1147838882537189"
-          slot="1442467878"
-          style={{ display: 'block' }}
-          format="auto"
-          responsive="true"
-        />
-      )}
     </div>
   );
 }
